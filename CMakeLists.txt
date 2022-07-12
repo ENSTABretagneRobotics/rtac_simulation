@@ -10,6 +10,9 @@ if(NOT TARGET rtac_cuda)
 endif()
 
 list(APPEND rtac_simulation_headers
+    include/rtac_simulation/types.h
+    include/rtac_simulation/reductions.hcu
+    include/rtac_simulation/WaveSamples.h
 )
 
 add_library(rtac_simulation INTERFACE)
@@ -21,6 +24,7 @@ target_link_libraries(rtac_simulation INTERFACE
     rtac_cuda
 )
 target_compile_features(rtac_simulation INTERFACE cxx_std_17)
+rtac_install_target(rtac_simulation)
 
 add_subdirectory(tests)
     

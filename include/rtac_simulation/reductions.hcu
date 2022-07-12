@@ -1,0 +1,66 @@
+#ifndef _DEF_RTAC_SIMULATION_REDUCTIONS_H_
+#define _DEF_RTAC_SIMULATION_REDUCTIONS_H_
+
+#include <rtac_simulation/types.h>
+
+#include <rtac_simulation/WaveSamples.h>
+
+namespace rtac { namespace simulation {
+
+//template <typename T>
+//struct IdentiyFunctor {
+//    RTAC_HOSTDEVICE T operator()(const T& x) { return x; }
+//};
+
+template <typename T>
+struct ScalarType { using type = T; };
+template <typename T>
+struct ScalarType<cuda::Complex<T>> { using type = T; };
+
+template <typename Tin,
+          typename Tout, typename Xmap, typename Ymap,
+          typename PointSpreadFunctorT, typename OutputFunctorT,
+          unsigned int BlockSize=1024>
+__global__ void sparse_convolve_2d(rtac::types::VectorView<Tin>* dataBins,
+                                   Target2D<Tout, Xmap, Ymap>    output,
+                                   PointSpreadFunctorT           psFunction,
+                                   OutputFunctorT                outputFunctor)
+{
+    // shared memory does not play well with templates
+    using T = typename ScalarType<Tout>::type;
+    extern __shared__ __align__(sizeof(T)) unsigned char sharedMemory[];
+    T* sdata = reinterpret_cast<T*>(sharedMemory);
+
+    cuda::Complex<T> acc{0.0f,0.0f};
+    for(auto i = threadIdx.x; i < dataBins[blockIdx.x].size(); i += blockDim.x)
+    {
+        auto datum = dataBins[blockIdx.x][i];
+        // This multiplies the datum with the point spread function evaluated
+        // at the difference between the datum location and the output bin
+        // location.
+        acc += datum.sample()*psFunction(
+            datum.location()[0] - output.template map<0>()(blockIdx.x),
+            datum.location()[1] - output.template map<1>()(blockIdx.y));
+    }
+    
+    //reduction of cuda::Complex must be performed independently on real and
+    //imag parts for now (issues with volatile conversion TODO:fix this)
+    sdata[threadIdx.x] = acc.real();
+    __syncthreads();
+    cuda::device::reduce_shared<T,BlockSize,rtac::cuda::Addition>(sdata, threadIdx.x);
+    if(threadIdx.x == 0)
+        acc.real(sdata[0]);
+
+    sdata[threadIdx.x] = acc.imag();
+    __syncthreads();
+    cuda::device::reduce_shared<T,BlockSize,rtac::cuda::Addition>(sdata, threadIdx.x);
+
+    if(threadIdx.x == 0) {
+        acc.imag(sdata[0]);
+        output(blockIdx.x,blockIdx.y) = outputFunctor(acc);
+    }
+}
+}; //namespace simulation
+}; //namespace rtac
+
+#endif //_DEF_RTAC_SIMULATION_REDUCTIONS_H_
