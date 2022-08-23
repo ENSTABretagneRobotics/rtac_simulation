@@ -10,9 +10,11 @@ if(NOT TARGET rtac_cuda)
 endif()
 
 list(APPEND rtac_simulation_headers
-    include/rtac_simulation/types.h
+    include/rtac_simulation/utils.hcu
     include/rtac_simulation/reductions.hcu
-    include/rtac_simulation/WaveSamples.h
+    include/rtac_simulation/Target2D.h
+
+    # include/rtac_simulation/WaveSamples.h
 )
 
 add_library(rtac_simulation INTERFACE)
