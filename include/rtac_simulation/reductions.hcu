@@ -9,66 +9,6 @@
 
 namespace rtac { namespace simulation {
 
-/**
- * This class represents a generic 1D convolution kernel defined on a
- * continuous space.
- *
- * It is defined by a function which takes a real number as a parameter and a
- * support interval [xmin,xmax] (not defined as a width to let the kernel have
- * an asymmetrical support).
- *
- * The KernelFunctionT must be copyable and compatible with cuda kernels.
- */
-template <typename T, class KernelFunctionT>
-class ConvolutionKernel1D : public KernelFunctionT
-{
-    protected:
-
-    T xmin_;
-    T xmax_;
-
-    public:
-
-    ConvolutionKernel1D(T xmin, T xmax, const KernelFunctionT& kernelFunction) :
-        KernelFunctionT(kernelFunction),
-        xmin_(xmin),
-        xmax_(xmax)
-    {}
-
-    RTAC_HOSTDEVICE T xmin()  const { return xmin_; }
-    RTAC_HOSTDEVICE T xmax()  const { return xmax_; }
-    RTAC_HOSTDEVICE T width() const { return xmax_ - xmin_; }
-};
-
-template <typename T, class KernelFunctionTx, class KernelFunctionTy>
-class SeparableKernel2D
-{
-    public:
-    
-    using Kernelx = ConvolutionKernel1D<T,KernelFunctionTx>;
-    using Kernely = ConvolutionKernel1D<T,KernelFunctionTy>;
-
-    protected:
-
-    Kernelx kx_;
-    Kernely ky_;
-
-    public:
-
-    SeparableKernel2D(const Kernelx& kx, const Kernely& ky) : kx_(kx), ky_(ky) {}
-
-    RTAC_HOSTDEVICE auto operator()(T x, T y) const {
-        return kx_(x) * ky_(y);
-    }
-
-    RTAC_HOSTDEVICE T xmin()  const { return kx_.xmin();  }
-    RTAC_HOSTDEVICE T xmax()  const { return kx_.xmax();  }
-    RTAC_HOSTDEVICE T width() const { return kx_.width(); }
-
-    RTAC_HOSTDEVICE T ymin()   const { return ky_.xmin();  }
-    RTAC_HOSTDEVICE T ymax()   const { return ky_.xmax();  }
-    RTAC_HOSTDEVICE T height() const { return ky_.width(); }
-};
 
 /**
  * This is the cuda kernel responsible to aggregate all insonified sample
@@ -100,8 +40,8 @@ __global__ void sparse_convolve_2d(rtac::types::VectorView<Tin>* dataBins,
         // at the difference between the datum location and the output bin
         // location.
         acc += datum.sample()*kernel(
-            datum.location()[0] - output.height_coordinate(blockIdx.x),
-            datum.location()[1] - output.width_coordinate(blockIdx.y));
+            datum.location()[1] - output.width_coordinate(blockIdx.y),
+            datum.location()[0] - output.height_coordinate(blockIdx.x));
     }
     
     //reduction of cuda::Complex must be performed independently on real and
