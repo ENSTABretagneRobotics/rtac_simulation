@@ -11,11 +11,10 @@ endif()
 
 list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
+    include/rtac_simulation/Sample.h
     include/rtac_simulation/ConvolutionKernel.h
     include/rtac_simulation/reductions.hcu
     include/rtac_simulation/Target2D.h
-
-    # include/rtac_simulation/WaveSamples.h
 )
 
 add_library(rtac_simulation INTERFACE)
