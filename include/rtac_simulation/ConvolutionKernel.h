@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <rtac_base/types/Bounds.h>
+
 #include <rtac_base/cuda/Texture2D.h>
 #include <rtac_base/cuda/TextureView2D.h>
 
@@ -47,10 +49,12 @@ class ConvolutionKernel2D
     using Ptr      = std::shared_ptr<ConvolutionKernel2D<T>>;
     using ConstPtr = std::shared_ptr<const ConvolutionKernel2D<T>>;
 
+    using Bounds = rtac::types::Interval<float>;
+
     protected:
     
-    float width_;
-    float height_;
+    Bounds xBounds_;
+    Bounds yBounds_;
     cuda::Texture2D<T> function_;
 
     ConvolutionKernel2D();
@@ -59,13 +63,18 @@ class ConvolutionKernel2D
     
     static Ptr Create() { return Ptr(new ConvolutionKernel2D<T>()); }
 
-    float width()  const { return width_;  }
-    float height() const { return height_; }
+    Bounds x_bounds() const { return xBounds_; }
+    Bounds y_bounds() const { return yBounds_; }
+
+    float width()  const { return xBounds_.length(); }
+    float height() const { return yBounds_.length(); }
 
     const cuda::Texture2D<T>& function() const { return function_; }
     cuda::Texture2D<T>&       function()       { return function_; }
 
-    void set_support(float width, float height);
+    void set_bounds(Bounds xBounds, Bounds yBounds);
+    void set_bounds(float xmin, float xmax, float ymin, float ymax);
+    void set_bounds(float width, float height);
 
     KernelView2D<T> view() const;
 };
@@ -78,10 +87,24 @@ ConvolutionKernel2D<T>::ConvolutionKernel2D()
 }
 
 template <typename T>
-void ConvolutionKernel2D<T>::set_support(float width, float height)
+void ConvolutionKernel2D<T>::set_bounds(Bounds xBounds, Bounds yBounds)
 {
-    width_  = width;
-    height_ = height;
+    xBounds_ = xBounds;
+    yBounds_ = yBounds;
+}
+
+template <typename T>
+void ConvolutionKernel2D<T>::set_bounds(float xmin, float xmax, float ymin, float ymax)
+{
+    xBounds_ = Bounds{xmin,xmax};
+    yBounds_ = Bounds{ymin,ymax};
+}
+
+template <typename T>
+void ConvolutionKernel2D<T>::set_bounds(float width, float height)
+{
+    xBounds_ = Bounds{-0.5f*width,  0.5f*width};
+    yBounds_ = Bounds{-0.5f*height, 0.5f*height};
 }
 
 template <typename T>
@@ -94,8 +117,8 @@ KernelView2D<T> ConvolutionKernel2D<T>::view() const
         view.xScaling_.y = 0.0f;
     }
     else {
-        view.xScaling_.x = 1.0f / width_;
-        view.xScaling_.y = 0.5f;
+        view.xScaling_.x =          1.0f / xBounds_.length();
+        view.xScaling_.y = -xBounds_.min / xBounds_.length();
     }
     if(function_.height() == 1) {
         // should not happen
@@ -103,8 +126,8 @@ KernelView2D<T> ConvolutionKernel2D<T>::view() const
         view.yScaling_.y = 0.0f;
     }
     else {
-        view.yScaling_.x = 1.0f / height_;
-        view.yScaling_.y = 0.5f;
+        view.yScaling_.x =          1.0f / yBounds_.length();
+        view.yScaling_.y = -yBounds_.min / yBounds_.length();
     }
     view.handle_ = function_.texture();
 
