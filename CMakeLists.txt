@@ -11,6 +11,7 @@ endif()
 
 list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
+    include/rtac_simulation/WaveField.h
     include/rtac_simulation/Sample.h
     include/rtac_simulation/ConvolutionKernel.h
     include/rtac_simulation/reductions.hcu
@@ -18,6 +19,10 @@ list(APPEND rtac_simulation_headers
 )
 
 add_library(rtac_simulation INTERFACE)
+target_include_directories(rtac_simulation INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 set_target_properties(rtac_simulation PROPERTIES
     RTAC_PUBLIC_HEADERS "${rtac_simulation_headers}"
 )

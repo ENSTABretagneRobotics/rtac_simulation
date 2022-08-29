@@ -1,7 +1,7 @@
 
 
 list(APPEND test_files
-    src/test01.cpp
+    src/wavefield.cu
 )
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
@@ -9,5 +9,8 @@ foreach(filename ${test_files})
     add_executable(${target_name} ${filename})
     target_link_libraries(${target_name}
         rtac_simulation
+    )
+    set_target_properties(${target_name} PROPERTIES
+        CUDA_ARCHITECTURES native
     )
 endforeach()
