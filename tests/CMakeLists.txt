@@ -1,7 +1,6 @@
 
 
 list(APPEND test_files
-    src/wavefield.cu
 )
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
