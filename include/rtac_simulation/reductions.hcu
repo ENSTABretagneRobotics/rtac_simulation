@@ -39,9 +39,9 @@ __global__ void sparse_convolve_2d(rtac::types::VectorView<Tin>* dataBins,
         // This multiplies the datum with the point spread function evaluated
         // at the difference between the datum location and the output bin
         // location.
-        acc += datum.datum()*kernel(
-            datum.location()[1] - output.width_coordinate(blockIdx.y),
-            datum.location()[0] - output.height_coordinate(blockIdx.x));
+        acc += datum.datum*kernel(
+            datum.y - output.width_coordinate(blockIdx.y),
+            datum.x - output.height_coordinate(blockIdx.x));
     }
     
     //reduction of cuda::Complex must be performed independently on real and
