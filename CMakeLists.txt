@@ -31,7 +31,9 @@ target_link_libraries(rtac_simulation INTERFACE
     rtac_cuda
 )
 target_compile_features(rtac_simulation INTERFACE cxx_std_17)
-rtac_install_target(rtac_simulation)
+rtac_install_target(rtac_simulation
+    HEADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rtac_simulation
+)
 
 add_subdirectory(tests)
     
