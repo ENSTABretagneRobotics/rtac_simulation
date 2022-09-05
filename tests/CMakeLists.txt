@@ -1,6 +1,7 @@
 
 
 list(APPEND test_files
+    src/algebra_test.cpp
 )
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
@@ -13,3 +14,13 @@ foreach(filename ${test_files})
         CUDA_ARCHITECTURES native
     )
 endforeach()
+
+
+rtac_generate_asm(index_test_asm
+    SOURCES src/algebra_test_indexes.cpp
+    LINK_LIBRARIES rtac_simulation
+)
+rtac_generate_ptx(index_test_ptx
+    SOURCES src/algebra_test_indexes.cu
+    LINK_LIBRARIES rtac_simulation
+)

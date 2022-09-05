@@ -9,6 +9,10 @@ if(NOT TARGET rtac_cuda)
     find_package(rtac_cuda REQUIRED)
 endif()
 
+if(NOT TARGET rtac_optix)
+    find_package(rtac_optix REQUIRED)
+endif()
+
 list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
     include/rtac_simulation/Sample.h
