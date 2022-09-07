@@ -40,8 +40,8 @@ __global__ void sparse_convolve_2d(rtac::types::VectorView<Tin>* dataBins,
         // at the difference between the datum location and the output bin
         // location.
         acc += datum.datum*kernel(
-            datum.y - output.width_coordinate(blockIdx.y),
-            datum.x - output.height_coordinate(blockIdx.x));
+            datum.position.y - output.width_coordinate(blockIdx.y),
+            datum.position.x - output.height_coordinate(blockIdx.x));
     }
     
     //reduction of cuda::Complex must be performed independently on real and
