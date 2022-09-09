@@ -4,16 +4,15 @@
 #include <iostream>
 #include <memory>
 
-#include <rtac_base/types/Pose.h>
-
+#include <rtac_simulation/common.h>
 #include <rtac_simulation/geometry.h>
-#include <rtac_simulation/Directivity.h>
+#include <rtac_simulation/DirectivityFunction.h>
 
 namespace rtac { namespace simulation {
 
 template <typename T>
 struct AntennaView {
-    DevicePose<T>      pose;
+    DevicePose<float>  pose;
     DirectivityView<T> directivity;
 };
 
@@ -25,22 +24,20 @@ class Antenna
     using Ptr      = std::shared_ptr<Antenna<T>>;
     using ConstPtr = std::shared_ptr<const Antenna<T>>;
 
-    using Pose = rtac::types::Pose<T>;
-
     protected:
 
-    Pose                 pose_;
-    Directivity<T>::Ptr directivity_;
+    Pose  pose_;
+    typename Directivity<T>::Ptr directivity_;
 
-    Antenna(Directivity<T>::Ptr directivity, const Pose& pose = Pose()) :
+    Antenna(typename Directivity<T>::Ptr directivity, const Pose& pose = Pose()) :
         pose_(pose), directivity_(directivity)
     {}
 
     const Pose& pose() const { return pose_; }
     Pose&       pose()       { return pose_; }
 
-    Directivity<T>::ConstPtr directivity() const { return directivity_; }
-    Directivity<T>::Ptr      directivity()       { return directivity_; }
+    typename Directivity<T>::ConstPtr directivity() const { return directivity_; }
+    typename Directivity<T>::Ptr      directivity()       { return directivity_; }
 
     AntennaView<T> view() const {
         AntennaView<T> res;

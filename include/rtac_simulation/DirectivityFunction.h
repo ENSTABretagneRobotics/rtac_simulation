@@ -6,6 +6,8 @@
 #include <rtac_base/cuda_defines.h>
 #include <rtac_base/cuda/Texture2D.h>
 
+#include <rtac_base/types/Image.h>
+
 namespace rtac { namespace simulation {
 
 /**
@@ -46,6 +48,7 @@ class Directivity
 
     using DeviceImage = rtac::types::Image<T,rtac::cuda::DeviceVector>;
     using HostImage   = rtac::types::Image<T,std::vector>;
+    using DataShape   = typename HostImage::Shape;
 
     protected:
 
@@ -61,10 +64,14 @@ class Directivity
 
     void load_default_configuration();
 
-    cudaTexture2D<T>&       texture()       { return texture_; }
-    const cudaTexture2D<T>& texture() const { return texture_; }
+    cuda::Texture2D<T>&       texture()       { return texture_; }
+    const cuda::Texture2D<T>& texture() const { return texture_; }
     
     DirectivityView<T> view() const;
+
+    static Ptr from_sinc_parameters(float bearingAperture,
+                                    float elevationAperture,
+                                    DataShape shape = {0,0});
 };
 
 template <typename T>
@@ -92,6 +99,45 @@ template <typename T>
 DirectivityView<T> Directivity<T>::view() const
 {
     return DirectivityView<T>({texture_.texture(), 0.5f / M_PI, 0.5f / M_PI});
+}
+
+template <typename T>
+typename Directivity<T>::Ptr Directivity<T>::from_sinc_parameters(float bearingAperture, 
+                                                                  float elevationAperture,
+                                                                  DataShape shape)
+{
+    // sin(SincHalf) / SincHalf = 0.5 (-3dB on directivity)
+    constexpr float SincHalf = 1.89549;
+
+    auto optimal_size = [](float aperture, int oversampling) {
+        float shannonPeriod = 0.25*M_PI*aperture / SincHalf;
+        unsigned int N = 2;
+        for(; M_PI*oversampling  > shannonPeriod*N; N *= 2);
+        return N;
+    };
+
+    auto sinc_sampling = [](unsigned int N, float aperture, int n) {
+        if(n == 0) return 1.0f;
+        float x = 2.0*SincHalf*(M_PI*n) / (N*aperture);
+        return sin(x) / x;
+    }
+
+    if(shape.area() == 0) {
+        // No size parameter given by user. Finding one.
+        shape.width  = optimal_size(bearingAperture);
+        shape.height = optimal_size(elevationAperture);
+        std::cout << "Optimal shape : " << shape << std::endl;
+    }
+
+    HostImage data(shape);
+    for(int h = 0; h < shape.height; h++) {
+        data(h,w) = sinc_sampling(shape.height, elevationAperture, h);
+        for(int w = 0; w < shape.width; w++) {
+            data(h,w) *= sinc_sampling(shape.width, bearingAperture, w);
+        }
+    }
+
+    return Directivity<T>::Create(data);
 }
 
 } //namespace simulation
