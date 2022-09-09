@@ -24,10 +24,14 @@ class Antenna
     using Ptr      = std::shared_ptr<Antenna<T>>;
     using ConstPtr = std::shared_ptr<const Antenna<T>>;
 
+    using DataShape = typename Directivity<T>::DataShape;
+
     protected:
 
     Pose  pose_;
     typename Directivity<T>::Ptr directivity_;
+
+    public:
 
     Antenna(typename Directivity<T>::Ptr directivity, const Pose& pose = Pose()) :
         pose_(pose), directivity_(directivity)

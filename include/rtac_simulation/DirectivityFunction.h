@@ -1,6 +1,7 @@
 #ifndef _DEF_RTAC_SIMULATION_DIRECTIVITY_FUNCTION_H_
 #define _DEF_RTAC_SIMULATION_DIRECTIVITY_FUNCTION_H_
 
+#include <iostream>
 #include <memory>
 
 #include <rtac_base/cuda_defines.h>
@@ -78,14 +79,14 @@ template <typename T>
 Directivity<T>::Directivity(const HostImage& data)
 {
     this->load_default_configuration();
-    texture_->set_image(data.width(), data.height(), data.data());
+    texture_.set_image(data.width(), data.height(), data.data());
 }
 
 template <typename T>
 Directivity<T>::Directivity(const DeviceImage& data)
 {
     this->load_default_configuration();
-    texture_->set_image(data.width(), data.height(), data.container());
+    texture_.set_image(data.width(), data.height(), data.container());
 }
 
 template <typename T>
@@ -98,7 +99,7 @@ void Directivity<T>::load_default_configuration()
 template <typename T>
 DirectivityView<T> Directivity<T>::view() const
 {
-    return DirectivityView<T>({texture_.texture(), 0.5f / M_PI, 0.5f / M_PI});
+    return DirectivityView<T>({texture_.texture(), 1.0f / M_PI, 1.0f / M_PI});
 }
 
 template <typename T>
@@ -120,20 +121,21 @@ typename Directivity<T>::Ptr Directivity<T>::from_sinc_parameters(float bearingA
         if(n == 0) return 1.0f;
         float x = 2.0*SincHalf*(M_PI*n) / (N*aperture);
         return sin(x) / x;
-    }
+    };
 
+    int oversampling = 8;
     if(shape.area() == 0) {
         // No size parameter given by user. Finding one.
-        shape.width  = optimal_size(bearingAperture);
-        shape.height = optimal_size(elevationAperture);
+        shape.width  = optimal_size(bearingAperture,   oversampling);
+        shape.height = optimal_size(elevationAperture, oversampling);
         std::cout << "Optimal shape : " << shape << std::endl;
     }
 
     HostImage data(shape);
     for(int h = 0; h < shape.height; h++) {
-        data(h,w) = sinc_sampling(shape.height, elevationAperture, h);
+        float tmp = sinc_sampling(shape.height, elevationAperture, h);
         for(int w = 0; w < shape.width; w++) {
-            data(h,w) *= sinc_sampling(shape.width, bearingAperture, w);
+            data(h,w) = tmp*sinc_sampling(shape.width, bearingAperture, w);
         }
     }
 
