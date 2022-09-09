@@ -29,11 +29,11 @@ class Antenna
     protected:
 
     Pose  pose_;
-    typename Directivity<T>::Ptr directivity_;
+    typename Directivity<T>::ConstPtr directivity_;
 
     public:
 
-    Antenna(typename Directivity<T>::Ptr directivity, const Pose& pose = Pose()) :
+    Antenna(typename Directivity<T>::ConstPtr directivity, const Pose& pose = Pose()) :
         pose_(pose), directivity_(directivity)
     {}
 
@@ -41,7 +41,6 @@ class Antenna
     Pose&       pose()       { return pose_; }
 
     typename Directivity<T>::ConstPtr directivity() const { return directivity_; }
-    typename Directivity<T>::Ptr      directivity()       { return directivity_; }
 
     AntennaView<T> view() const {
         AntennaView<T> res;

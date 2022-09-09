@@ -43,21 +43,59 @@ __global__ void render_directions(rtac::types::ImageView<float> out,
     }
 }
 
+__global__ void render_emitter(rtac::types::ImageView<float> out, 
+                               rtac::types::ImageView<const float3> directions,
+                               EmitterView<float> emitter)
+{
+    for(auto w = threadIdx.x; w < out.width(); w += blockDim.x) {
+        //float3 d = directions(blockIdx.y,w);
+        float3 d = emitter.ray_direction(directions(blockIdx.y,w));
+        out(blockIdx.y, w) = abs(emitter.sample_value(d));
+    }
+}
+
+void render_emitter(GLVector<float>& dst, 
+                    const rtac::types::Image<float3,DeviceVector>& directions,
+                    Emitter<float>::ConstPtr emitter)
+{
+    dst.resize(directions.shape().area());
+    {
+        auto ptr = dst.map_cuda();
+        render_emitter<<<{1,directions.height()},512>>>(
+            rtac::types::ImageView<float>(directions.shape(),
+                rtac::types::VectorView<float>(dst.size(), ptr)),
+            directions.const_view(),
+            emitter->view());
+        cudaDeviceSynchronize();
+        CUDA_CHECK_LAST();
+    }
+}
+
 int main()
 {
     auto directivity = Directivity<float>::from_sinc_parameters(130.0f * M_PIf / 180.0f, 
                                                                  20.0f * M_PIf / 180.0f);
-    Display display;
-    
     auto directions = generate_directions();
+    auto emitter = Emitter<float>::Create(directions.container(), directivity);
+
+    Display display;
+    float fps = 60.0;
+    display.limit_frame_rate(fps);
+    display.enable_frame_counter();
+    
     GLVector<float> data(directions.shape().area());
     {
         auto ptr = data.map_cuda();
-        render_directions<<<{1,directions.height()},512>>>(
+        //render_directions<<<{1,directions.height()},512>>>(
+        //    rtac::types::ImageView<float>(directions.shape(),
+        //        rtac::types::VectorView<float>(data.size(), ptr)),
+        //    directions.const_view(),
+        //    directivity->view());
+        render_emitter<<<{1,directions.height()},512>>>(
             rtac::types::ImageView<float>(directions.shape(),
                 rtac::types::VectorView<float>(data.size(), ptr)),
             directions.const_view(),
-            directivity->view());
+            emitter->view());
         cudaDeviceSynchronize();
         CUDA_CHECK_LAST();
     }
@@ -65,8 +103,14 @@ int main()
     auto renderer = display.create_renderer<ImageRenderer>(View::New());
     renderer->enable_colormap();
     renderer->texture()->set_image(directions.shape(), data);
+    
+    auto r = rtac::simulation::Pose::from_rotation_matrix(
+        Eigen::AngleAxisf(0.5f / fps, Eigen::Vector3f::UnitY()).toRotationMatrix());
 
     while(!display.should_close()) {
+        emitter->pose() = emitter->pose() * r;
+        render_emitter(data, directions, emitter);
+        renderer->texture()->set_image(directions.shape(), data);
         display.draw();
     }
     return 0;
