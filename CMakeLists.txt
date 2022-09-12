@@ -21,6 +21,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/geometry.h
     include/rtac_simulation/DirectivityFunction.h
     include/rtac_simulation/Antenna.h
+    include/rtac_simulation/Receiver.h
     include/rtac_simulation/Emitter.h
     include/rtac_simulation/Sample.h
     include/rtac_simulation/ConvolutionKernel.h
