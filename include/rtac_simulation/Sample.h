@@ -47,6 +47,48 @@ struct Sample
     }
 };
 
+// below are derived types for convenience
+template <typename T>
+struct Sample3D : public Sample<T, float3>
+{
+    using Scalar = T;
+    using Point  = float3;
+
+    RTAC_HOSTDEVICE float x() const { return this->position.x; }
+    RTAC_HOSTDEVICE float y() const { return this->position.y; }
+    RTAC_HOSTDEVICE float z() const { return this->position.z; }
+
+    RTAC_HOSTDEVICE float& x() { return this->position.x; }
+    RTAC_HOSTDEVICE float& y() { return this->position.y; }
+    RTAC_HOSTDEVICE float& z() { return this->position.z; }
+
+    RTAC_HOSTDEVICE static Sample3D<T> Make(const Complex<T>& value, const float3& p) {
+        return Sample3D<T>{value, p};
+    }
+};
+
+template <typename T>
+struct PolarSample2D : public Sample<T, float2>
+{
+    using Scalar = T;
+    using Point  = float2;
+
+    RTAC_HOSTDEVICE float range() const { return this->position.x; }
+    RTAC_HOSTDEVICE float theta() const { return this->position.y; }
+
+    RTAC_HOSTDEVICE float& range() { return this->position.x; }
+    RTAC_HOSTDEVICE float& theta() { return this->position.y; }
+    
+    // p is assumed to be expressed in cartesian coordinates.
+    RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Complex<T>& value, const float3& p) {
+        return PolarSample2D<T>{value, float2{length(p), -atan2(p.y, p.x)}};
+    }
+    // other.position is assumed to be expressed in cartesian coordinates.
+    RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Sample3D<T>& other) {
+        return PolarSample2D<T>::Make(other.datum(), other.position);
+    }
+};
+
 }; //namespace simulation
 }; //namespace rtac
 
