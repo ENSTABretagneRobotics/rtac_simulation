@@ -12,10 +12,10 @@ namespace rtac { namespace simulation {
 template <typename T>
 struct EmitterView
 {
-    DevicePose<float> pose;
-    std::size_t       size;
-    const float3*     initialDirections;
-    const Complex<T>* initialSampleValues;
+    DevicePose<float>  pose;
+    std::size_t        size;
+    const float3*      initialDirections;
+    const Complex<T>*  initialSampleValues;
     DirectivityView<T> directivity;
 
     #ifdef RTAC_CUDACC

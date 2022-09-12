@@ -35,12 +35,12 @@ struct Sample
     Complex<T> datum;
     Point      position;
 
-    Sample<T,P>& operator*=(T a) {
+    RTAC_HOSTDEVICE Sample<T,P>& operator*=(T a) {
         datum *= a;
         return *this;
     }
 
-    Sample<T,P>& operator*=(float2 a) {
+    RTAC_HOSTDEVICE Sample<T,P>& operator*=(float2 a) {
         datum = Complex<T>{datum.real()*a.x - datum.imag()*a.y,
                            datum.real()*a.y + datum.imag()*a.x};
         return *this;
@@ -51,14 +51,14 @@ struct Sample
 }; //namespace rtac
 
 template <typename T, typename P, typename T2>
-inline rtac::simulation::Sample<T,P> operator*(const rtac::simulation::Sample<T,P>& s, T2 a)
+RTAC_HOSTDEVICE inline rtac::simulation::Sample<T,P> operator*(const rtac::simulation::Sample<T,P>& s, T2 a)
 {
     rtac::simulation::Sample<T,P> res(s);
     res *= a;
     return res;
 }
 template <typename T, typename P, typename T2>
-inline rtac::simulation::Sample<T,P> operator*(T2 a, const rtac::simulation::Sample<T,P>& s)
+RTAC_HOSTDEVICE inline rtac::simulation::Sample<T,P> operator*(T2 a, const rtac::simulation::Sample<T,P>& s)
 {
     return s * a;
 }
