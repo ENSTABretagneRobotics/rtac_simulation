@@ -108,7 +108,8 @@ typename Directivity<T>::Ptr Directivity<T>::from_sinc_parameters(float bearingA
                                                                   DataShape shape)
 {
     // sin(SincHalf) / SincHalf = 0.5 (-3dB on directivity)
-    constexpr float SincHalf = 1.89549;
+    //constexpr float SincHalf = 1.89549;
+    constexpr float SincHalf = 1.39156;
 
     auto optimal_size = [](float aperture, int oversampling) {
         float shannonPeriod = 0.25*M_PI*aperture / SincHalf;
