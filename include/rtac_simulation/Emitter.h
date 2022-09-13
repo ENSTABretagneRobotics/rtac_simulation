@@ -12,11 +12,11 @@ namespace rtac { namespace simulation {
 template <typename T>
 struct EmitterView
 {
-    DevicePose<float>  pose;
-    std::size_t        size;
-    const float3*      initialDirections;
-    const Complex<T>*  initialSampleValues;
-    DirectivityView<T> directivity;
+    DevicePose<float> pose;
+    std::size_t       size;
+    const float3*     initialDirections;
+    const Complex<T>* initialSampleValues;
+    DirectivityView   directivity;
 
     #ifdef RTAC_CUDACC
     __device__ float3 ray_origin(uint32_t idx) const { 
@@ -39,14 +39,14 @@ struct EmitterView
 };
 
 template <typename T>
-class Emitter : public Antenna<T>
+class Emitter : public Antenna
 {
     public:
 
     using Ptr      = std::shared_ptr<Emitter<T>>;
     using ConstPtr = std::shared_ptr<const Emitter<T>>;
 
-    using DataShape = typename Antenna<T>::DataShape;
+    using DataShape = Antenna::DataShape;
 
     protected:
     
@@ -55,13 +55,13 @@ class Emitter : public Antenna<T>
     DeviceVector<Complex<T>> initialSampleValues_;
 
     Emitter(const DeviceVector<float3>& initialDirections,
-            typename Directivity<T>::Ptr directivity, 
+            typename Directivity::ConstPtr directivity, 
             const Pose& pose = Pose());
 
     public:
 
     static Ptr Create(const DeviceVector<float3>& initialDirections,
-                      typename Directivity<T>::Ptr directivity, 
+                      typename Directivity::ConstPtr directivity, 
                       const Pose& pose = Pose());
 
     static auto generate_polar_directions(float resolution,
@@ -88,9 +88,9 @@ class Emitter : public Antenna<T>
 
 template <typename T>
 Emitter<T>::Emitter(const DeviceVector<float3>& initialDirections,
-                    typename Directivity<T>::Ptr directivity, 
+                    typename Directivity::ConstPtr directivity, 
                     const Pose& pose) :
-    Antenna<T>(directivity, pose),
+    Antenna(directivity, pose),
     initialDirections_(initialDirections),
     initialSampleValues_(initialDirections.size())
 {}
@@ -98,7 +98,7 @@ Emitter<T>::Emitter(const DeviceVector<float3>& initialDirections,
 template <typename T>
 typename Emitter<T>::Ptr Emitter<T>::Create(
            const DeviceVector<float3>& initialDirections,
-           typename Directivity<T>::Ptr directivity, 
+           typename Directivity::ConstPtr directivity, 
            const Pose& pose)
 {
     return Ptr(new Emitter<T>(initialDirections, directivity, pose));

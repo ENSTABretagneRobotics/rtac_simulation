@@ -29,19 +29,18 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Target2D.h
 )
 
-add_library(rtac_simulation INTERFACE)
-target_include_directories(rtac_simulation INTERFACE
+add_library(rtac_simulation SHARED
+    src/Directivity.cpp
+)
+target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-set_target_properties(rtac_simulation PROPERTIES
-    RTAC_PUBLIC_HEADERS "${rtac_simulation_headers}"
-)
-target_link_libraries(rtac_simulation INTERFACE
+target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
 )
-target_compile_features(rtac_simulation INTERFACE cxx_std_17)
+target_compile_features(rtac_simulation PUBLIC cxx_std_17)
 rtac_install_target(rtac_simulation
     HEADER_FILES ${rtac_simulation_headers}
 )

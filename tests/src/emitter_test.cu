@@ -36,7 +36,7 @@ rtac::types::Image<float3, DeviceVector> generate_directions()
 
 __global__ void render_directions(rtac::types::ImageView<float> out, 
                                   rtac::types::ImageView<const float3> directions,
-                                  DirectivityView<float> directivity)
+                                  DirectivityView directivity)
 {
     for(auto w = threadIdx.x; w < out.width(); w += blockDim.x) {
         out(blockIdx.y, w) = abs(directivity(directions(blockIdx.y,w)));
@@ -73,8 +73,8 @@ void render_emitter(GLVector<float>& dst,
 
 int main()
 {
-    auto directivity = Directivity<float>::from_sinc_parameters(130.0f * M_PIf / 180.0f, 
-                                                                 20.0f * M_PIf / 180.0f);
+    auto directivity = Directivity::from_sinc_parameters(130.0f * M_PIf / 180.0f, 
+                                                          20.0f * M_PIf / 180.0f);
     auto directions = generate_directions();
     auto emitter = Emitter<float>::Create(directions.container(), directivity);
 

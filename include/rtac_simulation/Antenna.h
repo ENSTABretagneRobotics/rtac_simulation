@@ -10,42 +10,40 @@
 
 namespace rtac { namespace simulation {
 
-template <typename T>
 struct AntennaView {
-    DevicePose<float>  pose;
-    DirectivityView<T> directivity;
+    DevicePose<float> pose;
+    DirectivityView   directivity;
 };
 
-template <typename T>
 class Antenna
 {
     public:
    
-    using Ptr      = std::shared_ptr<Antenna<T>>;
-    using ConstPtr = std::shared_ptr<const Antenna<T>>;
+    using Ptr      = std::shared_ptr<Antenna>;
+    using ConstPtr = std::shared_ptr<const Antenna>;
 
-    using DataShape = typename Directivity<T>::DataShape;
+    using DataShape = Directivity::DataShape;
 
     protected:
 
     Pose  pose_;
-    typename Directivity<T>::ConstPtr directivity_;
+    typename Directivity::ConstPtr directivity_;
 
     public:
 
-    Antenna(typename Directivity<T>::ConstPtr directivity, const Pose& pose = Pose()) :
+    Antenna(typename Directivity::ConstPtr directivity, const Pose& pose = Pose()) :
         pose_(pose), directivity_(directivity)
     {}
 
     const Pose& pose() const { return pose_; }
     Pose&       pose()       { return pose_; }
 
-    typename Directivity<T>::ConstPtr directivity() const { return directivity_; }
+    typename Directivity::ConstPtr directivity() const { return directivity_; }
 
-    AntennaView<T> view() const {
-        AntennaView<T> res;
+    AntennaView view() const {
+        AntennaView res;
         res.pose        = pose_;
-        res.directivity = directivity_.view();
+        res.directivity = directivity_->view();
         return res;
     }
 };

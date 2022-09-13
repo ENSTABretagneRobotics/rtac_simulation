@@ -9,15 +9,15 @@
 
 namespace rtac { namespace simulation {
 
-template <typename T, typename SampleT>
+template <typename T>
 struct ReceiverView
 {
-    using SampleType = SampleT;
+    using SampleType = T;
 
-    DevicePose<float>  pose;
-    DirectivityView<T> directivity;
-    std::size_t        size;
-    SampleType*        samples;
+    DevicePose<float> pose;
+    DirectivityView   directivity;
+    std::size_t       size;
+    SampleType*       samples;
 
     #ifdef RTAC_CUDACC
 
@@ -27,43 +27,43 @@ struct ReceiverView
         // sample position is expected to be expressed in the world frame
         float3 p     = this->pose.to_local_frame(sample.position);
         //samples[idx] = SampleT::Make(sample.datum*directivity(-normalized(p)), p);
-        samples[idx] = SampleT::Make(sample.datum, p);
+        samples[idx] = SampleType::Make(sample.datum, p);
     }
 
     #endif //RTAC_CUDACC
 };
 
-template <typename T, typename SampleT>
-class Receiver : public Antenna<T>
+template <typename T>
+class Receiver : public Antenna
 {
     public:
 
-    using Ptr      = std::shared_ptr<Receiver<T,SampleT>>;
-    using ConstPtr = std::shared_ptr<const Receiver<T,SampleT>>;
+    using Ptr      = std::shared_ptr<Receiver<T>>;
+    using ConstPtr = std::shared_ptr<const Receiver<T>>;
 
-    using DataShape = typename Antenna<T>::DataShape;
+    using DataShape = Antenna::DataShape;
 
-    using SampleType = SampleT;
+    using SampleType = T;
 
     protected:
 
-    DeviceVector<SampleType> receivedSamples_;
+    DeviceVector<T> receivedSamples_;
 
     Receiver(std::size_t sampleCount,
-             typename Directivity<T>::Ptr directivity, 
+             typename Directivity::ConstPtr directivity, 
              const Pose& pose = Pose());
 
     public:
 
     static Ptr Create(std::size_t sampleCount,
-                      typename Directivity<T>::Ptr directivity, 
+                      typename Directivity::ConstPtr directivity, 
                       const Pose& pose = Pose());
 
-    DeviceVector<SampleType>&       samples()       { return receivedSamples_; }
-    const DeviceVector<SampleType>& samples() const { return receivedSamples_; }
+    DeviceVector<T>&       samples()       { return receivedSamples_; }
+    const DeviceVector<T>& samples() const { return receivedSamples_; }
 
-    ReceiverView<T,SampleType> view() {
-        ReceiverView<T,SampleType> res;
+    ReceiverView<T> view() {
+        ReceiverView<T> res;
 
         res.pose        = this->pose_;
         res.directivity = this->directivity()->view();
@@ -74,21 +74,21 @@ class Receiver : public Antenna<T>
     }
 };
 
-template <typename T, typename S>
-Receiver<T,S>::Receiver(std::size_t sampleCount,
-                        typename Directivity<T>::Ptr directivity, 
-                        const Pose& pose) :
-    Antenna<T>(directivity, pose),
+template <typename T>
+Receiver<T>::Receiver(std::size_t sampleCount,
+                      typename Directivity::ConstPtr directivity, 
+                      const Pose& pose) :
+    Antenna(directivity, pose),
     receivedSamples_(sampleCount)
 {}
 
-template <typename T, typename S>
-typename Receiver<T,S>::Ptr Receiver<T,S>::Create(
+template <typename T>
+typename Receiver<T>::Ptr Receiver<T>::Create(
            std::size_t sampleCount,
-           typename Directivity<T>::Ptr directivity, 
+           typename Directivity::ConstPtr directivity, 
            const Pose& pose)
 {
-    return Ptr(new Receiver<T,S>(sampleCount, directivity, pose));
+    return Ptr(new Receiver<T>(sampleCount, directivity, pose));
 }
 
 } //namespace simulation
