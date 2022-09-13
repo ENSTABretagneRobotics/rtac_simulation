@@ -19,7 +19,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
     include/rtac_simulation/common.h
     include/rtac_simulation/geometry.h
-    include/rtac_simulation/DirectivityFunction.h
+    include/rtac_simulation/Directivity.h
     include/rtac_simulation/Antenna.h
     include/rtac_simulation/Receiver.h
     include/rtac_simulation/Emitter.h

@@ -6,7 +6,7 @@
 
 #include <rtac_simulation/common.h>
 #include <rtac_simulation/geometry.h>
-#include <rtac_simulation/DirectivityFunction.h>
+#include <rtac_simulation/Directivity.h>
 
 namespace rtac { namespace simulation {
 
