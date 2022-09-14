@@ -6,6 +6,7 @@
 
 #include <rtac_base/types/VectorView.h>
 #include <rtac_base/types/Pose.h>
+#include <rtac_base/types/Image.h>
 
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/PinnedVector.h>
@@ -19,6 +20,11 @@ template <typename T> using VectorView   = rtac::types::VectorView<T>;
 template <typename T> using DeviceVector = rtac::cuda::DeviceVector<T>;
 template <typename T> using PinnedVector = rtac::cuda::PinnedVector<T>;
 template <typename T> using HostVector   = rtac::cuda::HostVector<T>;
+template <typename T> using ImageView    = rtac::types::ImageView<T>;
+template <typename T> using DeviceImage  = rtac::types::Image<T, DeviceVector>;
+
+template <typename T, template<typename>class ContainerT>
+using Image = rtac::types::Image<T,ContainerT>;
 
 using Pose = rtac::types::Pose<float>;
 

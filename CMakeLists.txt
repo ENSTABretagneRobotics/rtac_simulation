@@ -19,6 +19,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
     include/rtac_simulation/common.h
     include/rtac_simulation/geometry.h
+    include/rtac_simulation/RangeBinner.h
     include/rtac_simulation/Directivity.h
     include/rtac_simulation/Antenna.h
     include/rtac_simulation/Receiver.h
@@ -31,6 +32,7 @@ list(APPEND rtac_simulation_headers
 
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
+    src/RangeBinner.cu
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

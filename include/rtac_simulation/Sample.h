@@ -4,6 +4,8 @@
 #include <iostream>
 #include <array>
 
+#include <rtac_base/cuda/vec_math.h>
+
 #include <rtac_simulation/common.h>
 
 namespace rtac { namespace simulation {
