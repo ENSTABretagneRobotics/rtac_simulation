@@ -154,8 +154,8 @@ typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution,
     for(int h = 0; h < H; h++) {
         for(int w = 0; w < W; w++) {
             //kernelData(h,w) = rangePsf.function()[h];
-            kernelData(h,w) = bearingPsf.function()[w];
-            //kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
+            //kernelData(h,w) = bearingPsf.function()[w];
+            kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
         }
     }
 

@@ -49,15 +49,13 @@ class Receiver : public Antenna
 
     DeviceVector<T> receivedSamples_;
 
-    Receiver(std::size_t sampleCount,
-             typename Directivity::ConstPtr directivity, 
-             const Pose& pose = Pose());
+    Receiver(typename Directivity::ConstPtr directivity) : Antenna(directivity) {}
 
     public:
 
-    static Ptr Create(std::size_t sampleCount,
-                      typename Directivity::ConstPtr directivity, 
-                      const Pose& pose = Pose());
+    static Ptr Create(typename Directivity::ConstPtr directivity) {
+        return Ptr(new Receiver<T>(directivity));
+    }
 
     DeviceVector<T>&       samples()       { return receivedSamples_; }
     const DeviceVector<T>& samples() const { return receivedSamples_; }
@@ -73,23 +71,6 @@ class Receiver : public Antenna
         return res;
     }
 };
-
-template <typename T>
-Receiver<T>::Receiver(std::size_t sampleCount,
-                      typename Directivity::ConstPtr directivity, 
-                      const Pose& pose) :
-    Antenna(directivity, pose),
-    receivedSamples_(sampleCount)
-{}
-
-template <typename T>
-typename Receiver<T>::Ptr Receiver<T>::Create(
-           std::size_t sampleCount,
-           typename Directivity::ConstPtr directivity, 
-           const Pose& pose)
-{
-    return Ptr(new Receiver<T>(sampleCount, directivity, pose));
-}
 
 } //namespace simulation
 } //namespace rtac

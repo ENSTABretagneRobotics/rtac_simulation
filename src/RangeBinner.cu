@@ -24,6 +24,9 @@ RangeBinner::RangeBinner(float rangeMin, float rangeMax, uint32_t binCount) :
 
 void RangeBinner::update_ranges(float rangeMin, float rangeMax, uint32_t binCount)
 {
+    if(rangeMin == rangeMin_ && rangeMax == rangeMax_ && binCount == binCount_)
+        return;
+
     if(rangeMax - rangeMin < 1.0e-6) {
         throw std::runtime_error("RangeBinner : Invalid range bounds");
     }

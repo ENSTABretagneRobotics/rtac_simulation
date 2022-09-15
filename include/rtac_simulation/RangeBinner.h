@@ -48,9 +48,6 @@ class RangeBinner
     mutable DeviceVector<uint32_t> keys_;
     mutable HostVector<uint32_t>   tmpKeys_;
     
-    RangeBinner();
-    RangeBinner(float rangeMin, float rangeMax, uint32_t binCount);
-
     template <typename T>
     void compute_keys(const DeviceVector<T>& rangedData) const;
     template <typename T>
@@ -59,12 +56,21 @@ class RangeBinner
 
     public:
 
+    RangeBinner();
+    RangeBinner(float rangeMin, float rangeMax, uint32_t binCount);
+
     static Ptr Create() { return Ptr(new RangeBinner()); }
     static Ptr Create(float rangeMin, float rangeMax, uint32_t binCount) {
         return Ptr(new RangeBinner(rangeMin, rangeMax, binCount));
     }
 
     void update_ranges(float rangeMin, float rangeMax, uint32_t binCount);
+    template <typename TargetT>
+    void update_ranges(const TargetT& target) {
+        this->update_ranges(target.range_min(), 
+                            target.range_max(), 
+                            target.range_count());
+    }
     
     template <typename T>
     void compute_bins(DeviceVector<T>& rangedData,
@@ -92,7 +98,6 @@ void RangeBinner::build_bins(DeviceVector<T>& rangedData,
     int i = 0;
     for(; i < tmpKeys_.size(); i++) {
         if(tmpKeys_[i] > currentBin) {
-            std::cout << "current bin : " << currentBin << "/" << binCount_ << std::endl;
             bins[currentBin] = VectorView<T>{i - currentBinStart,
                                              rangedData.data() + currentBinStart};
             currentBin = tmpKeys_[i];
