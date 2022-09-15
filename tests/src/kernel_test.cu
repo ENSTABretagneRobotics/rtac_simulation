@@ -26,8 +26,8 @@ __global__ void render_kernel(rtac::types::ImageView<float> out,
         float bearing = bearingSpan * (((float)w) / (out.width() - 1) - 0.5f);
 
         float value = kernel(range, bearing);
-        //value = 0.5f * (value + 1.0f);
-        value = value * value;
+        value = 0.5f * (value + 1.0f);
+        //value = value * value;
 
         out(blockIdx.x, w) = value;
     }
@@ -39,8 +39,12 @@ int main()
     float pulseLength       = 0.04f;
     float wavelength        = 1500.0 / 1.2e6;
 
+    //auto kernel = simple_polar_kernel<float>(bearingResolution,
+    //                                         pulseLength, wavelength);
     auto kernel = simple_polar_kernel<float>(bearingResolution,
-                                             pulseLength, wavelength);
+                                             //2*M_PI*bearingResolution,
+                                             130.0f,
+                                             pulseLength, wavelength,8);
     rtac::display::Shape shape({kernel->texture().width(),
                                 kernel->texture().height()});
     cout << "Kernel shape : " << shape << endl;

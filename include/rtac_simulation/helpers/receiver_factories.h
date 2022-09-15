@@ -33,13 +33,15 @@ struct SincFunction
     std::vector<T> x_;
     std::vector<T> y_;
     unsigned int oversampling_;
+    T samplingPeriod_;
 
     public:
 
     SincFunction(unsigned int oversampling = 8) : 
         x_(16*oversampling),
         y_(x_.size()),
-        oversampling_(oversampling)
+        oversampling_(oversampling),
+        samplingPeriod_(M_PI / oversampling)
     {
         auto N = y_.size();
         for(int n = 0; n < N; n++) {
@@ -48,7 +50,21 @@ struct SincFunction
         }
     }
 
-    std::size_t size() const { return y_.size(); }
+    SincFunction(T span, unsigned int oversampling = 8) : 
+        x_(2*((unsigned int)(0.5f*oversampling*span / M_PI) + 1)),
+        y_(x_.size()),
+        oversampling_(oversampling),
+        samplingPeriod_(span / (x_.size() - 1))
+    {
+        auto N = y_.size();
+        for(int n = 0; n < N; n++) {
+            x_[n] = span * (((float)n) / (N - 1) - 0.5f);
+            y_[n] = std::sin(x_[n]) / x_[n]; // no need to check for x == 0, never happens
+        }
+    }
+
+    std::size_t size() const { return y_.size();   }
+    float sampling_period() const { return samplingPeriod_; }
 
     const std::vector<T>& domain()   const { return x_; }
     const std::vector<T>& function() const { return y_; }
@@ -59,7 +75,6 @@ struct SincFunction
      * sqrt(0.5)
      */
     T physical_span(T resolution) const {
-        std::cout << x_.size() << std::endl;
         T scaling = 2.0 * HalfEnergyX / resolution;
         return 2.0f*x_.back() / scaling;
     }
@@ -112,13 +127,40 @@ typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution,
     Image<T, HostVector> kernelData({W,H});
     for(int h = 0; h < H; h++) {
         for(int w = 0; w < W; w++) {
+            kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
+        }
+    }
+
+    return PolarKernel2D<T>::Create(bearingSpan, pulseLength, kernelData);
+}
+
+template <typename T>
+typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution, 
+                                                   float bearingSpan,
+                                                   float pulseLength,
+                                                   float waveLength,
+                                                   unsigned int oversampling = 8)
+{
+    SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
+    //float bearingSpan = bearingPsf.physical_span(bearingResolution * M_PI / 180.0f);
+
+    float numPeriod = pulseLength / waveLength;
+    SinFunction<float> rangePsf(numPeriod, oversampling);
+
+    unsigned int W = bearingPsf.size();
+    unsigned int H = rangePsf.size();
+
+    Image<T, HostVector> kernelData({W,H});
+    for(int h = 0; h < H; h++) {
+        for(int w = 0; w < W; w++) {
             //kernelData(h,w) = rangePsf.function()[h];
             kernelData(h,w) = bearingPsf.function()[w];
             //kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
         }
     }
 
-    return PolarKernel2D<T>::Create(bearingSpan, pulseLength, kernelData);
+    return PolarKernel2D<T>::Create(bearingSpan * M_PI / 180.0, 
+                                    pulseLength, kernelData);
 }
 
 } //namespace simulation
