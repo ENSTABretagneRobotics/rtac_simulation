@@ -28,6 +28,10 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/ConvolutionKernel.h
     include/rtac_simulation/reductions.hcu
     include/rtac_simulation/Target2D.h
+
+    include/rtac_simulation/PolarKernel2D.h
+
+    include/rtac_simulation/helpers/receiver_factories.h
 )
 
 add_library(rtac_simulation SHARED

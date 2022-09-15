@@ -7,6 +7,7 @@ endif()
 list(APPEND test_files
     src/algebra_test.cpp
     src/emitter_test.cu
+    src/kernel_test.cu
 )
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
