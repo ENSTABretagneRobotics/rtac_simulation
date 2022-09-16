@@ -56,14 +56,15 @@ void RangeBinner::compute_keys<PolarSample2D<float>>(
 template <>
 void RangeBinner::compute_bins<PolarSample2D<float>>(
         DeviceVector<PolarSample2D<float>>& rangedData,
-        HostVector<VectorView<PolarSample2D<float>>>& bins) const 
+        HostVector<VectorView<PolarSample2D<float>>>& bins,
+        int overlap) const 
 {
     this->compute_keys(rangedData);
     thrust::sort_by_key(thrust::device,
                         keys_.begin_thrust(),
                         keys_.end_thrust(),
                         rangedData.begin_thrust());
-    this->build_bins(rangedData, bins);
+    this->build_bins(rangedData, bins, overlap);
 }
 
 } //namespace simulation

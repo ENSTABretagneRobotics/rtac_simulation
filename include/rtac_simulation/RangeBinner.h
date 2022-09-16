@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <algorithm>
 
 #include <rtac_base/cuda/Texture2D.h>
 
@@ -52,7 +53,8 @@ class RangeBinner
     void compute_keys(const DeviceVector<T>& rangedData) const;
     template <typename T>
     void build_bins(DeviceVector<T>& rangedData,
-                    HostVector<VectorView<T>>& bins) const;
+                    HostVector<VectorView<T>>& bins,
+                    int overlap) const;
 
     public:
 
@@ -71,21 +73,29 @@ class RangeBinner
                             target.range_max(), 
                             target.range_count());
     }
-    
+
+    template <typename T>
+    HostVector<VectorView<T>> compute_overlaped_bins(HostVector<VectorView<T>>& bins,
+                                                     int overlap) const;
+
     template <typename T>
     void compute_bins(DeviceVector<T>& rangedData,
-                      HostVector<VectorView<T>>& bins) const;
+                      HostVector<VectorView<T>>& bins,
+                      int overlap = 0) const;
+
     template <typename T>
-    DeviceVector<VectorView<T>> compute_bins(DeviceVector<T>& rangedData) const {
+    DeviceVector<VectorView<T>> compute_bins(DeviceVector<T>& rangedData,
+                                             int overlap = 0) const {
         HostVector<VectorView<T>> bins;
-        this->compute_bins(rangedData, bins);
+        this->compute_bins(rangedData, bins, overlap);
         return bins;
     }
 };
 
 template <typename T>
 void RangeBinner::build_bins(DeviceVector<T>& rangedData,
-                             HostVector<VectorView<T>>& bins) const
+                             HostVector<VectorView<T>>& bins,
+                             int overlap) const
 {
     // reinitializing bins to ensure empty bins have a zeroed size.
     bins.resize(binCount_);
@@ -113,6 +123,34 @@ void RangeBinner::build_bins(DeviceVector<T>& rangedData,
         bins[currentBin] = VectorView<T>{i - currentBinStart,
                                          rangedData.data() + currentBinStart};
     }
+
+    if(overlap > 0) {
+        // replace this with in place construction of bins directly with the
+        // overlap. (or not ?, what is fastest ?)
+        bins = this->compute_overlaped_bins(bins, overlap);
+    }
+}
+
+template <typename T> HostVector<VectorView<T>> 
+    RangeBinner::compute_overlaped_bins(HostVector<VectorView<T>>& bins,
+                                        int overlap) const
+{
+    if(overlap <= 0) return bins;
+
+    HostVector<VectorView<T>> bins2(bins.size());
+
+    bins2.resize(bins.size());
+    for(int i = 0; i < bins.size(); i++) {
+        int start = std::max(0, i - overlap);
+        int end   = std::min((int)bins.size(), i + overlap + 1);
+        if(bins[start].data() != nullptr) {
+            std::size_t size = 0;
+            for(int j = start; j < end; j++) size += bins[j].size();
+            bins2[i] = rtac::types::VectorView<T>(size, bins[start].data());
+        }
+    }
+
+    return bins2;
 }
 
 namespace details {
