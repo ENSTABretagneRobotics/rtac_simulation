@@ -1,5 +1,7 @@
 #include <rtac_simulation/Directivity.h>
 
+#include <rtac_base/signal_helpers.h>
+
 namespace rtac { namespace simulation {
 
 Directivity::Directivity(const HostImage& data)
@@ -27,38 +29,19 @@ DirectivityView Directivity::view() const
 
 Directivity::Ptr Directivity::from_sinc_parameters(float bearingAperture, 
                                                    float elevationAperture,
-                                                   DataShape shape)
+                                                   unsigned int oversampling)
 {
-    // sin(SincHalf) / SincHalf = 0.5 (-3dB on directivity)
-    //constexpr float SincHalf = 1.89549;
-    constexpr float SincHalf = 1.39156f;
-
-    auto optimal_size = [](float aperture, int oversampling) {
-        float shannonPeriod = 0.25f*M_PIf*aperture / SincHalf;
-        unsigned int N = 2;
-        for(; M_PIf*oversampling  > shannonPeriod*N; N *= 2);
-        return N;
-    };
-
-    auto sinc_sampling = [](unsigned int N, float aperture, int n) {
-        if(n == 0) return 1.0f;
-        float x = 2.0f*SincHalf*(M_PIf*n) / (N*aperture);
-        return std::sin(x) / x;
-    };
-
-    int oversampling = 8;
-    if(shape.area() == 0) {
-        // No size parameter given by user. Finding one.
-        shape.width  = optimal_size(bearingAperture,   oversampling);
-        shape.height = optimal_size(elevationAperture, oversampling);
-        std::cout << "Optimal shape : " << shape << std::endl;
-    }
-
-    HostImage data(shape);
-    for(int h = 0; h < shape.height; h++) {
-        float tmp = sinc_sampling(shape.height, elevationAperture, h);
-        for(int w = 0; w < shape.width; w++) {
-            data(h,w) = tmp*sinc_sampling(shape.width, bearingAperture, w);
+    signal::SincFunction<float> bearingDirectivity(
+        0.0f, 2.0*1.39156*M_PI / bearingAperture, oversampling);
+    signal::SincFunction<float> elevationDirectivity(
+        0.0f, 2.0*1.39156*M_PI / elevationAperture, oversampling);
+    
+    HostImage data({(unsigned int)bearingDirectivity.size(), 
+                    (unsigned int)elevationDirectivity.size()}); 
+    for(int h = 0; h < data.height(); h++) {
+        for(int w = 0; w < data.width(); w++) {
+            data(h,w) = bearingDirectivity.function()[w]
+                      * elevationDirectivity.function()[h];
         }
     }
 

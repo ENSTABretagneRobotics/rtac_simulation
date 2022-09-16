@@ -72,7 +72,7 @@ class Directivity
 
     static Ptr from_sinc_parameters(float bearingAperture,
                                     float elevationAperture,
-                                    DataShape shape = {0,0});
+                                    unsigned int oversampling = 8);
 };
 
 } //namespace simulation

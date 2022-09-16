@@ -51,6 +51,8 @@ __global__ void render_emitter(rtac::types::ImageView<float> out,
         //float3 d = directions(blockIdx.y,w);
         float3 d = emitter.ray_direction(directions(blockIdx.y,w));
         out(blockIdx.y, w) = abs(emitter.sample_value(d));
+        //out(blockIdx.y, w) = 0.5f*(emitter.sample_value(d).real() + 1.0f);
+        //out(blockIdx.y, w) = emitter.sample_value(d).real();
     }
 }
 
@@ -75,6 +77,8 @@ int main()
 {
     auto directivity = Directivity::from_sinc_parameters(130.0f * M_PIf / 180.0f, 
                                                           20.0f * M_PIf / 180.0f);
+    //auto directivity = Directivity::from_sinc_parameters( 20.0f * M_PIf / 180.0f, 
+    //                                                      20.0f * M_PIf / 180.0f);
     auto directions = generate_directions();
     auto emitter = Emitter<float>::Create(directions.container(), directivity);
 
@@ -108,7 +112,7 @@ int main()
         Eigen::AngleAxisf(0.5f / fps, Eigen::Vector3f::UnitY()).toRotationMatrix());
 
     while(!display.should_close()) {
-        emitter->pose() = emitter->pose() * r;
+        //emitter->pose() = emitter->pose() * r;
         render_emitter(data, directions, emitter);
         renderer->texture()->set_image(directions.shape(), data);
         display.draw();
