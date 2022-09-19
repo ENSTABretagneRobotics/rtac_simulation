@@ -75,10 +75,9 @@ void render_emitter(GLVector<float>& dst,
 
 int main()
 {
-    auto directivity = Directivity::from_sinc_parameters(130.0f * M_PIf / 180.0f, 
-                                                          20.0f * M_PIf / 180.0f);
-    //auto directivity = Directivity::from_sinc_parameters( 20.0f * M_PIf / 180.0f, 
-    //                                                      20.0f * M_PIf / 180.0f);
+    //auto directivity = Directivity::from_sinc_parameters(130.0f, 20.0f);
+    auto directivity = Directivity::from_sinc_parameters(20.0f, 20.0f);
+
     auto directions = generate_directions();
     auto emitter = Emitter<float>::Create(directions.container(), directivity);
 
@@ -112,7 +111,7 @@ int main()
         Eigen::AngleAxisf(0.5f / fps, Eigen::Vector3f::UnitY()).toRotationMatrix());
 
     while(!display.should_close()) {
-        //emitter->pose() = emitter->pose() * r;
+        emitter->pose() = emitter->pose() * r;
         render_emitter(data, directions, emitter);
         renderer->texture()->set_image(directions.shape(), data);
         display.draw();

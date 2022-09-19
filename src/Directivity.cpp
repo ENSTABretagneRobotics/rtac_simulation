@@ -27,10 +27,16 @@ DirectivityView Directivity::view() const
     return DirectivityView({texture_.texture(), 1.0f / M_PI, 1.0f / M_PI});
 }
 
+/**
+ * This is bad. should have revolution symmetry
+ */
 Directivity::Ptr Directivity::from_sinc_parameters(float bearingAperture, 
                                                    float elevationAperture,
                                                    unsigned int oversampling)
 {
+    bearingAperture   *= M_PIf / 180.0f;
+    elevationAperture *= M_PIf / 180.0f;
+
     signal::SincFunction<float> bearingDirectivity(
         0.0f, 2.0*1.39156*M_PI / bearingAperture, oversampling);
     signal::SincFunction<float> elevationDirectivity(
