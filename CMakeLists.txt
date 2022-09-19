@@ -30,13 +30,20 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Target2D.h
 
     include/rtac_simulation/PolarKernel2D.h
+    include/rtac_simulation/PolarTarget2D.h
+    include/rtac_simulation/PolarReceiver2D.h
 
     include/rtac_simulation/helpers/receiver_factories.h
+
+    include/rtac_simulation/examples/blueprint_oculus.h
 )
 
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/RangeBinner.cu
+    src/PolarReceiver2D.cu
+
+    src/examples/blueprint_oculus.cu
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
