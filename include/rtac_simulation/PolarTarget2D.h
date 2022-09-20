@@ -74,10 +74,12 @@ class PolarTarget2D
     }
 
     const DeviceImage<T>& data() const { return data_; }
+    const DeviceVector<float>& bearings() const { return bearings_; }
+    const DeviceVector<float>& range()    const { return ranges_;   }
 
     std::size_t range_count()   const { return ranges_.size(); }
     std::size_t bearing_count() const { return bearings_.size(); }
-
+    
     float range_min()         const { return rangeMin_; }
     float range_max()         const { return rangeMax_; }
     float range_resolution()  const { 

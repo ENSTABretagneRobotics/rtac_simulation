@@ -15,9 +15,10 @@ if(NOT TARGET rtac_optix)
     find_package(rtac_optix REQUIRED)
 endif()
 
-# This package is not mandatory it only allows for easy setup in oculus
+# These package are not mandatory. it only allows for easy setup in oculus
 # example.
-find_package(oculus_driver QUIET)
+find_package(oculus_driver QUIET) # easy oculus parametrization.
+find_package(rtac_display  QUIET) # Display utilities
 
 
 list(APPEND rtac_simulation_headers
@@ -71,6 +72,15 @@ else()
         target_include_directories(rtac_simulation PUBLIC ${include_dir})
         target_compile_definitions(rtac_simulation PUBLIC "RTAC_OCULUS_DEPRECATED")
     endif()
+endif()
+
+if(TARGET rtac_display)
+    set(DISPLAY_SUPPORT_ENABLED ON)
+    list(APPEND rtac_simulation_headers
+        include/rtac_simulation/helpers/PolarTargetRenderer.h
+    )
+    target_sources(rtac_simulation PRIVATE src/helpers/PolarTargetRenderer.cu)
+    target_link_libraries(rtac_simulation PUBLIC rtac_display)
 endif()
 
 rtac_install_target(rtac_simulation
