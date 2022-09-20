@@ -15,6 +15,11 @@ if(NOT TARGET rtac_optix)
     find_package(rtac_optix REQUIRED)
 endif()
 
+# This package is not mandatory it only allows for easy setup in oculus
+# example.
+find_package(oculus_driver QUIET)
+
+
 list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
     include/rtac_simulation/common.h
@@ -54,6 +59,20 @@ target_link_libraries(rtac_simulation PUBLIC
     rtac_cuda
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
+
+if(TARGET oculus_driver)
+    get_target_property(oculus_driver narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
+    target_link_libraries(rtac_simulation PUBLIC ${include_dir})
+    target_compile_definitions(rtac_simulation PUBLIC "RTAC_OCULUS_DRIVER")
+else()
+    find_package(narval_oculus QUIET)
+    if(TARGET narval_oculus)
+        get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
+        target_include_directories(rtac_simulation PUBLIC ${include_dir})
+        target_compile_definitions(rtac_simulation PUBLIC "RTAC_OCULUS_DEPRECATED")
+    endif()
+endif()
+
 rtac_install_target(rtac_simulation
     HEADER_FILES ${rtac_simulation_headers}
 )

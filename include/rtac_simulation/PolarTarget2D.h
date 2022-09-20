@@ -84,6 +84,16 @@ class PolarTarget2D
         return (rangeMax_ - rangeMin_) / (ranges_.size() - 1);
     }
 
+    bool needs_update(float minRange, float maxRange,
+                      unsigned int rangeCount,
+                      unsigned int bearingCount) const
+    {
+        return maxRange     != this->range_max()
+            || rangeCount   != this->range_count()
+            || minRange     != this->range_min()
+            || bearingCount != this->bearing_count();
+    }
+
     void update(const std::vector<float>& bearings,
                 const std::vector<float>& ranges)
     {
