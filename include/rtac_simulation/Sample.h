@@ -67,6 +67,9 @@ struct Sample3D : public Sample<T, float3>
     RTAC_HOSTDEVICE static Sample3D<T> Make(const Complex<T>& value, const float3& p) {
         return Sample3D<T>{value, p};
     }
+    RTAC_HOSTDEVICE static Sample3D<T> Zero() {
+        return Sample3D<T>::Make({0,0}, {0,0,0});
+    }
 };
 
 template <typename T>
@@ -81,6 +84,10 @@ struct PolarSample2D : public Sample<T, float2>
     RTAC_HOSTDEVICE float& range() { return this->position.x; }
     RTAC_HOSTDEVICE float& theta() { return this->position.y; }
     
+    // p is assumed in polar coordinates
+    RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Complex<T>& value, const float2& p) {
+        return PolarSample2D<T>{value, p};
+    }
     // p is assumed to be expressed in cartesian coordinates.
     RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Complex<T>& value, const float3& p) {
         return PolarSample2D<T>{value, float2{length(p), -atan2(p.y, p.x)}};
@@ -88,6 +95,9 @@ struct PolarSample2D : public Sample<T, float2>
     // other.position is assumed to be expressed in cartesian coordinates.
     RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Sample3D<T>& other) {
         return PolarSample2D<T>::Make(other.datum(), other.position);
+    }
+    RTAC_HOSTDEVICE static PolarSample2D<T> Zero() {
+        return PolarSample2D<T>::Make({0,0},float2{0,0});
     }
 };
 
