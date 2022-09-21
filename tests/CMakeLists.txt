@@ -1,4 +1,26 @@
 
+find_package(rosbag REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(oculus_sonar REQUIRED)
+find_package(narval_oculus REQUIRED)
+add_library(rosbag_helpers
+    src/helpers/OculusRosbagIterator.cpp
+)
+target_include_directories(rosbag_helpers PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${rosbag_INCLUDE_DIRS}
+    ${nav_msgs_INCLUDE_DIRS}
+    ${oculus_sonar_INCLUDE_DIRS}
+)
+target_link_libraries(rosbag_helpers PUBLIC
+    rtac_simulation
+    ${rosbag_LIBRARIES}
+    ${nav_msgs_LIBRARIES}
+    ${oculus_sonar_LIBRARIES}
+    narval_oculus
+)
+
 
 if(NOT TARGET rtac_display)
     find_package(rtac_display REQUIRED)
@@ -21,6 +43,7 @@ foreach(filename ${test_files})
         CUDA_ARCHITECTURES native
     )
 endforeach()
+
 
 
 # rtac_generate_asm(index_test_asm

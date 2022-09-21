@@ -2,13 +2,10 @@
 #include <thread>
 using namespace std;
 
-#include <rosbag/bag.h>
-#include <rosbag/view.h>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <rtac_simulation/helpers/OculusRosbagIterator.h>
+
 #include <narval_oculus/Oculus.h>
 #include <narval_oculus/helpers/OculusRenderer.h>
-#include <oculus_sonar/OculusPing.h>
 
 #include <rtac_base/files.h>
 #include <rtac_base/external/obj_codec.h>
