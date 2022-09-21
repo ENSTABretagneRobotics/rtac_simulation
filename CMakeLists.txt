@@ -58,6 +58,7 @@ target_include_directories(rtac_simulation PUBLIC
 target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
+    rtac_optix
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
 
