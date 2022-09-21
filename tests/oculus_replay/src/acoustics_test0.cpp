@@ -58,16 +58,8 @@ using namespace rtac::optix;
 #include "oculus_sim.h"
 using namespace narval;
 
-template <typename T>
-using BoostPtr    = boost::shared_ptr<T>;
-using OculusMsg   = BoostPtr<oculus_sonar::OculusPing>;
-//using PoseMsg     = BoostPtr<nav_msgs::Odometry>;
-using PoseMsg     = BoostPtr<geometry_msgs::PoseStamped>;
-using OculusDatum = std::pair<OculusMsg, PoseMsg>;
-
 MeshGeometry::Ptr geometry_from_mesh(const Context::Ptr& ctx, const Mesh& mesh);
 DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh);
-Pose sonar_pose();
 
 int main()
 {
@@ -78,17 +70,16 @@ int main()
 
     cout << "DTM path : " << dtmPath << endl;
 
-    rosbag::Bag bag;
-    cout << "Opening rosbag " << bagPath << " ... " << flush;
-    bag.open(bagPath, rosbag::bagmode::Read);
-    cout << "Done." << endl << flush;
-    std::vector<std::string> topics({"/matisse_pose", "/oculus_sonar/ping"});
-    rosbag::View view(bag, rosbag::TopicQuery(topics));
+    auto Roculus = rtac::types::Pose<float>::from_rotation_matrix(
+        Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
+    rtac::simulation::OculusRosbagIterator bag(bagPath, 
+                                               "/oculus_sonar/ping",
+                                               "/matisse_pose",
+                                               Roculus);
 
     rtac::external::ObjLoader parser(dtmPath);
     parser.load_geometry();
 
-    //auto mesh = HostMesh<>::from_ply(dtmPath);
     auto mesh = parser.create_single_mesh<HostMesh<>>();
     cout << "Number of points : " << mesh->points().size() << endl;
     cout << "Number of faces  : " << mesh->faces().size() << endl;
@@ -103,11 +94,9 @@ int main()
     auto raygen   = pipeline->add_raygen_program("__raygen__oculus_sonar", "oculus_sonar");
     auto miss     = pipeline->add_miss_program("__miss__oculus_sonar", "oculus_sonar");
     auto hitSonar = pipeline->add_hit_programs();
-    //hitSonar->set_closesthit({"__closesthit__oculus_sonar", pipeline->module("oculus_sonar")});
     
     DeviceVector<float> dtmPhases;
     ObjectInstance::Ptr dtmObject; {
-        //auto geom = geometry_from_mesh(context, mesh);
         auto geom = MeshGeometry::Create(context, DeviceMesh<>::Create(*mesh));
         geom->material_hit_setup({OPTIX_GEOMETRY_FLAG_NONE});
         geom->enable_vertex_access();
@@ -132,8 +121,6 @@ int main()
     auto directions = rtac::simulation::Emitter<float>::generate_polar_directions(0.1f,
                                                                                   140.0f,
                                                                                   100.0f);
-    auto Roculus = rtac::types::Pose<float>::from_rotation_matrix(
-        Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
     
     auto oculusEmitter = rtac::simulation::Emitter<float>::Create(
         directions.container(), 
@@ -143,8 +130,11 @@ int main()
     DeviceObject<Params> optixParams;
 
     optixParams.topObject = *topObject;
+    optixParams.directions = directions.data();
 
     DeviceVector<float3>  optixPoints;
+    optixPoints.resize(directions.size());
+    optixParams.outputPoints = optixPoints.data();
 
     plt::samples::Display3D display;
     display.disable_frame_counter();
@@ -163,8 +153,6 @@ int main()
     optixRenderer->set_color({0.5,0.0,0.0,1.0});
     auto trace = display.create_renderer<plt::FrameInstances>(display.view());
 
-    auto sonarPose = sonar_pose();
-
     plt::Display sonarDisplay(display.context());
     sonarDisplay.disable_frame_counter();
     auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::New());
@@ -173,61 +161,27 @@ int main()
     simDisplay.disable_frame_counter();
     auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
 
-    OculusDatum oculusDatum;
-
     rtac::types::Image<rtac::types::Point3<unsigned char>, std::vector> screenshot;
 
     int count = 0;
-    auto it = view.begin();
     int screenshotCount = 0;
     while(!display.should_close() &&
           !simDisplay.should_close() &&
-          !sonarDisplay.should_close()) {
-        if(auto msg = it->instantiate<geometry_msgs::PoseStamped>()) {
-            oculusDatum.second = msg;
-        }
-        if(auto msg = it->instantiate<oculus_sonar::OculusPing>()) {
-            oculusDatum.first = msg;
-        }
+          !sonarDisplay.should_close())
+    {
+        auto oculusDatum = bag.next();
 
-        it++;
-        if(it == view.end()) {
-            count = 0;
-            it = view.begin();
-            oculusDatum.first  = nullptr;
-            oculusDatum.second = nullptr;
-            screenshotCount = 0;
-        }
-        if(!oculusDatum.first || !oculusDatum.second) {
-            continue;
-        }
+        auto meta     = oculusDatum.ping_metadata();
+        auto pingData = oculusDatum.ping_data();
+        auto pose     = oculusDatum.pose();
 
-        auto pingMsg = oculusDatum.first;
-        auto meta = (const OculusSimplePingResult*)pingMsg->data.data();
-        oculusReceiver->reconfigure(*meta, pingMsg->data.data());
-
-        auto rosPose = oculusDatum.second->pose;
-
-        plt::Frame::Pose pose({(float)rosPose.position.x,
-                               (float)rosPose.position.y,
-                               (float)rosPose.position.z},
-                              {(float)rosPose.orientation.w,
-                               (float)rosPose.orientation.x,
-                               (float)rosPose.orientation.y,
-                               (float)rosPose.orientation.z});
-
-        optixPoints.resize(directions.size());
-
-        optixParams.outputPoints  = optixPoints.data();
-
-        oculusEmitter->pose() = pose * Roculus;
-
-        oculusReceiver->pose() = pose * Roculus;
+        oculusEmitter->pose()  = pose;
+        oculusReceiver->pose() = pose;
         oculusReceiver->samples().resize(directions.size());
+        oculusReceiver->reconfigure(meta, pingData);
 
         optixParams.emitter    = oculusEmitter->view();
         optixParams.receiver   = oculusReceiver->view();
-        optixParams.directions = directions.data();
 
         optixParams.update_device();
         CUDA_CHECK_LAST();
@@ -243,19 +197,15 @@ int main()
 
         optixRenderer->points().set_device_data(optixPoints.size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));
-        optixRenderer->set_pose(pose * Roculus);
-        trace->add_pose(pose * Roculus);
+        optixRenderer->set_pose(pose);
+        trace->add_pose(pose);
 
-        pingRenderer->set_data(*meta, (const uint8_t*)pingMsg->data.data());
+        pingRenderer->set_data(meta, pingData);
         simRenderer->set_data(oculusReceiver->target());
 
         display.draw();
         sonarDisplay.draw();
         simDisplay.draw();
-
-        screenshotCount++;
-        oculusDatum.first  = nullptr;
-        oculusDatum.second = nullptr;
 
         //std::this_thread::sleep_for(50ms);
     }
@@ -266,13 +216,6 @@ int main()
 #include <random>
 DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh)
 {
-    //std::vector<float> phases(mesh->num_points());
-    //size_t N = 0;//
-    //if(mesh->num_//faces() > 0) {
-    //    N = mesh-//>num_faces();
-    //} else {
-    //    N = mesh->num_points() / 3;
-    //}
     std::vector<float> phases(mesh->primitive_count());
     
     std::mt19937 randGenerator((std::random_device())());
@@ -282,14 +225,4 @@ DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh)
     }
 
     return DeviceVector<float>(phases);
-}
-
-Pose sonar_pose()
-{
-    Pose pose({0.028f, 0.275f, 0.272f},
-        Pose::Quaternion(Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ())) *
-        Pose::Quaternion(Eigen::AngleAxisf(-3.0f*M_PI / 180.0, Eigen::Vector3f::UnitY())) *
-        Pose::Quaternion(0.9915618937147881f, 0.0f, -0.12963414261969486f, 0.0f));
-
-    return pose;
 }

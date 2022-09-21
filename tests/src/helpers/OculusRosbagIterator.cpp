@@ -4,11 +4,12 @@ namespace rtac { namespace simulation {
 
 OculusRosbagIterator::OculusRosbagIterator(const std::string& bagPath,
                                            const std::string& pingTopic,
-                                           const std::string& poseTopic) :
+                                           const std::string& poseTopic,
+                                           const Pose& fixedPose) :
     bagPath_(bagPath),
     pingTopic_(pingTopic),
     poseTopic_(poseTopic),
-    currentDatum_({nullptr,nullptr})
+    currentDatum_(fixedPose)
 {
     std::cout << "Opening rosbag " << bagPath_ << " ... " << std::flush;
     rosbag_.open(bagPath_, rosbag::bagmode::Read);
@@ -19,25 +20,25 @@ OculusRosbagIterator::OculusRosbagIterator(const std::string& bagPath,
     std::cout << "Done." << std::endl;
 }
 
-OculusRosbagIterator::OculusDatum OculusRosbagIterator::next()
+OculusDatum OculusRosbagIterator::next()
 {
     auto it = bagIterator_;
+    currentDatum_.reset();
     do {
         if(auto msg = it->instantiate<geometry_msgs::PoseStamped>()) {
-            currentDatum_.second = msg;
+            currentDatum_.poseMsg_ = msg;
         }
         if(auto msg = it->instantiate<oculus_sonar::OculusPing>()) {
-            currentDatum_.first = msg;
+            currentDatum_.pingMsg_ = msg;
         }
 
         it++;
         if(it == bagView_.end()) {
             it = bagView_.begin();
-            currentDatum_.first  = nullptr;
-            currentDatum_.second = nullptr;
+            currentDatum_.reset();
             continue;
         }
-        if(currentDatum_.first && currentDatum_.second) {
+        if(currentDatum_.is_complete()) {
             bagIterator_ = it;
             return currentDatum_;
         }

@@ -1,8 +1,8 @@
 
 find_package(rosbag REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(oculus_sonar REQUIRED)
 find_package(narval_oculus REQUIRED)
+find_package(oculus_sonar REQUIRED)
 add_library(rosbag_helpers
     src/helpers/OculusRosbagIterator.cpp
 )
@@ -15,10 +15,10 @@ target_include_directories(rosbag_helpers PUBLIC
 )
 target_link_libraries(rosbag_helpers PUBLIC
     rtac_simulation
+    narval_oculus
     ${rosbag_LIBRARIES}
     ${nav_msgs_LIBRARIES}
     ${oculus_sonar_LIBRARIES}
-    narval_oculus
 )
 
 
