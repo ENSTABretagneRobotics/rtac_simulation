@@ -123,7 +123,8 @@ int main()
                                                                                   100.0f);
     
     auto oculusEmitter = rtac::simulation::Emitter<float>::Create(
-        directions.container(), 
+        //directions.container(), 
+        directions,
         rtac::simulation::Directivity::from_sinc_parameters(130.0f, 20.0f));
     auto oculusReceiver = rtac::simulation::OculusReceiver::Create();
 

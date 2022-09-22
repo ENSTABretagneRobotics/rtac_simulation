@@ -113,21 +113,38 @@ auto Emitter<T>::generate_polar_directions(float resolution,
     resolution        *= M_PI  / 180.0f;
     bearingAperture   *= M_PI  / 180.0f;
     elevationAperture *= M_PI  / 180.0f;
-    unsigned int W = (int)(bearingAperture   / resolution) + 1;
-    unsigned int H = (int)(elevationAperture / resolution) + 1;
 
-    rtac::types::Image<float3, rtac::cuda::HostVector> data({W,H});
+    unsigned int idx = 0;
+    unsigned int H   = (int)(elevationAperture / resolution) + 1;
+    
+    std::vector<float3> data;
     for(int h = 0; h < H; h++) {
         float phi = elevationAperture * (((float)h) / (H - 1) - 0.5f);
+        int W = (int)(abs(std::cos(phi)) * bearingAperture   / resolution) + 1;
         for(int w = 0; w < W; w++) {
             float theta = bearingAperture * (((float)w) / (W - 1) - 0.5f);
-            data(h,w) = float3{cos(theta)*cos(phi),
-                               sin(theta)*cos(phi),
-                               sin(phi)};
+            data.push_back(float3{std::cos(theta)*std::cos(phi),
+                                  std::sin(theta)*std::cos(phi),
+                                  std::sin(phi)});
         }
     }
+    return DeviceVector<float3>(data);
 
-    return rtac::types::Image<float3, rtac::cuda::DeviceVector>(data);
+    //unsigned int W = (int)(bearingAperture   / resolution) + 1;
+    //unsigned int H = (int)(elevationAperture / resolution) + 1;
+
+    //rtac::types::Image<float3, rtac::cuda::HostVector> data({W,H});
+    //for(int h = 0; h < H; h++) {
+    //    float phi = elevationAperture * (((float)h) / (H - 1) - 0.5f);
+    //    for(int w = 0; w < W; w++) {
+    //        float theta = bearingAperture * (((float)w) / (W - 1) - 0.5f);
+    //        data(h,w) = float3{cos(theta)*cos(phi),
+    //                           sin(theta)*cos(phi),
+    //                           sin(phi)};
+    //    }
+    //}
+
+    //return rtac::types::Image<float3, rtac::cuda::DeviceVector>(data);
 }
 
 } //namespace simulation
