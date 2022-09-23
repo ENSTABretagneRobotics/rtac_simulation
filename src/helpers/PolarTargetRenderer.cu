@@ -20,7 +20,7 @@ void PolarTargetRenderer::set_data(rtac::simulation::PolarTarget2D<float>::Const
 }
 
 __global__ void render_complex_data(
-    rtac::types::VectorView<const thrust::complex<float>> in, float* out)
+    rtac::types::VectorView<const cuda::Complex<float>> in, float* out)
 {
     auto idx = blockDim.x*blockIdx.x + threadIdx.x;
     for(; idx < in.size(); idx += gridDim.x*blockDim.x) {
@@ -29,14 +29,14 @@ __global__ void render_complex_data(
 }
 
 void PolarTargetRenderer::set_data(
-    rtac::simulation::PolarTarget2D<std::complex<float>>::ConstPtr data)
+    rtac::simulation::PolarTarget2D<cuda::Complex<float>>::ConstPtr data)
 {
-    this->set_geometry<std::complex<float>>(data);
+    this->set_geometry<cuda::Complex<float>>(data);
 
     tmpData_.resize(data->data().container().size());
     {
-        rtac::types::VectorView<const thrust::complex<float>> dataView(tmpData_.size(),
-            (const thrust::complex<float>*)data->data().container().data());
+        rtac::types::VectorView<const cuda::Complex<float>> dataView(tmpData_.size(),
+            data->data().container().data());
         auto mappedPtr = tmpData_.map_cuda();
 
         render_complex_data<<<tmpData_.size() / RTAC_BLOCKSIZE, RTAC_BLOCKSIZE>>>(

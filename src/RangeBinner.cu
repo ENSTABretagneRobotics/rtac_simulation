@@ -1,5 +1,6 @@
 #include <rtac_simulation/RangeBinner.h>
 
+#include <thrust/device_ptr.h>
 #include <thrust/sort.h>
 #include <thrust/execution_policy.h>
 
@@ -61,9 +62,9 @@ void RangeBinner::compute_bins<PolarSample2D<float>>(
 {
     this->compute_keys(rangedData);
     thrust::sort_by_key(thrust::device,
-                        keys_.begin_thrust(),
-                        keys_.end_thrust(),
-                        rangedData.begin_thrust());
+                        thrust::device_pointer_cast(keys_.begin()),
+                        thrust::device_pointer_cast(keys_.end()),
+                        thrust::device_pointer_cast(rangedData.begin()));
     this->build_bins(rangedData, bins, overlap);
 }
 

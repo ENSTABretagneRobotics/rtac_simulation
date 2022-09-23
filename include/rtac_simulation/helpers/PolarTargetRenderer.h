@@ -1,6 +1,8 @@
 #ifndef _DEF_RTAC_SIMULATION_HELPERS_POLAR_TARGET_RENDERERER_H_
 #define _DEF_RTAC_SIMULATION_HELPERS_POLAR_TARGET_RENDERERER_H_
 
+#include <rtac_base/cuda/utils.h>
+
 #include <rtac_display/GLVector.h>
 #include <rtac_display/renderers/FanRenderer.h>
 
@@ -33,7 +35,7 @@ class PolarTargetRenderer : public FanRenderer
     }
     
     void set_data(rtac::simulation::PolarTarget2D<float>::ConstPtr data);
-    void set_data(rtac::simulation::PolarTarget2D<std::complex<float>>::ConstPtr data);
+    void set_data(rtac::simulation::PolarTarget2D<cuda::Complex<float>>::ConstPtr data);
 };
 
 template <typename T>

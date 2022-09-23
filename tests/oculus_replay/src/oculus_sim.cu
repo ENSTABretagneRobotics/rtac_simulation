@@ -56,7 +56,7 @@ extern "C" __global__ void __closesthit__oculus_sonar_phased()
     float a = dot(travel,hitN) / travelSquared;
 
     auto payload = SonarRay::from_registers();
-    payload.datum    *= thrust::complex<float>{a*cos(phase), a*sin(phase)};
+    payload.datum    *= cuda::Complex<float>{a*cos(phase), a*sin(phase)};
     payload.position  = hitP;
 
     SonarRay::set_payload(payload);
