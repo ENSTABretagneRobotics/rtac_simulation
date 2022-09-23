@@ -38,6 +38,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/PolarKernel2D.h
     include/rtac_simulation/PolarTarget2D.h
     include/rtac_simulation/PolarReceiver2D.h
+    include/rtac_simulation/PolarRayCaster.h
 
     include/rtac_simulation/helpers/receiver_factories.h
 
@@ -48,6 +49,7 @@ add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/RangeBinner.cu
     src/PolarReceiver2D.cu
+    src/PolarRayCaster.cpp
 
     src/examples/blueprint_oculus.cu
 )
@@ -61,6 +63,9 @@ target_link_libraries(rtac_simulation PUBLIC
     rtac_optix
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
+target_add_ptx(rtac_simulation
+    CUDA_SOURCES src/PolarRayCaster.cu
+)
 
 if(TARGET oculus_driver)
     get_target_property(oculus_driver narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
@@ -91,4 +96,5 @@ rtac_install_target(rtac_simulation
 if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
-    
+
+
