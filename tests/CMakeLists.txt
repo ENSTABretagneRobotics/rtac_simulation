@@ -39,9 +39,6 @@ foreach(filename ${test_files})
         rtac_simulation
         rtac_display
     )
-    set_target_properties(${target_name} PROPERTIES
-        CUDA_ARCHITECTURES native
-    )
 endforeach()
 
 
