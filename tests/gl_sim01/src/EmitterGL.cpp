@@ -11,48 +11,49 @@ in vec3 normal;
 uniform mat4 view;
 uniform vec3 origin;
 
-//out vec4 datum;
-out float range;
-out float a;
+out vec4 datum;
+
+//out float range;
+//out float a;
 
 void main()
 {
     gl_Position = view*vec4(point, 1.0f);
 
-    vec3 delta = point - origin;
-    float rangeSquared = dot(delta, delta);
-    
-    a = abs(normalize((view*vec4(normal, 0.0f)).xyz).z) / rangeSquared;
-    range = sqrt(rangeSquared);
+    //vec3 delta = point - origin;
+    //float rangeSquared = dot(delta, delta);
+    //
+    //a = abs(normalize((view*vec4(normal, 0.0f)).xyz).z) / rangeSquared;
+    //range = sqrt(rangeSquared);
 
-    //float a = abs(normalize((view*vec4(normal, 0.0f)).xyz).z);
-    //datum = vec4(a,a,a,1.0f);
+    float a = abs(normalize((view*vec4(normal, 0.0f)).xyz).z);
+    datum = vec4(a,a,a,1.0f);
 }
 )");
 
 const std::string EmitterGL::fragmentShader = std::string(R"(
 #version 430 core
 
-//in  vec4 datum;
+in  vec4 datum;
 
-#define M_PI             3.1415926538
-#define reflectionShift  0.5*M_PI;
-#define wavelengthFactor 4.0f*M_PI / (1500.0 / 1.2e6f)
-
-in float range;
-in float a;
+//#define M_PI             3.1415926538
+//#define reflectionShift  0.5*M_PI;
+//#define wavelengthFactor 4.0f*M_PI / (1500.0 / 1.2e6f)
+//
+//in float range;
+//in float a;
 
 out vec4 outColor;
 
 void main()
 {
-    //outColor = datum;
+    outColor = datum;
 
-    float phase = range*wavelengthFactor + reflectionShift;
-    outColor = vec4(a*cos(phase),
-                    a*sin(phase),
-                    range,
-                    0.0f);
+    //float phase = range*wavelengthFactor + reflectionShift;
+    //outColor = vec4(a*cos(phase),
+    //                a*sin(phase),
+    //                range,
+    //                0.0f);
 }
 
 )");

@@ -38,6 +38,8 @@ using namespace rtac::cuda;
 #include <rtac_display/renderers/ImageRenderer.h>
 #include <rtac_display/renderers/FrameInstances.h>
 #include <rtac_display/renderers/Frame.h>
+#include <rtac_display/GLFrameBuffer.h>
+#include <rtac_display/GLRenderBuffer.h>
 namespace plt = rtac::display;
 
 #include <rtac_simulation/helpers/PolarTargetRenderer.h>
@@ -195,8 +197,27 @@ int main()
     auto glSimView = plt::PinholeView::New(100.0f);
     //glSimView->set_range(0.1f, 10000.0f);
     //auto renderer2 = glSim.create_renderer<plt::MeshRenderer>(glSimView);
-    auto renderer2 = glSim.create_renderer<plt::EmitterGL>(glSimView);
+    //auto renderer2 = glSim.create_renderer<plt::EmitterGL>(glSimView);
+    auto fbRenderer = glSim.create_renderer<plt::ImageRenderer>(plt::View::New());
+
+    auto renderer2 = plt::EmitterGL::Create(display.context());
     renderer2->mesh() = glMesh;
+
+    auto frameBuffer  = plt::GLFrameBuffer::Create();
+    auto renderTarget = plt::GLTexture::New();
+    renderTarget->resize<rtac::types::Point4<float>>(display.window_shape());
+    fbRenderer->texture() = renderTarget;
+    auto depthBuffer = plt::GLRenderBuffer::Create(display.window_shape(), GL_DEPTH24_STENCIL8);
+
+    frameBuffer->bind(GL_FRAMEBUFFER);
+    renderTarget->bind(GL_TEXTURE_2D);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTarget->gl_id(), 0);
+    depthBuffer->bind();
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer->gl_id());
+    if(!frameBuffer->is_complete()) {
+        throw std::runtime_error("FBO not complete");
+    }
+    GL_CHECK_LAST();
     
     int count = 0;
     int screenshotCount = 0;
@@ -245,10 +266,25 @@ int main()
 
         glSimView->set_pose(pose * oculusToGL);
 
+        GL_CHECK_LAST();
+        frameBuffer->bind(GL_FRAMEBUFFER);
+        GL_CHECK_LAST();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL_CHECK_LAST();
+        glEnable(GL_DEPTH_TEST);
+        GL_CHECK_LAST();
+        renderer2->draw(glSimView);
+        GL_CHECK_LAST();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        GL_CHECK_LAST();
+
+        //glSim.draw();// crashing when here
         display.draw();
-        glSim.draw();
+        //glSim.draw();// crashing when here
         sonarDisplay.draw();
+        //glSim.draw();// crashing when here
         simDisplay.draw();
+        glSim.draw(); //but not here
 
         //std::this_thread::sleep_for(50ms);
     }
