@@ -54,3 +54,4 @@ endforeach()
 
 add_subdirectory(oculus_replay)
 add_subdirectory(ray_caster01)
+add_subdirectory(gl_sim01)
