@@ -179,6 +179,9 @@ int main()
     auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
 
 
+    plt::Display simDisplay2(display.context());
+    simDisplay2.disable_frame_counter();
+    auto simRenderer2 = simDisplay2.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
 
     
     // insonification with OpenGL
@@ -204,26 +207,38 @@ int main()
     renderer2->mesh() = glMesh;
 
     auto frameBuffer  = plt::GLFrameBuffer::Create();
-    auto renderTarget = plt::GLTexture::New();
-    renderTarget->resize<rtac::types::Point4<float>>(display.window_shape());
-    fbRenderer->texture() = renderTarget;
-    auto depthBuffer = plt::GLRenderBuffer::Create(display.window_shape(), GL_DEPTH24_STENCIL8);
+    //auto renderTarget = plt::GLTexture::New();
+    //renderTarget->resize<rtac::types::Point4<float>>(glSim.window_shape());
+    //fbRenderer->texture() = renderTarget;
+    auto renderTarget = plt::GLRenderBuffer::Create(glSim.window_shape(), GL_RGBA32F);
+    auto depthBuffer  = plt::GLRenderBuffer::Create(glSim.window_shape(), GL_DEPTH24_STENCIL8);
 
     frameBuffer->bind(GL_FRAMEBUFFER);
-    renderTarget->bind(GL_TEXTURE_2D);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTarget->gl_id(), 0);
+    //renderTarget->bind(GL_TEXTURE_2D);
+    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTarget->gl_id(), 0);
+    renderTarget->bind();
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderTarget->gl_id());
     depthBuffer->bind();
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer->gl_id());
     if(!frameBuffer->is_complete()) {
         throw std::runtime_error("FBO not complete");
     }
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     GL_CHECK_LAST();
+
+    plt::GLVector<rtac::simulation::PolarSample2D<float>> pixelOutput(glSim.window_shape().area());
+    //plt::GLVector<float4> pixelOutput(glSim.window_shape().area());
+    //plt::GLVector<rtac::types::Point4<float>> pixelOutput(glSim.window_shape().area());
+    auto glReceiver = rtac::simulation::OculusReceiver::Create();
     
     int count = 0;
     int screenshotCount = 0;
     while(!display.should_close() &&
           !glSim.should_close() &&
           !simDisplay.should_close() &&
+          !simDisplay2.should_close() &&
           !sonarDisplay.should_close())
     {
         auto oculusDatum = bag.next();
@@ -269,14 +284,33 @@ int main()
         GL_CHECK_LAST();
         frameBuffer->bind(GL_FRAMEBUFFER);
         GL_CHECK_LAST();
+        glClearColor(0.0,0.0,0.0,0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        GL_CHECK_LAST();
-        glEnable(GL_DEPTH_TEST);
-        GL_CHECK_LAST();
         renderer2->draw(glSimView);
-        GL_CHECK_LAST();
+        //glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        //glBindTexture(GL_TEXTURE_2D, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         GL_CHECK_LAST();
+
+        frameBuffer->bind(GL_READ_FRAMEBUFFER);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        pixelOutput.bind(GL_PIXEL_PACK_BUFFER);
+        glReadPixels(0, 0,
+                     glSim.window_shape().width,
+                     glSim.window_shape().height,
+                     GL_RGBA, GL_FLOAT, nullptr);
+        GL_CHECK_LAST();
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+        //glReceiver->samples().resize(pixelOutput
+        glReceiver->reconfigure(meta, pingData);
+        pixelOutput.to_device_vector(glReceiver->samples());
+        glReceiver->reduce_samples();
+
+        simRenderer2->set_data(glReceiver->target());
+
+        //fbRenderer->texture()->set_image(glSim.window_shape(), pixelOutput);
 
         //glSim.draw();// crashing when here
         display.draw();
@@ -284,6 +318,7 @@ int main()
         sonarDisplay.draw();
         //glSim.draw();// crashing when here
         simDisplay.draw();
+        simDisplay2.draw();
         glSim.draw(); //but not here
 
         //std::this_thread::sleep_for(50ms);
