@@ -12,7 +12,7 @@ if(NOT TARGET rtac_cuda)
 endif()
 
 if(NOT TARGET rtac_optix)
-    find_package(rtac_optix REQUIRED)
+    find_package(rtac_optix QUIET)
 endif()
 
 # These package are not mandatory. it only allows for easy setup in oculus
@@ -38,7 +38,6 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/PolarKernel2D.h
     include/rtac_simulation/PolarTarget2D.h
     include/rtac_simulation/PolarReceiver2D.h
-    include/rtac_simulation/PolarRayCaster.h
 
     include/rtac_simulation/helpers/receiver_factories.h
 
@@ -49,7 +48,6 @@ add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/RangeBinner.cu
     src/PolarReceiver2D.cu
-    src/PolarRayCaster.cpp
 
     src/examples/blueprint_oculus.cu
 )
@@ -60,12 +58,23 @@ target_include_directories(rtac_simulation PUBLIC
 target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
-    rtac_optix
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
-target_add_ptx(rtac_simulation
-    CUDA_SOURCES src/PolarRayCaster.cu
-)
+
+# if optix found adding optix dependent modules.
+if(rtac_optix_FOUND)
+    set(OPTIX_SUPPORT_ENABLED ON)
+    target_compile_definitions(rtac_simulation PUBLIC RTAC_WITH_OPTIX)
+    target_sources(rtac_simulation PRIVATE src/PolarRayCaster.cpp)
+    list(APPEND rtac_simulation_headers include/rtac_simulation/PolarRayCaster.h)
+    target_link_libraries(rtac_simulation PUBLIC rtac_optix)
+    target_add_ptx(rtac_simulation
+        CUDA_SOURCES src/PolarRayCaster.cu
+    )
+else()
+    message(WARNING "The rtac_optix library was not found on your system.\n"
+                    "\tRay tracing support is disabled.")
+endif()
 
 if(TARGET oculus_driver)
     get_target_property(oculus_driver narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
@@ -96,5 +105,4 @@ rtac_install_target(rtac_simulation
 if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
-
 

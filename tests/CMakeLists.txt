@@ -26,11 +26,13 @@ if(NOT TARGET rtac_display)
     find_package(rtac_display REQUIRED)
 endif()
 
-list(APPEND test_files
-    # src/algebra_test.cpp
-    # src/emitter_test.cu
-    # src/kernel_test.cu
-)
+if(OPTIX_SUPPORT_ENABLED)
+    list(APPEND test_files
+        # src/algebra_test.cpp
+        # src/emitter_test.cu
+        # src/kernel_test.cu
+    )
+endif()
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
     set(target_name ${test_name}_${PROJECT_NAME})
@@ -52,6 +54,9 @@ endforeach()
 #     LINK_LIBRARIES rtac_simulation
 # )
 
-add_subdirectory(oculus_replay)
-add_subdirectory(ray_caster01)
-add_subdirectory(gl_sim01)
+if(OPTIX_SUPPORT_ENABLED)
+    add_subdirectory(oculus_replay)
+    add_subdirectory(ray_caster01)
+    add_subdirectory(gl_sim01)
+endif()
+add_subdirectory(gl_only01)
