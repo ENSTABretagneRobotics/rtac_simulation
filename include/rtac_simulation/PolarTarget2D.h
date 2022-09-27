@@ -108,7 +108,7 @@ class PolarTarget2D
     }
 
     PolarTargetView2D<T> view() {
-        return PolarTargetView2D(data_, bearings_, ranges_);
+        return PolarTargetView2D<T>(data_, bearings_, ranges_);
     }
 };
 
