@@ -170,16 +170,16 @@ int main()
     optixRenderer->set_color({0.5,0.0,0.0,1.0});
     auto trace = display.create_renderer<plt::FrameInstances>(display.view());
 
-    plt::Display sonarDisplay(display.context());
+    plt::Display sonarDisplay(800, 600, "Oculus data", display.context());
     sonarDisplay.disable_frame_counter();
     auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::New());
 
-    plt::Display simDisplay(display.context());
+    plt::Display simDisplay(800, 600, "Optix simulation", display.context());
     simDisplay.disable_frame_counter();
     auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
 
 
-    plt::Display simDisplay2(display.context());
+    plt::Display simDisplay2(800, 600, "OpenGL simulation", display.context());
     simDisplay2.disable_frame_counter();
     auto simRenderer2 = simDisplay2.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
 
