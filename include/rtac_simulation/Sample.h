@@ -65,7 +65,11 @@ struct Sample3D : public Sample<T, float3>
     RTAC_HOSTDEVICE float& z() { return this->position.z; }
 
     RTAC_HOSTDEVICE static Sample3D<T> Make(const Complex<T>& value, const float3& p) {
-        return Sample3D<T>{value, p};
+        //return Sample3D<T>{value, p}; // for compatibility with cuda < 11 (c++14 max)
+        Sample3D<T> res;
+        res.datum    = value;
+        res.position = p;
+        return res;
     }
     RTAC_HOSTDEVICE static Sample3D<T> Zero() {
         return Sample3D<T>::Make({0,0}, {0,0,0});
@@ -86,11 +90,19 @@ struct PolarSample2D : public Sample<T, float2>
     
     // p is assumed in polar coordinates
     RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Complex<T>& value, const float2& p) {
-        return PolarSample2D<T>{value, p};
+        //return PolarSample2D<T>{value, p}; // for compatibility with cuda < 11 (c++14 max)
+        PolarSample2D<T> res;
+        res.datum    = value;
+        res.position = p;
+        return res;
     }
     // p is assumed to be expressed in cartesian coordinates.
     RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Complex<T>& value, const float3& p) {
-        return PolarSample2D<T>{value, float2{length(p), -atan2(p.y, p.x)}};
+        //return PolarSample2D<T>{value, float2{length(p), -atan2(p.y, p.x)}};
+        PolarSample2D<T> res;
+        res.datum    = value;
+        res.position = float2{length(p), -atan2(p.y, p.x)};
+        return res;
     }
     // other.position is assumed to be expressed in cartesian coordinates.
     RTAC_HOSTDEVICE static PolarSample2D<T> Make(const Sample3D<T>& other) {
