@@ -20,7 +20,7 @@ OculusRosbagIterator::OculusRosbagIterator(const std::string& bagPath,
     std::cout << "Done." << std::endl;
 }
 
-OculusDatum OculusRosbagIterator::next()
+OculusDatum OculusRosbagIterator::next(bool loop)
 {
     auto it = bagIterator_;
     currentDatum_.reset();
@@ -34,6 +34,9 @@ OculusDatum OculusRosbagIterator::next()
 
         it++;
         if(it == bagView_.end()) {
+            if(!loop) {
+                return OculusDatum();
+            }
             it = bagView_.begin();
             currentDatum_.reset();
             continue;

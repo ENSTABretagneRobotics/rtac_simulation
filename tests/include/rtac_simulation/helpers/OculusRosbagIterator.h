@@ -101,7 +101,7 @@ class OculusRosbagIterator
 
     OculusDatum datum() const { return currentDatum_; }
 
-    OculusDatum next();
+    OculusDatum next(bool loop = true);
 };
 
 } //namespace simulation
