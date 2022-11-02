@@ -166,11 +166,11 @@ int main()
 
     plt::Display sonarDisplay(display.context());
     sonarDisplay.disable_frame_counter();
-    auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::New());
+    auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::Create());
 
     plt::Display simDisplay(display.context());
     simDisplay.disable_frame_counter();
-    auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
+    auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
 
     
     int count = 0;

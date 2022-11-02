@@ -103,7 +103,7 @@ int main()
         CUDA_CHECK_LAST();
     }
     
-    auto renderer = display.create_renderer<ImageRenderer>(View::New());
+    auto renderer = display.create_renderer<ImageRenderer>(View::Create());
     renderer->enable_colormap();
     renderer->texture()->set_image(directions.shape(), data);
     

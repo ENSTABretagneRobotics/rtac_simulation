@@ -172,16 +172,16 @@ int main()
 
     plt::Display sonarDisplay(800, 600, "Oculus data", display.context());
     sonarDisplay.disable_frame_counter();
-    auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::New());
+    auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::Create());
 
     plt::Display simDisplay(800, 600, "Optix simulation", display.context());
     simDisplay.disable_frame_counter();
-    auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
+    auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
 
 
     plt::Display simDisplay2(800, 600, "OpenGL simulation", display.context());
     simDisplay2.disable_frame_counter();
-    auto simRenderer2 = simDisplay2.create_renderer<plt::PolarTargetRenderer>(plt::View::New());
+    auto simRenderer2 = simDisplay2.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
 
     
     // insonification with OpenGL
@@ -197,17 +197,17 @@ int main()
                        "opengl_insonification",
                        display.context());
     cout << "GLSim shape : " << glSim.window_shape() << endl;
-    auto glSimView = plt::PinholeView::New(100.0f);
+    auto glSimView = plt::PinholeView::Create(100.0f);
     //glSimView->set_range(0.1f, 10000.0f);
     //auto renderer2 = glSim.create_renderer<plt::MeshRenderer>(glSimView);
     //auto renderer2 = glSim.create_renderer<plt::EmitterGL>(glSimView);
-    auto fbRenderer = glSim.create_renderer<plt::ImageRenderer>(plt::View::New());
+    auto fbRenderer = glSim.create_renderer<plt::ImageRenderer>(plt::View::Create());
 
     auto renderer2 = plt::EmitterGL::Create(display.context());
     renderer2->mesh() = glMesh;
 
     auto frameBuffer  = plt::GLFrameBuffer::Create();
-    //auto renderTarget = plt::GLTexture::New();
+    //auto renderTarget = plt::GLTexture::Create();
     //renderTarget->resize<rtac::types::Point4<float>>(glSim.window_shape());
     //fbRenderer->texture() = renderTarget;
     auto renderTarget = plt::GLRenderBuffer::Create(glSim.window_shape(), GL_RGBA32F);
