@@ -18,7 +18,7 @@ struct TargetView2D
 
     using value_type = T;
 
-    using Image = rtac::types::ImageView<T>;
+    using Image = rtac::ImageView<T>;
     using Shape = typename Image::Shape;
 
     Image  data_;
@@ -49,7 +49,7 @@ class Target2D
     using Ptr      = std::shared_ptr<Target2D<T>>;
     using ConstPtr = std::shared_ptr<const Target2D<T>>;
     
-    using Image = rtac::types::Image<T, rtac::cuda::DeviceVector>;
+    using Image = rtac::Image<T, rtac::cuda::DeviceVector>;
     using Shape = typename Image::Shape;
     
     protected:

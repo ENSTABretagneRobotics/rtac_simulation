@@ -14,15 +14,15 @@ using namespace rtac::files;
 using namespace rtac::navigation;
 #include <rtac_base/types/Mesh.h>
 #include <rtac_base/types/Pose.h>
-using Mesh = rtac::types::Mesh<>;
-using Pose = rtac::types::Pose<float>;
+using Mesh = rtac::Mesh<>;
+using Pose = rtac::Pose<float>;
 
 #include <rtac_base/types/Pose.h>
-using Pose = rtac::types::Pose<float>;
+using Pose = rtac::Pose<float>;
 using Vec3       = Pose::Vec3;
 using Mat3       = Pose::Mat3;
 using Mat4       = Pose::Mat4;
-using Quaternion = Pose::Quaternion;
+using Quaternion = Pose::Quat;
 #include <rtac_base/interpolation.h>
 using namespace rtac::algorithm;
 
@@ -75,7 +75,7 @@ int main()
 
     cout << "DTM path : " << dtmPath << endl;
 
-    auto Roculus = rtac::types::Pose<float>::from_rotation_matrix(
+    auto Roculus = rtac::Pose<float>::from_rotation_matrix(
         Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
     rtac::simulation::OculusRosbagIterator bag(bagPath, 
                                                "/oculus_sonar/ping",
@@ -208,7 +208,7 @@ int main()
 
     auto frameBuffer  = plt::GLFrameBuffer::Create();
     //auto renderTarget = plt::GLTexture::Create();
-    //renderTarget->resize<rtac::types::Point4<float>>(glSim.window_shape());
+    //renderTarget->resize<rtac::Point4<float>>(glSim.window_shape());
     //fbRenderer->texture() = renderTarget;
     auto renderTarget = plt::GLRenderBuffer::Create(glSim.window_shape(), GL_RGBA32F);
     auto depthBuffer  = plt::GLRenderBuffer::Create(glSim.window_shape(), GL_DEPTH24_STENCIL8);
@@ -230,7 +230,7 @@ int main()
 
     plt::GLVector<rtac::simulation::PolarSample2D<float>> pixelOutput(glSim.window_shape().area());
     //plt::GLVector<float4> pixelOutput(glSim.window_shape().area());
-    //plt::GLVector<rtac::types::Point4<float>> pixelOutput(glSim.window_shape().area());
+    //plt::GLVector<rtac::Point4<float>> pixelOutput(glSim.window_shape().area());
     auto glReceiver = rtac::simulation::OculusReceiver::Create();
     
     int count = 0;

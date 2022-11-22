@@ -49,7 +49,7 @@ class ConvolutionKernel2D
     using Ptr      = std::shared_ptr<ConvolutionKernel2D<T>>;
     using ConstPtr = std::shared_ptr<const ConvolutionKernel2D<T>>;
 
-    using Bounds = rtac::types::Interval<float>;
+    using Bounds = rtac::Bounds<float>;
 
     protected:
     

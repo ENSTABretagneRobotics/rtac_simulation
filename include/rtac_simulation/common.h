@@ -16,17 +16,17 @@ namespace rtac { namespace simulation {
 
 // Som type aliases for convenience
 template <typename T> using Complex      = rtac::cuda::Complex<T>;
-template <typename T> using VectorView   = rtac::types::VectorView<T>;
+template <typename T> using VectorView   = rtac::VectorView<T>;
 template <typename T> using DeviceVector = rtac::cuda::DeviceVector<T>;
 template <typename T> using PinnedVector = rtac::cuda::PinnedVector<T>;
 template <typename T> using HostVector   = rtac::cuda::HostVector<T>;
-template <typename T> using ImageView    = rtac::types::ImageView<T>;
-template <typename T> using DeviceImage  = rtac::types::Image<T, DeviceVector>;
+template <typename T> using ImageView    = rtac::ImageView<T>;
+template <typename T> using DeviceImage  = rtac::Image<T, DeviceVector>;
 
 template <typename T, template<typename>class ContainerT>
-using Image = rtac::types::Image<T,ContainerT>;
+using Image = rtac::Image<T,ContainerT>;
 
-using Pose = rtac::types::Pose<float>;
+using Pose = rtac::Pose<float>;
 
 } //namespace simulation
 } //namespace rtac

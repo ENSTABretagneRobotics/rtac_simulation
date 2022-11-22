@@ -17,7 +17,7 @@ using namespace rtac::display;
 #include <rtac_simulation/PolarKernel2D.h>
 using namespace rtac::simulation;
 
-__global__ void render_kernel(rtac::types::ImageView<float> out, 
+__global__ void render_kernel(rtac::ImageView<float> out, 
                               PolarKernelView2D<float> kernel,
                               float bearingSpan, float rangeSpan)
 {
@@ -58,8 +58,8 @@ int main()
     {
         auto ptr = data.map_cuda();
         render_kernel<<<shape.height, 512>>>(
-            rtac::types::ImageView<float>(shape,
-                rtac::types::VectorView<float>(data.size(), ptr)),
+            rtac::ImageView<float>(shape,
+                rtac::VectorView<float>(data.size(), ptr)),
             kernel->view(),
             kernel->bearing_span(), 
             kernel->range_span());

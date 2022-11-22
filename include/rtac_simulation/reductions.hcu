@@ -22,7 +22,7 @@ template <typename Tin,
           typename Tout,
           typename Kernel2DT, typename OutputFunctorT,
           unsigned int BlockSize=1024>
-__global__ void sparse_convolve_2d(rtac::types::VectorView<Tin>* dataBins,
+__global__ void sparse_convolve_2d(rtac::VectorView<Tin>* dataBins,
                                    TargetView2D<Tout> output,
                                    Kernel2DT          kernel,
                                    OutputFunctorT     outputFunctor)

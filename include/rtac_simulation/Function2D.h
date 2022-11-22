@@ -38,9 +38,9 @@ class Function2D
 {
     public:
 
-    using Bounds      = rtac::types::Interval<float>;
-    using DeviceImage = rtac::types::Image<T,rtac::cuda::DeviceVector>;
-    using HostImage   = rtac::types::Image<T,std::vector>;
+    using Bounds      = rtac::Bounds<float>;
+    using DeviceImage = rtac::Image<T,rtac::cuda::DeviceVector>;
+    using HostImage   = rtac::Image<T,std::vector>;
 
     protected:
 

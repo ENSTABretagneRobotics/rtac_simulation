@@ -14,15 +14,15 @@ using namespace rtac::files;
 using namespace rtac::navigation;
 #include <rtac_base/types/Mesh.h>
 #include <rtac_base/types/Pose.h>
-using Mesh = rtac::types::Mesh<>;
-using Pose = rtac::types::Pose<float>;
+using Mesh = rtac::Mesh<>;
+using Pose = rtac::Pose<float>;
 
 #include <rtac_base/types/Pose.h>
-using Pose = rtac::types::Pose<float>;
+using Pose = rtac::Pose<float>;
 using Vec3       = Pose::Vec3;
 using Mat3       = Pose::Mat3;
 using Mat4       = Pose::Mat4;
-using Quaternion = Pose::Quaternion;
+using Quaternion = Pose::Quat;
 #include <rtac_base/interpolation.h>
 using namespace rtac::algorithm;
 
@@ -58,7 +58,6 @@ using namespace rtac::optix;
 #include "oculus_sim.h"
 using namespace narval;
 
-MeshGeometry::Ptr geometry_from_mesh(const Context::Ptr& ctx, const Mesh& mesh);
 DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh);
 
 int main()
@@ -70,7 +69,7 @@ int main()
 
     cout << "DTM path : " << dtmPath << endl;
 
-    auto Roculus = rtac::types::Pose<float>::from_rotation_matrix(
+    auto Roculus = rtac::Pose<float>::from_rotation_matrix(
         Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
     rtac::simulation::OculusRosbagIterator bag(bagPath, 
                                                "/oculus_sonar/ping",
@@ -162,7 +161,7 @@ int main()
     simDisplay.disable_frame_counter();
     auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
 
-    rtac::types::Image<rtac::types::Point3<unsigned char>, std::vector> screenshot;
+    rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
 
     int count = 0;
     int screenshotCount = 0;

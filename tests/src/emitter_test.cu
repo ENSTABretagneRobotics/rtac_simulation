@@ -17,10 +17,10 @@ using namespace rtac::display;
 #include <rtac_simulation/Emitter.h>
 using namespace rtac::simulation;
 
-rtac::types::Image<float3, DeviceVector> generate_directions()
+rtac::Image<float3, DeviceVector> generate_directions()
 {
     unsigned int W = 512, H = 512;
-    rtac::types::Image<float3, HostVector> dirs({W,H});
+    rtac::Image<float3, HostVector> dirs({W,H});
     for(int h = 0; h < H; h++) { 
         float phi = 0.5*M_PI * (2.0f*h / H - 1.0f);
         for(int w = 0; w < W; w++) {
@@ -34,8 +34,8 @@ rtac::types::Image<float3, DeviceVector> generate_directions()
     return dirs;
 }
 
-__global__ void render_directions(rtac::types::ImageView<float> out, 
-                                  rtac::types::ImageView<const float3> directions,
+__global__ void render_directions(rtac::ImageView<float> out, 
+                                  rtac::ImageView<const float3> directions,
                                   DirectivityView directivity)
 {
     for(auto w = threadIdx.x; w < out.width(); w += blockDim.x) {
@@ -43,8 +43,8 @@ __global__ void render_directions(rtac::types::ImageView<float> out,
     }
 }
 
-__global__ void render_emitter(rtac::types::ImageView<float> out, 
-                               rtac::types::ImageView<const float3> directions,
+__global__ void render_emitter(rtac::ImageView<float> out, 
+                               rtac::ImageView<const float3> directions,
                                EmitterView<float> emitter)
 {
     for(auto w = threadIdx.x; w < out.width(); w += blockDim.x) {
@@ -57,15 +57,15 @@ __global__ void render_emitter(rtac::types::ImageView<float> out,
 }
 
 void render_emitter(GLVector<float>& dst, 
-                    const rtac::types::Image<float3,DeviceVector>& directions,
+                    const rtac::Image<float3,DeviceVector>& directions,
                     Emitter<float>::ConstPtr emitter)
 {
     dst.resize(directions.shape().area());
     {
         auto ptr = dst.map_cuda();
         render_emitter<<<{1,directions.height()},512>>>(
-            rtac::types::ImageView<float>(directions.shape(),
-                rtac::types::VectorView<float>(dst.size(), ptr)),
+            rtac::ImageView<float>(directions.shape(),
+                rtac::VectorView<float>(dst.size(), ptr)),
             directions.const_view(),
             emitter->view());
         cudaDeviceSynchronize();
@@ -90,13 +90,13 @@ int main()
     {
         auto ptr = data.map_cuda();
         //render_directions<<<{1,directions.height()},512>>>(
-        //    rtac::types::ImageView<float>(directions.shape(),
-        //        rtac::types::VectorView<float>(data.size(), ptr)),
+        //    rtac::ImageView<float>(directions.shape(),
+        //        rtac::VectorView<float>(data.size(), ptr)),
         //    directions.const_view(),
         //    directivity->view());
         render_emitter<<<{1,directions.height()},512>>>(
-            rtac::types::ImageView<float>(directions.shape(),
-                rtac::types::VectorView<float>(data.size(), ptr)),
+            rtac::ImageView<float>(directions.shape(),
+                rtac::VectorView<float>(data.size(), ptr)),
             directions.const_view(),
             emitter->view());
         cudaDeviceSynchronize();

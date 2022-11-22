@@ -146,7 +146,7 @@ template <typename T> HostVector<VectorView<T>>
         if(bins[start].data() != nullptr) {
             std::size_t size = 0;
             for(int j = start; j < end; j++) size += bins[j].size();
-            bins2[i] = rtac::types::VectorView<T>(size, bins[start].data());
+            bins2[i] = rtac::VectorView<T>(size, bins[start].data());
         }
     }
 

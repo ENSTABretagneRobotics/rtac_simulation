@@ -24,7 +24,7 @@ struct OculusDatum
     //using PoseMsg   = BoostPtr<nav_msgs::Odometry>;
     using PoseMsg   = BoostPtr<geometry_msgs::PoseStamped>;
 
-    using Pose = rtac::types::Pose<float>;
+    using Pose = rtac::Pose<float>;
 
     Pose      fixedPose_;
     OculusMsg pingMsg_;
