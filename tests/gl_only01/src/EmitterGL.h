@@ -1,6 +1,8 @@
 #ifndef _DEF_RTAC_SIMULATION_EMITTER_GL_H_
 #define _DEF_RTAC_SIMULATION_EMITTER_GL_H_
 
+#include <memory>
+
 #include <rtac_base/types/common.h>
 
 #include <rtac_display/GLContext.h>
@@ -16,8 +18,8 @@ class EmitterGL : public Renderer
 {
     public:
 
-    using Ptr      = rtac::Handle<EmitterGL>;
-    using ConstPtr = rtac::Handle<const EmitterGL>;
+    using Ptr      = std::shared_ptr<EmitterGL>;
+    using ConstPtr = std::shared_ptr<const EmitterGL>;
 
     using Mat4 = View3D::Mat4;
     using Pose = View3D::Pose;

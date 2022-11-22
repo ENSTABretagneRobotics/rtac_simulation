@@ -45,7 +45,6 @@ namespace plt = rtac::display;
 #include <rtac_simulation/helpers/PolarTargetRenderer.h>
 
 #include <rtac_optix/utils.h>
-#include <rtac_optix/Handle.h>
 #include <rtac_optix/Context.h>
 #include <rtac_optix/Pipeline.h>
 #include <rtac_optix/MeshGeometry.h>
