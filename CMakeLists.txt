@@ -11,6 +11,8 @@ if(NOT TARGET rtac_cuda)
     find_package(rtac_cuda REQUIRED)
 endif()
 
+find_package(yaml-cpp REQUIRED)
+
 if(NOT TARGET rtac_optix)
     find_package(rtac_optix QUIET)
 endif()
@@ -58,6 +60,7 @@ target_include_directories(rtac_simulation PUBLIC
 target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
+    yaml-cpp
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
 

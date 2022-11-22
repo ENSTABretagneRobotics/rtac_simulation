@@ -67,3 +67,5 @@ if(OPTIX_SUPPORT_ENABLED)
     add_subdirectory(gl_sim01)
 endif()
 add_subdirectory(gl_only01)
+
+add_subdirectory(config_files)
