@@ -8,11 +8,7 @@
 #include <rtac_simulation/PolarTarget2D.h>
 #include <rtac_simulation/PolarReceiver2D.h>
 
-#ifdef RTAC_OCULUS_DRIVER
-    #include <oculus_driver/Oculus.h>
-#elif defined(RTAC_OCULUS_DEPRECATED)
-    #include <narval_oculus/Oculus.h>
-#endif
+#include <narval_oculus/Oculus.h>
 
 namespace rtac { namespace simulation {
 
@@ -60,14 +56,14 @@ class OculusReceiver : public PolarReceiver2D<float>
                      const std::vector<float>& bearings,
                      bool forceReconfigure = false);
     
-    #if defined(RTAC_OCULUS_DRIVER) || defined(RTAC_OCULUS_DEPRECATED)
+    //#if defined(RTAC_OCULUS_DRIVER) || defined(RTAC_OCULUS_DEPRECATED)
     bool reconfigure(const OculusSimplePingResult& metadata,
                      const uint8_t* data,
                      bool forceReconfigure = false);
-    #endif //RTAC_OCULUS_DRIVER
+    //#endif //RTAC_OCULUS_DRIVER
 };
 
-#if defined(RTAC_OCULUS_DRIVER) || defined(RTAC_OCULUS_DEPRECATED)
+//#if defined(RTAC_OCULUS_DRIVER) || defined(RTAC_OCULUS_DEPRECATED)
 
 inline bool OculusReceiver::reconfigure(const OculusSimplePingResult& metadata,
                                         const uint8_t* data,
@@ -110,7 +106,7 @@ inline bool OculusReceiver::reconfigure(const OculusSimplePingResult& metadata,
     return false;
 }
 
-#endif //RTAC_OCULUS_DRIVER
+//#endif //RTAC_OCULUS_DRIVER
 
 } //namespace simulation
 } //namespace rtac

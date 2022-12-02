@@ -43,7 +43,7 @@ void RangeBinner::update_ranges(float rangeMin, float rangeMax, uint32_t binCoun
 
 template <>
 void RangeBinner::compute_keys<PolarSample2D<float>>(
-    const DeviceVector<PolarSample2D<float>>& rangedData) const
+    const cuda::DeviceVector<PolarSample2D<float>>& rangedData) const
 {
     keys_.resize(rangedData.size());
     
@@ -56,8 +56,8 @@ void RangeBinner::compute_keys<PolarSample2D<float>>(
 
 template <>
 void RangeBinner::compute_bins<PolarSample2D<float>>(
-        DeviceVector<PolarSample2D<float>>& rangedData,
-        HostVector<VectorView<PolarSample2D<float>>>& bins,
+        cuda::DeviceVector<PolarSample2D<float>>& rangedData,
+        cuda::HostVector<VectorView<PolarSample2D<float>>>& bins,
         int overlap) const 
 {
     this->compute_keys(rangedData);

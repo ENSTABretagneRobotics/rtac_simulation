@@ -4,7 +4,9 @@
 #include <iostream>
 #include <memory>
 
-#include <rtac_simulation/common.h>
+#include <rtac_base/types/Pose.h>
+#include <rtac_base/cuda/DeviceVector.h>
+
 #include <rtac_simulation/Antenna.h>
 
 namespace rtac { namespace simulation {
@@ -12,7 +14,9 @@ namespace rtac { namespace simulation {
 template <typename T>
 struct EmitterView
 {
-    DevicePose<float> pose;
+    using Pose = rtac::Pose<float>;
+
+    Pose              pose;
     std::size_t       size;
     const float3*     initialDirections;
     const Complex<T>* initialSampleValues;
@@ -33,7 +37,7 @@ struct EmitterView
         return directivity(direction);
     }
     __device__ float3 ray_direction(const float3& dir) const {
-        return this->pose.R_ * dir;
+        return this->pose.rotation_matrix() * dir;
     }
     #endif //RTAC_CUDACC
 };
@@ -46,21 +50,22 @@ class Emitter : public Antenna
     using Ptr      = std::shared_ptr<Emitter<T>>;
     using ConstPtr = std::shared_ptr<const Emitter<T>>;
 
+    using Pose      = rtac::Pose<float>;
     using DataShape = Antenna::DataShape;
 
     protected:
     
     // remove these
-    DeviceVector<float3>     initialDirections_;
-    DeviceVector<Complex<T>> initialSampleValues_;
+    cuda::DeviceVector<float3>     initialDirections_;
+    cuda::DeviceVector<Complex<T>> initialSampleValues_;
 
-    Emitter(const DeviceVector<float3>& initialDirections,
+    Emitter(const cuda::DeviceVector<float3>& initialDirections,
             typename Directivity::ConstPtr directivity, 
             const Pose& pose = Pose());
 
     public:
 
-    static Ptr Create(const DeviceVector<float3>& initialDirections,
+    static Ptr Create(const cuda::DeviceVector<float3>& initialDirections,
                       typename Directivity::ConstPtr directivity, 
                       const Pose& pose = Pose());
 
@@ -68,10 +73,10 @@ class Emitter : public Antenna
                                           float bearingAperture,
                                           float elevationAperture);
 
-    const DeviceVector<float3>& initial_directions() const { 
+    const cuda::DeviceVector<float3>& initial_directions() const { 
         return initialDirections_;
     }
-    const DeviceVector<Complex<T>>& initial_sample_values() const {
+    const cuda::DeviceVector<Complex<T>>& initial_sample_values() const {
         return initialSampleValues_;
     }
 
@@ -87,7 +92,7 @@ class Emitter : public Antenna
 };
 
 template <typename T>
-Emitter<T>::Emitter(const DeviceVector<float3>& initialDirections,
+Emitter<T>::Emitter(const cuda::DeviceVector<float3>& initialDirections,
                     typename Directivity::ConstPtr directivity, 
                     const Pose& pose) :
     Antenna(directivity, pose),
@@ -97,7 +102,7 @@ Emitter<T>::Emitter(const DeviceVector<float3>& initialDirections,
 
 template <typename T>
 typename Emitter<T>::Ptr Emitter<T>::Create(
-           const DeviceVector<float3>& initialDirections,
+           const cuda::DeviceVector<float3>& initialDirections,
            typename Directivity::ConstPtr directivity, 
            const Pose& pose)
 {
@@ -128,7 +133,7 @@ auto Emitter<T>::generate_polar_directions(float resolution,
                                   std::sin(phi)});
         }
     }
-    return DeviceVector<float3>(data);
+    return cuda::DeviceVector<float3>(data);
 
     //unsigned int W = (int)(bearingAperture   / resolution) + 1;
     //unsigned int H = (int)(elevationAperture / resolution) + 1;

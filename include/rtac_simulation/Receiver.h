@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 
-#include <rtac_simulation/common.h>
+#include <rtac_base/types/Pose.h>
 #include <rtac_simulation/Antenna.h>
 
 namespace rtac { namespace simulation {
@@ -13,11 +13,13 @@ template <typename T>
 struct ReceiverView
 {
     using SampleType = T;
+    using Pose = rtac::Pose<float>;
 
-    DevicePose<float> pose;
-    DirectivityView   directivity;
-    std::size_t       size;
-    SampleType*       samples;
+
+    Pose            pose;
+    DirectivityView directivity;
+    std::size_t     size;
+    SampleType*     samples;
 
     #ifdef RTAC_CUDACC
 
@@ -25,7 +27,9 @@ struct ReceiverView
     __device__ void set_sample(std::size_t idx, const Sample<T2,float3>& sample)
     {
         // sample position is expected to be expressed in the world frame
-        float3 p     = this->pose.to_local_frame(sample.position);
+        //float3 p     = this->pose.to_local_frame(sample.position);
+        float3 p     = this->pose.rotation_matrix().transpose()
+                     * (sample.position - this->pose.translation());
         //samples[idx] = SampleT::Make(sample.datum*directivity(-normalized(p)), p);
         samples[idx] = SampleType::Make(sample.datum, p);
     }
@@ -41,13 +45,14 @@ class Receiver : public Antenna
     using Ptr      = std::shared_ptr<Receiver<T>>;
     using ConstPtr = std::shared_ptr<const Receiver<T>>;
 
+    using Pose      = rtac::Pose<float>;
     using DataShape = Antenna::DataShape;
 
     using SampleType = T;
 
     protected:
 
-    DeviceVector<T> receivedSamples_;
+    cuda::DeviceVector<T> receivedSamples_;
 
     Receiver(typename Directivity::ConstPtr directivity) : Antenna(directivity) {}
 
@@ -57,8 +62,8 @@ class Receiver : public Antenna
         return Ptr(new Receiver<T>(directivity));
     }
 
-    DeviceVector<T>&       samples()       { return receivedSamples_; }
-    const DeviceVector<T>& samples() const { return receivedSamples_; }
+    cuda::DeviceVector<T>&       samples()       { return receivedSamples_; }
+    const cuda::DeviceVector<T>& samples() const { return receivedSamples_; }
 
     ReceiverView<T> view() {
         ReceiverView<T> res;

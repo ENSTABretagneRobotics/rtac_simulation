@@ -3,6 +3,7 @@ find_package(rosbag REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(narval_oculus REQUIRED)
 find_package(oculus_sonar REQUIRED)
+find_package(rtac_display REQUIRED)
 list(APPEND rosbag_helpers_headers
     include/rtac_simulation/helpers/OculusRosbagIterator.h
 )
@@ -22,6 +23,7 @@ target_link_libraries(rosbag_helpers PUBLIC
     ${rosbag_LIBRARIES}
     ${nav_msgs_LIBRARIES}
     ${oculus_sonar_LIBRARIES}
+    rtac_display
 )
 
 rtac_install_target(rosbag_helpers
@@ -68,4 +70,4 @@ if(OPTIX_SUPPORT_ENABLED)
 endif()
 add_subdirectory(gl_only01)
 
-add_subdirectory(config_files)
+# add_subdirectory(config_files)

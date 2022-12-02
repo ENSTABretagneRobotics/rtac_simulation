@@ -4,15 +4,17 @@
 #include <iostream>
 #include <memory>
 
-#include <rtac_simulation/common.h>
-#include <rtac_simulation/geometry.h>
+#include <rtac_base/types/Pose.h>
 #include <rtac_simulation/Directivity.h>
 
 namespace rtac { namespace simulation {
 
 struct AntennaView {
-    DevicePose<float> pose;
-    DirectivityView   directivity;
+
+    using Pose      = rtac::Pose<float>;
+
+    Pose             pose;
+    DirectivityView  directivity;
 };
 
 class Antenna
@@ -22,11 +24,12 @@ class Antenna
     using Ptr      = std::shared_ptr<Antenna>;
     using ConstPtr = std::shared_ptr<const Antenna>;
 
+    using Pose      = rtac::Pose<float>;
     using DataShape = Directivity::DataShape;
 
     protected:
 
-    Pose  pose_;
+    Pose pose_;
     typename Directivity::ConstPtr directivity_;
 
     public:

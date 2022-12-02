@@ -19,14 +19,11 @@ endif()
 
 # These package are not mandatory. it only allows for easy setup in oculus
 # example.
-find_package(oculus_driver QUIET) # easy oculus parametrization.
 find_package(rtac_display  QUIET) # Display utilities
 
 
 list(APPEND rtac_simulation_headers
     include/rtac_simulation/utils.hcu
-    include/rtac_simulation/common.h
-    include/rtac_simulation/geometry.h
     include/rtac_simulation/RangeBinner.h
     include/rtac_simulation/Directivity.h
     include/rtac_simulation/Antenna.h
@@ -79,18 +76,9 @@ else()
                     "\tRay tracing support is disabled.")
 endif()
 
-if(TARGET oculus_driver)
-    get_target_property(oculus_driver narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
-    target_link_libraries(rtac_simulation PUBLIC ${include_dir})
-    target_compile_definitions(rtac_simulation PUBLIC "RTAC_OCULUS_DRIVER")
-else()
-    find_package(narval_oculus QUIET)
-    if(TARGET narval_oculus)
-        get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
-        target_include_directories(rtac_simulation PUBLIC ${include_dir})
-        target_compile_definitions(rtac_simulation PUBLIC "RTAC_OCULUS_DEPRECATED")
-    endif()
-endif()
+find_package(narval_oculus REQUIRED)
+get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(rtac_simulation PUBLIC ${include_dir})
 
 if(TARGET rtac_display)
     set(DISPLAY_SUPPORT_ENABLED ON)

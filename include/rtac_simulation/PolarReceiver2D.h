@@ -4,6 +4,11 @@
 #include <iostream>
 #include <memory>
 
+#include <rtac_base/types/Complex.h>
+
+#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/HostVector.h>
+
 #include <rtac_simulation/Sample.h>
 #include <rtac_simulation/Receiver.h>
 #include <rtac_simulation/RangeBinner.h>
@@ -35,8 +40,8 @@ class PolarReceiver2D : public Receiver<PolarSample2D<T>>
     typename Kernel::ConstPtr psf_;
     typename Target::Ptr      target_;
 
-    RangeBinner     binner_;
-    HostVector<Bin> bins_;
+    RangeBinner           binner_;
+    cuda::HostVector<Bin> bins_;
 
     PolarReceiver2D(Directivity::ConstPtr directivity,
                     typename Kernel::ConstPtr psf,
@@ -94,7 +99,7 @@ __global__ void do_reduce_polar_2d(const VectorView<PolarSample2D<T>>* bins,
     extern __shared__ __align__(sizeof(T)) unsigned char sharedMemory[];
     T* sdata = reinterpret_cast<T*>(sharedMemory);
 
-    cuda::Complex<T> res{0.0f,0.0f};
+    Complex<T> res{0.0f,0.0f};
     for(auto i = threadIdx.x; i < bins[blockIdx.x].size(); i += blockDim.x)
     {
         auto sample = bins[blockIdx.x][i];
@@ -126,7 +131,7 @@ __global__ void do_reduce_polar_2d(const VectorView<PolarSample2D<T>>* bins,
 template <typename T>
 void PolarReceiver2D<T>::do_reduce()
 {
-    DeviceVector<Bin> bins(bins_);
+    cuda::DeviceVector<Bin> bins(bins_);
     dim3 gridDim((uint32_t)target_->range_count(), 
                  (uint32_t)target_->bearing_count(), 1);
     do_reduce_polar_2d<<<gridDim, RTAC_BLOCKSIZE,

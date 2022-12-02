@@ -3,9 +3,9 @@
 using namespace std;
 
 #include <rtac_simulation/helpers/OculusRosbagIterator.h>
+#include <rtac_simulation/helpers/OculusRenderer.h>
 
 #include <narval_oculus/Oculus.h>
-#include <narval_oculus/helpers/OculusRenderer.h>
 
 #include <rtac_base/files.h>
 #include <rtac_base/external/obj_codec.h>

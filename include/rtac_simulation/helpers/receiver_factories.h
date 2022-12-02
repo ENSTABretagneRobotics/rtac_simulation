@@ -6,7 +6,6 @@
 
 #include <rtac_base/signal_helpers.h>
 
-#include <rtac_simulation/common.h>
 #include <rtac_simulation/PolarKernel2D.h>
 
 namespace rtac { namespace simulation {
@@ -25,7 +24,7 @@ typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution,
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();
 
-    Image<T, HostVector> kernelData({W,H});
+    Image<T, cuda::HostVector> kernelData({W,H});
     for(int h = 0; h < H; h++) {
         for(int w = 0; w < W; w++) {
             kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
@@ -51,7 +50,7 @@ typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution,
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();
 
-    Image<T, HostVector> kernelData({W,H});
+    Image<T, cuda::HostVector> kernelData({W,H});
     for(int h = 0; h < H; h++) {
         for(int w = 0; w < W; w++) {
             //kernelData(h,w) = rangePsf.function()[h];

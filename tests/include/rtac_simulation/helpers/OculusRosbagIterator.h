@@ -55,13 +55,13 @@ struct OculusDatum
             throw std::runtime_error("No pose data");
         }
         auto rosPose = poseMsg_->pose;
-        Pose pose({(float)rosPose.position.x,
-                   (float)rosPose.position.y,
-                   (float)rosPose.position.z},
-                  {(float)rosPose.orientation.w,
-                   (float)rosPose.orientation.x,
-                   (float)rosPose.orientation.y,
-                   (float)rosPose.orientation.z});
+        auto pose = Pose::from_quaternion({(float)rosPose.orientation.w,
+                                           (float)rosPose.orientation.x,
+                                           (float)rosPose.orientation.y,
+                                           (float)rosPose.orientation.z},
+                                Pose::Vec3((float)rosPose.position.x,
+                                           (float)rosPose.position.y,
+                                           (float)rosPose.position.z));
         return pose * fixedPose_;
     }
 };

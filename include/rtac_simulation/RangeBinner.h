@@ -5,9 +5,10 @@
 #include <memory>
 #include <algorithm>
 
+#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/HostVector.h>
 #include <rtac_base/cuda/Texture2D.h>
 
-#include <rtac_simulation/common.h>
 #include <rtac_simulation/Sample.h>
 
 namespace rtac { namespace simulation {
@@ -46,14 +47,14 @@ class RangeBinner
     float    rangeMin_;
     float    rangeMax_;
 
-    mutable DeviceVector<uint32_t> keys_;
-    mutable HostVector<uint32_t>   tmpKeys_;
+    mutable cuda::DeviceVector<uint32_t> keys_;
+    mutable cuda::HostVector<uint32_t>   tmpKeys_;
     
     template <typename T>
-    void compute_keys(const DeviceVector<T>& rangedData) const;
+    void compute_keys(const cuda::DeviceVector<T>& rangedData) const;
     template <typename T>
-    void build_bins(DeviceVector<T>& rangedData,
-                    HostVector<VectorView<T>>& bins,
+    void build_bins(cuda::DeviceVector<T>& rangedData,
+                    cuda::HostVector<VectorView<T>>& bins,
                     int overlap) const;
 
     public:
@@ -75,26 +76,26 @@ class RangeBinner
     }
 
     template <typename T>
-    HostVector<VectorView<T>> compute_overlaped_bins(HostVector<VectorView<T>>& bins,
+    cuda::HostVector<VectorView<T>> compute_overlaped_bins(cuda::HostVector<VectorView<T>>& bins,
                                                      int overlap) const;
 
     template <typename T>
-    void compute_bins(DeviceVector<T>& rangedData,
-                      HostVector<VectorView<T>>& bins,
+    void compute_bins(cuda::DeviceVector<T>& rangedData,
+                      cuda::HostVector<VectorView<T>>& bins,
                       int overlap = 0) const;
 
     template <typename T>
-    DeviceVector<VectorView<T>> compute_bins(DeviceVector<T>& rangedData,
+    cuda::DeviceVector<VectorView<T>> compute_bins(cuda::DeviceVector<T>& rangedData,
                                              int overlap = 0) const {
-        HostVector<VectorView<T>> bins;
+        cuda::HostVector<VectorView<T>> bins;
         this->compute_bins(rangedData, bins, overlap);
         return bins;
     }
 };
 
 template <typename T>
-void RangeBinner::build_bins(DeviceVector<T>& rangedData,
-                             HostVector<VectorView<T>>& bins,
+void RangeBinner::build_bins(cuda::DeviceVector<T>& rangedData,
+                             cuda::HostVector<VectorView<T>>& bins,
                              int overlap) const
 {
     // reinitializing bins to ensure empty bins have a zeroed size.
@@ -131,13 +132,13 @@ void RangeBinner::build_bins(DeviceVector<T>& rangedData,
     }
 }
 
-template <typename T> HostVector<VectorView<T>> 
-    RangeBinner::compute_overlaped_bins(HostVector<VectorView<T>>& bins,
+template <typename T> cuda::HostVector<VectorView<T>> 
+    RangeBinner::compute_overlaped_bins(cuda::HostVector<VectorView<T>>& bins,
                                         int overlap) const
 {
     if(overlap <= 0) return bins;
 
-    HostVector<VectorView<T>> bins2(bins.size());
+    cuda::HostVector<VectorView<T>> bins2(bins.size());
 
     bins2.resize(bins.size());
     for(int i = 0; i < bins.size(); i++) {

@@ -3,9 +3,9 @@
 
 #include <memory>
 
+#include <rtac_base/types/Image.h>
+#include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/Texture2D.h>
-
-#include <rtac_simulation/common.h>
 
 namespace rtac { namespace simulation {
 
@@ -30,8 +30,10 @@ class PolarKernel2D
 {
     public:
 
-    using Ptr      = std::shared_ptr<PolarKernel2D<T>>;
-    using ConstPtr = std::shared_ptr<const PolarKernel2D<T>>;
+    using Ptr         = std::shared_ptr<PolarKernel2D<T>>;
+    using ConstPtr    = std::shared_ptr<const PolarKernel2D<T>>;
+
+    using DeviceImage = rtac::Image<T, cuda::DeviceVector>;
 
     protected:
 
@@ -41,7 +43,7 @@ class PolarKernel2D
 
     PolarKernel2D(float bearingSpan, 
                   float rangeSpan,
-                  const DeviceImage<T>& data) :
+                  const DeviceImage& data) :
         bearingSpan_(bearingSpan), rangeSpan_(rangeSpan)
     {
         function_.set_filter_mode(cuda::Texture2D<T>::FilterLinear, false);
@@ -53,7 +55,7 @@ class PolarKernel2D
 
     static Ptr Create(float bearingSpan,
                       float rangeSpan,
-                      const DeviceImage<T>& data)
+                      const DeviceImage& data)
     {
         return Ptr(new PolarKernel2D<T>(bearingSpan, rangeSpan, data));
     }

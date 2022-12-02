@@ -3,9 +3,9 @@
 using namespace std;
 
 #include <rtac_simulation/helpers/OculusRosbagIterator.h>
+#include <rtac_simulation/helpers/OculusRenderer.h>
 
 #include <narval_oculus/Oculus.h>
-#include <narval_oculus/helpers/OculusRenderer.h>
 
 #include <rtac_base/files.h>
 #include <rtac_base/external/obj_codec.h>
@@ -102,7 +102,7 @@ int main()
 
     
     // insonification with OpenGL
-    auto oculusToGL = rtac::simulation::Pose::from_rotation_matrix(
+    auto oculusToGL = rtac::Pose<float>::from_rotation_matrix(
         Eigen::AngleAxisf(-0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
     float bearingAperture   = 130.0f;
     float elevationAperture = 90.0f;

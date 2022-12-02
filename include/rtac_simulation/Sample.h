@@ -4,9 +4,8 @@
 #include <iostream>
 #include <array>
 
+#include <rtac_base/types/Complex.h>
 #include <rtac_base/cuda/vec_math.h>
-
-#include <rtac_simulation/common.h>
 
 namespace rtac { namespace simulation {
 
@@ -18,7 +17,7 @@ namespace rtac { namespace simulation {
  *
  * The PointT type is expected to be a CUDA vector type such as float2/3/4. It
  * represents a 3D location in space expressed by default in cartesian
- * coordinates (but are used as poler coordinates in some conditions).
+ * coordinates (but are used as polar coordinates in some conditions).
  *
  * The API of the rtac_simulation package is fully templated and the user can
  * replace this type with one of its own. However, some contrains have to be

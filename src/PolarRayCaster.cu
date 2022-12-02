@@ -1,5 +1,8 @@
 #include <rtac_simulation/PolarRayCaster.h>
 
+#include <rtac_base/types/PODWrapper.h>
+#include <rtac_base/cuda/geometry.h>
+
 using namespace rtac::simulation;
 
 /**
@@ -7,33 +10,37 @@ using namespace rtac::simulation;
  */
 extern "C" {
 
-__constant__ PolarRayCaster::Params params;
+//__constant__ PolarRayCaster::Params params;
+__constant__ rtac::PODWrapper<PolarRayCaster::Params> params;
 
 
 __global__ void __raygen__polar_ray_caster()
 {
     auto idx   = optixGetLaunchIndex().x;
-    float3 dir = params.directions[idx];
+    float3 dir = params->directions[idx];
 
     PolarRayCaster::SonarRay ray;
-    ray.datum = params.emitter.sample_value(dir);
+    ray.datum = params->emitter.sample_value(dir);
 
-    ray.trace(params.objectTree,
-              params.emitter.pose.translation(),
-              params.emitter.ray_direction(dir));
+    ray.trace(params->objectTree,
+              make_float3(params->emitter.pose.translation()),
+              params->emitter.ray_direction(dir));
 
-    auto delta  = ray.position - params.emitter.pose.translation();
+    auto delta  = ray.position - params->emitter.pose.translation();
     auto range  = length(delta);
 
     if(range > 30.0f || range < 1.0e-6f) {
-        params.outputPoints[idx]  = float3({0.0f,0.0f,0.0f});
-        params.receiver.samples[idx] = rtac::simulation::PolarSample2D<float>::Zero();
+        params->outputPoints[idx]  = float3({0.0f,0.0f,0.0f});
+        params->receiver.samples[idx] = rtac::simulation::PolarSample2D<float>::Zero();
     }
     else {
-        params.outputPoints[idx] = params.receiver.pose.to_local_frame(ray.position);
+        //params->outputPoints[idx] = params->receiver.pose.to_local_frame(ray.position);
+        const auto& pose = params->receiver.pose;
+        params->outputPoints[idx] = pose.rotation_matrix().transpose()
+                                 * (ray.position - pose.translation());
 
         ray.datum /= range*range; // replace this with full complex multiplication.
-        params.receiver.set_sample(idx, ray);
+        params->receiver.set_sample(idx, ray);
     }
 }
 
