@@ -29,7 +29,6 @@ using namespace rtac::algorithm;
 #include <rtac_base/cuda/Texture2D.h>
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/DeviceObject.h>
-#include <rtac_base/cuda/HostVector.h>
 #include <rtac_base/cuda/DeviceMesh.h>
 using namespace rtac::cuda;
 

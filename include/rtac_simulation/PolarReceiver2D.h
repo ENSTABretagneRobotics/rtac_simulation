@@ -7,7 +7,6 @@
 #include <rtac_base/types/Complex.h>
 
 #include <rtac_base/cuda/DeviceVector.h>
-#include <rtac_base/cuda/HostVector.h>
 
 #include <rtac_simulation/Sample.h>
 #include <rtac_simulation/Receiver.h>
@@ -40,8 +39,8 @@ class PolarReceiver2D : public Receiver<PolarSample2D<T>>
     typename Kernel::ConstPtr psf_;
     typename Target::Ptr      target_;
 
-    RangeBinner           binner_;
-    cuda::HostVector<Bin> bins_;
+    RangeBinner     binner_;
+    HostVector<Bin> bins_;
 
     PolarReceiver2D(Directivity::ConstPtr directivity,
                     typename Kernel::ConstPtr psf,

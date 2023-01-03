@@ -57,7 +57,7 @@ void RangeBinner::compute_keys<PolarSample2D<float>>(
 template <>
 void RangeBinner::compute_bins<PolarSample2D<float>>(
         cuda::DeviceVector<PolarSample2D<float>>& rangedData,
-        cuda::HostVector<VectorView<PolarSample2D<float>>>& bins,
+        HostVector<VectorView<PolarSample2D<float>>>& bins,
         int overlap) const 
 {
     this->compute_keys(rangedData);

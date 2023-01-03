@@ -42,7 +42,7 @@ class PolarTargetRenderer : public FanRenderer
 template <typename T>
 void PolarTargetRenderer::set_geometry(typename rtac::simulation::PolarTarget2D<T>::ConstPtr data)
 {
-    cuda::HostVector<float> bearings = data->bearings();
+    HostVector<float> bearings = data->bearings();
     this->set_bearings(bearings.size(), bearings.data());
     this->set_range({data->range_min(), data->range_max()});
 }
