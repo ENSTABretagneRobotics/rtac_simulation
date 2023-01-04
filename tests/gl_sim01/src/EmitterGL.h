@@ -9,6 +9,7 @@
 #include <rtac_display/renderers/Renderer.h>
 #include <rtac_display/views/View3D.h>
 #include <rtac_display/GLMesh.h>
+#include <rtac_display/GLTexture.h>
 
 // using display namespace for convenience. Will go in simulation namespace
 // once stable enough.
@@ -29,14 +30,19 @@ class EmitterGL : public Renderer
     static const std::string vertexShader;
     static const std::string fragmentShader;
 
-    GLMesh::ConstPtr mesh_;
-    Pose             pose_; // not used (for now)
+    GLMesh::ConstPtr  mesh_;
+    Pose              pose_; // not used (for now)
+    mutable GLTexture directivity_;
 
     EmitterGL(const GLContext::Ptr& context);
 
     public:
 
     static Ptr Create(const GLContext::Ptr& context);
+
+    void load_directivity(float bearingAperture,
+                          float elevationAperture,
+                          unsigned int oversampling = 8);
 
     GLMesh::ConstPtr  mesh() const { return mesh_; }
     GLMesh::ConstPtr& mesh()       { return mesh_; }

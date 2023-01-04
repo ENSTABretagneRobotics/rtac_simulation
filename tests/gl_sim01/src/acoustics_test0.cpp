@@ -195,7 +195,8 @@ int main()
                        "opengl_insonification",
                        display.context());
     cout << "GLSim shape : " << glSim.window_shape() << endl;
-    auto glSimView = plt::PinholeView::Create(100.0f);
+    //auto glSimView = plt::PinholeView::Create(100.0f);
+    auto glSimView = plt::PinholeView::Create(elevationAperture);
     //glSimView->set_range(0.1f, 10000.0f);
     //auto renderer2 = glSim.create_renderer<plt::MeshRenderer>(glSimView);
     //auto renderer2 = glSim.create_renderer<plt::EmitterGL>(glSimView);
@@ -281,6 +282,7 @@ int main()
 
         GL_CHECK_LAST();
         frameBuffer->bind(GL_FRAMEBUFFER);
+        glEnable(GL_DEPTH_TEST);
         GL_CHECK_LAST();
         glClearColor(0.0,0.0,0.0,0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

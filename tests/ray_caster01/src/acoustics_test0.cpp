@@ -171,7 +171,10 @@ int main()
     auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
 
     
-    int count = 0;
+    //auto oculusDatum = bag.next();
+    //for(int i = 0; i < 100; i++) {
+    //    oculusDatum = bag.next();
+    //}
     int screenshotCount = 0;
     while(!display.should_close() &&
           !simDisplay.should_close() &&
@@ -209,14 +212,49 @@ int main()
         optixRenderer->points().set_device_data(optixPoints.size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));
         optixRenderer->set_pose(pose);
-        trace->add_pose(pose);
+        //trace->add_pose(pose);
 
         pingRenderer->set_data(meta, pingData);
         simRenderer->set_data(oculusReceiver->target());
 
+
         display.draw();
         sonarDisplay.draw();
         simDisplay.draw();
+
+        rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
+        sonarDisplay.take_screenshot(screenshot);
+        {
+            std::ostringstream oss;
+            oss << "output/" << setfill('0') << setw(5)
+                << screenshotCount << "_sonar.ppm";
+            for(int i = 0; i < screenshot.size(); i++) {
+                screenshot[i].x = 255 - screenshot[i].x;
+                screenshot[i].y = 255 - screenshot[i].y;
+                screenshot[i].z = 255 - screenshot[i].z;
+            }
+            rtac::files::write_ppm(oss.str(),
+                                   screenshot.shape().width, 
+                                   screenshot.shape().height,
+                                   (const unsigned char*)screenshot.data());
+                             
+        }
+        simDisplay.take_screenshot(screenshot);
+        {
+            std::ostringstream oss;
+            oss << "output/" << setfill('0') << setw(5)
+                << screenshotCount << "_sim.ppm";
+            for(int i = 0; i < screenshot.size(); i++) {
+                screenshot[i].x = 255 - screenshot[i].x;
+                screenshot[i].y = 255 - screenshot[i].y;
+                screenshot[i].z = 255 - screenshot[i].z;
+            }
+            rtac::files::write_ppm(oss.str(),
+                                   screenshot.shape().width, 
+                                   screenshot.shape().height, 
+                                   (const unsigned char*)screenshot.data());
+        }
+        screenshotCount++;
 
         //std::this_thread::sleep_for(50ms);
     }
