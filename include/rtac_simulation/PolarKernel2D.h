@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <rtac_base/types/Image.h>
+#include <rtac_base/containers/Image.h>
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/Texture2D.h>
 

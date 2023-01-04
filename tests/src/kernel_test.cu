@@ -1,9 +1,9 @@
 #include <iostream>
 using namespace std;
 
-#include <rtac_base/types/VectorView.h>
-#include <rtac_base/types/Image.h>
-using namespace rtac::types;
+#include <rtac_base/containers/VectorView.h>
+#include <rtac_base/containers/Image.h>
+using namespace rtac;
 
 #include <rtac_base/cuda/texture_utils.h>
 

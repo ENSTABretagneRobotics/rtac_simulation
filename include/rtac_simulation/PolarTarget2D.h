@@ -4,8 +4,8 @@
 #include <iostream>
 #include <memory>
 
-#include <rtac_base/types/VectorView.h>
-#include <rtac_base/types/Image.h>
+#include <rtac_base/containers/VectorView.h>
+#include <rtac_base/containers/Image.h>
 #include <rtac_base/cuda/DeviceVector.h>
 
 #include <rtac_simulation/PolarKernel2D.h>

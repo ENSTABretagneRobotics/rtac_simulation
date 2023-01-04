@@ -1,7 +1,7 @@
 #ifndef _DEF_RTAC_SIMULATION_REDUCTIONS_H_
 #define _DEF_RTAC_SIMULATION_REDUCTIONS_H_
 
-#include <rtac_base/types/VectorView.h>
+#include <rtac_base/containers/VectorView.h>
 #include <rtac_base/cuda/DeviceVector.h>
 
 #include <rtac_simulation/utils.hcu>

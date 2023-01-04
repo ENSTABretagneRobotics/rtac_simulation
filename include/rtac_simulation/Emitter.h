@@ -138,7 +138,7 @@ auto Emitter<T>::generate_polar_directions(float resolution,
     //unsigned int W = (int)(bearingAperture   / resolution) + 1;
     //unsigned int H = (int)(elevationAperture / resolution) + 1;
 
-    //rtac::Image<float3, rtac::cuda::HostVector> data({W,H});
+    //rtac::Image<float3> data({W,H});
     //for(int h = 0; h < H; h++) {
     //    float phi = elevationAperture * (((float)h) / (H - 1) - 0.5f);
     //    for(int w = 0; w < W; w++) {

@@ -269,7 +269,7 @@ int main()
 
         oculusReceiver->reduce_samples();
 
-        optixRenderer->points().set_device_data(optixPoints.size(),
+        optixRenderer->points().copy_from_cuda(optixPoints.size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));
         optixRenderer->set_pose(pose);
         trace->add_pose(pose);

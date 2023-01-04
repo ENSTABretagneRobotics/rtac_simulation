@@ -5,11 +5,11 @@
 #include <memory>
 #include <cmath>
 
+#include <rtac_base/containers/Image.h>
+
 #include <rtac_base/cuda_defines.h>
 #include <rtac_base/cuda/Texture2D.h>
 #include <rtac_base/cuda/vec_math.h>
-
-#include <rtac_base/types/Image.h>
 
 namespace rtac { namespace simulation {
 

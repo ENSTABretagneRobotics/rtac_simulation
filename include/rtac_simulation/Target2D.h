@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include <rtac_base/types/VectorView.h>
-#include <rtac_base/types/Image.h>
+#include <rtac_base/containers/VectorView.h>
+#include <rtac_base/containers/Image.h>
 
 #include <rtac_base/cuda_defines.h>
 #include <rtac_base/cuda/DeviceVector.h>
