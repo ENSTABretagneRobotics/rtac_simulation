@@ -50,7 +50,7 @@ namespace plt = rtac::display;
 
 int main()
 {
-    auto dtmPath = find_one(".*models3d/pyramide2_test01");
+    auto dtmPath = find_one(".*models3d/pyramide2_test01/.*.obj");
     auto bagPath = find_one(".*pyramide2_matisse_positions.bag");
     //auto dtmPath = find_one(".*models3d/pyramide2_test01", "/media/pnarvor/Samsung_T5/submeeting/save_sabre01");
     //auto bagPath = find_one(".*pyramide2_matisse_positions.bag", "/media/pnarvor/Samsung_T5/submeeting/save_sabre01");
