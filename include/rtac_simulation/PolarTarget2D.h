@@ -18,7 +18,7 @@ struct PolarTargetView2D : public ImageView<T>
     public:
 
     using value_type = T;
-    using Shape = typename ImageView<T>::Shape;
+    using Shape = rtac::Shape<uint32_t>;
 
     using DeviceImage = rtac::Image<T, cuda::DeviceVector>;
 

@@ -42,8 +42,8 @@ Directivity::Ptr Directivity::from_sinc_parameters(float bearingAperture,
     signal::SincFunction<float> elevationDirectivity(
         0.0f, 2.0*1.39156*M_PI / elevationAperture, oversampling);
     
-    HostImage data({(unsigned int)bearingDirectivity.size(), 
-                    (unsigned int)elevationDirectivity.size()}); 
+    HostImage data((unsigned int)bearingDirectivity.size(), 
+                   (unsigned int)elevationDirectivity.size()); 
     for(int h = 0; h < data.height(); h++) {
         for(int w = 0; w < data.width(); w++) {
             data(h,w) = bearingDirectivity.function()[w]

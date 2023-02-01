@@ -222,38 +222,38 @@ int main()
         sonarDisplay.draw();
         simDisplay.draw();
 
-        rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
-        sonarDisplay.take_screenshot(screenshot);
-        {
-            std::ostringstream oss;
-            oss << "output/" << setfill('0') << setw(5)
-                << screenshotCount << "_sonar.ppm";
-            for(int i = 0; i < screenshot.size(); i++) {
-                screenshot[i].x = 255 - screenshot[i].x;
-                screenshot[i].y = 255 - screenshot[i].y;
-                screenshot[i].z = 255 - screenshot[i].z;
-            }
-            rtac::files::write_ppm(oss.str(),
-                                   screenshot.shape().width, 
-                                   screenshot.shape().height,
-                                   (const unsigned char*)screenshot.data());
-                             
-        }
-        simDisplay.take_screenshot(screenshot);
-        {
-            std::ostringstream oss;
-            oss << "output/" << setfill('0') << setw(5)
-                << screenshotCount << "_sim.ppm";
-            for(int i = 0; i < screenshot.size(); i++) {
-                screenshot[i].x = 255 - screenshot[i].x;
-                screenshot[i].y = 255 - screenshot[i].y;
-                screenshot[i].z = 255 - screenshot[i].z;
-            }
-            rtac::files::write_ppm(oss.str(),
-                                   screenshot.shape().width, 
-                                   screenshot.shape().height, 
-                                   (const unsigned char*)screenshot.data());
-        }
+        //rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
+        //sonarDisplay.take_screenshot(screenshot);
+        //{
+        //    std::ostringstream oss;
+        //    oss << "output/" << setfill('0') << setw(5)
+        //        << screenshotCount << "_sonar.ppm";
+        //    for(int i = 0; i < screenshot.size(); i++) {
+        //        screenshot[i].x = 255 - screenshot[i].x;
+        //        screenshot[i].y = 255 - screenshot[i].y;
+        //        screenshot[i].z = 255 - screenshot[i].z;
+        //    }
+        //    rtac::files::write_ppm(oss.str(),
+        //                           screenshot.shape().width, 
+        //                           screenshot.shape().height,
+        //                           (const unsigned char*)screenshot.data());
+        //                     
+        //}
+        //simDisplay.take_screenshot(screenshot);
+        //{
+        //    std::ostringstream oss;
+        //    oss << "output/" << setfill('0') << setw(5)
+        //        << screenshotCount << "_sim.ppm";
+        //    for(int i = 0; i < screenshot.size(); i++) {
+        //        screenshot[i].x = 255 - screenshot[i].x;
+        //        screenshot[i].y = 255 - screenshot[i].y;
+        //        screenshot[i].z = 255 - screenshot[i].z;
+        //    }
+        //    rtac::files::write_ppm(oss.str(),
+        //                           screenshot.shape().width, 
+        //                           screenshot.shape().height, 
+        //                           (const unsigned char*)screenshot.data());
+        //}
         screenshotCount++;
 
         //std::this_thread::sleep_for(50ms);
