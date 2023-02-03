@@ -4,10 +4,143 @@
 #include <iostream>
 #include <array>
 
+#include <rtac_base/cuda_defines.h>
 #include <rtac_base/types/Complex.h>
 #include <rtac_base/cuda/vec_math.h>
 
 namespace rtac { namespace simulation {
+
+template <class Derived>
+struct Sample1D
+{
+    RTAC_HOSTDEVICE const Derived* cast() const { return static_cast<const Derived*>(this); }
+    RTAC_HOSTDEVICE       Derived* cast()       { return static_cast< Derived*>(this);      }
+
+    RTAC_HOSTDEVICE const Complex<float>& value() const { return this->cast()->value(); }
+    RTAC_HOSTDEVICE       Complex<float>& value()       { return this->cast()->value(); }
+
+    RTAC_HOSTDEVICE const float& travel() const { return this->cast()->value(); }
+    RTAC_HOSTDEVICE       float& travel()       { return this->cast()->value(); }
+};
+
+template <class Derived>
+struct Sample2D : public Sample1D<Derived>
+{
+    RTAC_HOSTDEVICE const Derived* cast() const { return static_cast<const Derived*>(this); }
+    RTAC_HOSTDEVICE       Derived* cast()       { return static_cast< Derived*>(this);      }
+
+    RTAC_HOSTDEVICE const float& bearing() const { return this->cast()->bearing(); }
+    RTAC_HOSTDEVICE       float& bearing()       { return this->cast()->bearing(); }
+};
+
+template <class Derived>
+struct Sample3D_2 : public Sample2D<Derived>
+{
+    RTAC_HOSTDEVICE const Derived* cast() const { return static_cast<const Derived*>(this); }
+    RTAC_HOSTDEVICE       Derived* cast()       { return static_cast< Derived*>(this);      }
+
+    RTAC_HOSTDEVICE const float& elevation() const { return this->cast()->elevation(); }
+    RTAC_HOSTDEVICE       float& elevation()       { return this->cast()->elevation(); }
+};
+
+struct SimSample1D : public Sample1D<SimSample1D>
+{
+    Complex<float> value_;
+    float          travel_;
+
+    RTAC_HOSTDEVICE const Complex<float>& value() const { return value_; }
+    RTAC_HOSTDEVICE       Complex<float>& value()       { return value_; }
+
+    RTAC_HOSTDEVICE const float& travel() const    { return travel_;    }
+    RTAC_HOSTDEVICE       float& travel()          { return travel_;    }
+
+    RTAC_HOSTDEVICE static SimSample1D Make(const Complex<float>& value,
+                                            float travel,
+                                            const float3& dir)
+    {
+        SimSample1D res;
+        res.value_  = value;
+        res.travel_ = travel;
+        return res;
+    }
+
+    RTAC_HOSTDEVICE static SimSample1D Null()
+    {
+        SimSample1D res{};
+        res.travel_ = -1.0f;
+        return res;
+    }
+};
+
+struct SimSample2D : public Sample2D<SimSample2D>
+{
+    Complex<float> value_;
+    float          travel_;
+    float          bearing_;
+
+    RTAC_HOSTDEVICE const Complex<float>& value() const { return value_; }
+    RTAC_HOSTDEVICE       Complex<float>& value()       { return value_; }
+
+    RTAC_HOSTDEVICE const float& travel() const    { return travel_;    }
+    RTAC_HOSTDEVICE       float& travel()          { return travel_;    }
+    RTAC_HOSTDEVICE const float& bearing() const   { return bearing_;   }
+    RTAC_HOSTDEVICE       float& bearing()         { return bearing_;   }
+
+    RTAC_HOSTDEVICE static SimSample2D Make(const Complex<float>& value,
+                                            float travel,
+                                            const float3& dir)
+    {
+        SimSample2D res;
+        res.value_   = value;
+        res.travel_  = travel;
+        res.bearing_ = atan2(dir.y, dir.x);
+        return res;
+    }
+
+    RTAC_HOSTDEVICE static SimSample2D Null()
+    {
+        SimSample2D res{};
+        res.travel_ = -1.0f;
+        return res;
+    }
+};
+
+struct SimSample3D : public Sample3D_2<SimSample3D>
+{
+    Complex<float> value_;
+    float          travel_;
+    float          bearing_;
+    float          elevation_;
+
+    RTAC_HOSTDEVICE const Complex<float>& value() const { return value_; }
+    RTAC_HOSTDEVICE       Complex<float>& value()       { return value_; }
+
+    RTAC_HOSTDEVICE const float& travel() const    { return travel_;    }
+    RTAC_HOSTDEVICE       float& travel()          { return travel_;    }
+    RTAC_HOSTDEVICE const float& bearing() const   { return bearing_;   }
+    RTAC_HOSTDEVICE       float& bearing()         { return bearing_;   }
+    RTAC_HOSTDEVICE const float& elevation() const { return elevation_; }
+    RTAC_HOSTDEVICE       float& elevation()       { return elevation_; }
+
+    RTAC_HOSTDEVICE static SimSample3D Make(const Complex<float>& value,
+                                            float travel,
+                                            const float3& dir)
+    {
+        SimSample3D res;
+        res.value_     = value;
+        res.travel_    = travel;
+        res.bearing_   = atan2(dir.y, dir.x);
+        res.elevation_ = atan2(dir.z, dir.x);
+        return res;
+    }
+
+    RTAC_HOSTDEVICE static SimSample3D Null()
+    {
+        SimSample3D res{};
+        res.travel_ = -1.0f;
+        return res;
+    }
+};
 
 /**
  * This is the preferred way to represent a simulation sample.

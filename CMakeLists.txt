@@ -34,6 +34,8 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/reductions.hcu
     include/rtac_simulation/Target2D.h
 
+    include/rtac_simulation/Raycaster.h
+
     include/rtac_simulation/PolarKernel2D.h
     include/rtac_simulation/PolarTarget2D.h
     include/rtac_simulation/PolarReceiver2D.h
@@ -45,7 +47,11 @@ list(APPEND rtac_simulation_headers
 
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
+    src/Emitter.cu
     src/RangeBinner.cu
+
+    src/RayCaster.cpp
+
     src/PolarReceiver2D.cu
 
     src/examples/blueprint_oculus.cu
@@ -69,7 +75,7 @@ if(rtac_optix_FOUND)
     list(APPEND rtac_simulation_headers include/rtac_simulation/PolarRayCaster.h)
     target_link_libraries(rtac_simulation PUBLIC rtac_optix)
     target_add_ptx(rtac_simulation
-        CUDA_SOURCES src/PolarRayCaster.cu
+        CUDA_SOURCES src/PolarRayCaster.cu src/RayCaster.cu
     )
 else()
     message(WARNING "The rtac_optix library was not found on your system.\n"
