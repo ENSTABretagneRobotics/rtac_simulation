@@ -6,7 +6,10 @@
 
 #include <rtac_base/types/Pose.h>
 #include <rtac_base/cuda/geometry.h>
+#include <rtac_base/cuda/DeviceVector.h>
+
 #include <rtac_simulation/Antenna.h>
+#include <rtac_simulation/Sample.h>
 
 namespace rtac { namespace simulation {
 
@@ -110,6 +113,10 @@ struct ReceiverView2
     #endif //RTAC_CUDACC
 };
 
+void sort(rtac::cuda::DeviceVector<SimSample1D>& samples);
+void sort(rtac::cuda::DeviceVector<SimSample2D>& samples);
+void sort(rtac::cuda::DeviceVector<SimSample3D>& samples);
+
 template <typename T>
 class Receiver2 : public Antenna
 {
@@ -137,6 +144,8 @@ class Receiver2 : public Antenna
 
     cuda::DeviceVector<T>&       samples()       { return receivedSamples_; }
     const cuda::DeviceVector<T>& samples() const { return receivedSamples_; }
+
+    void sort_received() { sort(receivedSamples_); }
 
     ReceiverView2<T> view() {
         ReceiverView2<T> res;

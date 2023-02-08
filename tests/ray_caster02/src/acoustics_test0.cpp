@@ -26,6 +26,8 @@ using Quaternion = Pose::Quat;
 #include <rtac_base/interpolation.h>
 using namespace rtac::algorithm;
 
+#include <rtac_base/containers/HostVector.h>
+
 #include <rtac_base/cuda/Texture2D.h>
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/DeviceObject.h>
@@ -171,7 +173,6 @@ int main()
     simDisplay.disable_frame_counter();
     auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
 
-    
     //auto oculusDatum = bag.next();
     //for(int i = 0; i < 100; i++) {
     //    oculusDatum = bag.next();
@@ -190,6 +191,7 @@ int main()
         //oculusEmitter->pose()  = pose;
         //oculusReceiver->pose() = pose;
         //oculusReceiver->samples().resize(directions.size());
+
         //oculusReceiver->reconfigure(meta, pingData);
 
         emitter->pose()  = pose;
@@ -200,6 +202,7 @@ int main()
         //raycaster->trace(oculusEmitter, oculusReceiver,
         //                 directions, optixPoints);
         raycaster->trace(emitter, receiver, optixPoints);
+        receiver->sort_received();
 
         //optixParams.emitter    = oculusEmitter->view();
         //optixParams.receiver   = oculusReceiver->view();

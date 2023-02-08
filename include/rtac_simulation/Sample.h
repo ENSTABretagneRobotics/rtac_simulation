@@ -19,8 +19,8 @@ struct Sample1D
     RTAC_HOSTDEVICE const Complex<float>& value() const { return this->cast()->value(); }
     RTAC_HOSTDEVICE       Complex<float>& value()       { return this->cast()->value(); }
 
-    RTAC_HOSTDEVICE const float& travel() const { return this->cast()->value(); }
-    RTAC_HOSTDEVICE       float& travel()       { return this->cast()->value(); }
+    RTAC_HOSTDEVICE const float& travel() const { return this->cast()->travel(); }
+    RTAC_HOSTDEVICE       float& travel()       { return this->cast()->travel(); }
 };
 
 template <class Derived>

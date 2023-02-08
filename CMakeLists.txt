@@ -50,6 +50,7 @@ add_library(rtac_simulation SHARED
     src/Emitter.cu
     src/RangeBinner.cu
 
+    src/Receiver.cu
     src/RayCaster.cpp
 
     src/PolarReceiver2D.cu
