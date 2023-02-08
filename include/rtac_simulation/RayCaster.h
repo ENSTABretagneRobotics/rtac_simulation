@@ -34,7 +34,7 @@ class RayCaster
         OptixTraversableHandle     objectTree;
         EmitterView2               emitter;
         ReceiverView2<SimSample2D> receiver;
-        const float3*              directions;
+        //const float3*              directions;
         float3*                    outputPoints;
     };
 
@@ -62,7 +62,7 @@ class RayCaster
 
     void trace(Emitter2::Ptr                     emitter,
                Receiver2<SimSample2D>::Ptr       receiver,
-               const cuda::DeviceVector<float3>& directions,
+               //const cuda::DeviceVector<float3>& directions,
                cuda::DeviceVector<float3>&       outputPoints);
 };
 

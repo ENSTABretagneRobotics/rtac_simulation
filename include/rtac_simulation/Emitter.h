@@ -58,7 +58,7 @@ struct EmitterView2
         return float3{pose.x(), pose.y(), pose.z()};
     }
     __device__ float3 ray_direction(uint32_t idx) const {
-        return this->pose*this->initialDirections[idx];
+        return this->pose.orientation()*this->initialDirections[idx];
     }
     __device__ Complex<float> sample_value(uint32_t idx) {
         return initialValues[idx];
@@ -188,7 +188,7 @@ auto Emitter<T>::generate_polar_directions(float resolution,
     bearingAperture   *= M_PI  / 180.0f;
     elevationAperture *= M_PI  / 180.0f;
 
-    unsigned int idx = 0;
+    //unsigned int idx = 0;
     unsigned int H   = (int)(elevationAperture / resolution) + 1;
     
     std::vector<float3> data;

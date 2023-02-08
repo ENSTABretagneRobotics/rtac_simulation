@@ -34,7 +34,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/reductions.hcu
     include/rtac_simulation/Target2D.h
 
-    include/rtac_simulation/Raycaster.h
+    include/rtac_simulation/RayCaster.h
 
     include/rtac_simulation/PolarKernel2D.h
     include/rtac_simulation/PolarTarget2D.h

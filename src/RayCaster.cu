@@ -17,7 +17,7 @@ __constant__ rtac::PODWrapper<RayCaster::Params> params;
 __global__ void __raygen__polar_ray_caster()
 {
     auto idx   = optixGetLaunchIndex().x;
-    float3 dir = params->directions[idx];
+    //float3 dir = params->directions[idx];
 
     RayCaster::SonarRay ray;
     ray.datum = params->emitter.sample_value(idx);

@@ -28,17 +28,17 @@ RayCaster::RayCaster() :
 
 void RayCaster::trace(Emitter2::Ptr                     emitter,
                       Receiver2<SimSample2D>::Ptr       receiver,
-                      const cuda::DeviceVector<float3>& directions,
+                      //const cuda::DeviceVector<float3>& directions,
                       cuda::DeviceVector<float3>&       outputPoints)
 {
     cuda::DeviceObject<Params> params;
 
-    outputPoints.resize(directions.size());
+    outputPoints.resize(emitter->size());
 
     params.objectTree   = *objectTree_;
     params.emitter      = emitter->view();
     params.receiver     = receiver->view();
-    params.directions   = directions.data();
+    //params.directions   = directions.data();
     params.outputPoints = outputPoints.data();
 
     params.update_device();
@@ -46,7 +46,7 @@ void RayCaster::trace(Emitter2::Ptr                     emitter,
     OPTIX_CHECK( optixLaunch(*pipeline_, 0,
                              (CUdeviceptr)params.device_ptr(), sizeof(Params),
                              sbt_->sbt(),
-                             directions.size(), 1, 1) );
+                             emitter->size(), 1, 1) );
     cudaDeviceSynchronize();
     CUDA_CHECK_LAST();
 }
