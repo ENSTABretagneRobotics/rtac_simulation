@@ -34,6 +34,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/reductions.hcu
     include/rtac_simulation/Target2D.h
 
+    include/rtac_simulation/Binner.h
     include/rtac_simulation/RayCaster.h
 
     include/rtac_simulation/PolarKernel2D.h
@@ -48,9 +49,11 @@ list(APPEND rtac_simulation_headers
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/Emitter.cu
+
     src/RangeBinner.cu
 
     src/Receiver.cu
+    src/Binner.cu
     src/RayCaster.cpp
 
     src/PolarReceiver2D.cu

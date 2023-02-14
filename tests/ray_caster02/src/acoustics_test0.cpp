@@ -43,6 +43,7 @@ namespace plt = rtac::display;
 
 #include <rtac_simulation/helpers/PolarTargetRenderer.h>
 #include <rtac_simulation/RayCaster.h>
+#include <rtac_simulation/Binner.h>
 
 #include <rtac_optix/utils.h>
 #include <rtac_optix/Context.h>
@@ -141,12 +142,12 @@ int main()
     auto oculusReceiver = rtac::simulation::OculusReceiver::Create();
 
     auto emitter = rtac::simulation::Emitter2::Create(0.1f, 140.0f, 100.0f, 
+    //auto emitter = rtac::simulation::Emitter2::Create(10.0f, 140.0f, 100.0f, 
         rtac::simulation::Directivity::from_sinc_parameters(130.0f, 20.0f));
     auto receiver = rtac::simulation::Receiver2<rtac::simulation::SimSample2D>::Create(emitter->directivity());
-        
+    rtac::simulation::Binner binner;
 
-
-    DeviceVector<float3>  optixPoints;
+    DeviceVector<float3> optixPoints;
 
     plt::samples::Display3D display;
     display.disable_frame_counter();
@@ -203,6 +204,15 @@ int main()
         //                 directions, optixPoints);
         raycaster->trace(emitter, receiver, optixPoints);
         receiver->sort_received();
+
+        rtac::cuda::DeviceVector<rtac::VectorView<const rtac::simulation::SimSample2D>> bins;
+        binner.reconfigure(meta.nRanges, {0.0f, (float)meta.fireMessage.range});
+        binner.compute(bins, receiver->samples());
+        rtac::HostVector<rtac::VectorView<const rtac::simulation::SimSample2D>> hbins = bins;
+        for(unsigned int i = 0; i < bins.size(); i++) {
+            std::cout << "bin " << i << " : " << hbins[i].size() << std::endl;
+        }
+        //std::cout << bins << std::endl;
 
         //optixParams.emitter    = oculusEmitter->view();
         //optixParams.receiver   = oculusReceiver->view();
