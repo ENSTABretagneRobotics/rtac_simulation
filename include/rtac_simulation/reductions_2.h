@@ -1,12 +1,16 @@
 #ifndef _DEF_RTAC_SIMULATION_REDUCTIONS_2_H_
 #define _DEF_RTAC_SIMULATION_REDUCTIONS_2_H_
 
+#include <rtac_base/cuda_defines.h>
 #include <rtac_base/containers/VectorView.h>
 #include <rtac_base/containers/ScaledImage.h>
 #include <rtac_base/cuda/DeviceVector.h>
 
-#include <rtac_simulation/utils.hcu>
 #include <rtac_simulation/ReductionKernel.h>
+
+#ifdef RTAC_CUDACC
+
+//#include <thrust/device_ptr.h>
 
 namespace rtac { namespace simulation {
 
@@ -20,10 +24,10 @@ namespace rtac { namespace simulation {
  * bearing angle).
  */
 template <typename T, class D, typename KernelT,
-          unsigned int BlockSize = 1024>
-__global__ void sparse_convolve_2d_2(rtac::VectorView<Tin>*   dataBins,
-                                     ScaledImageExpression<D> out,
-                                     KernelView2D<KernelT>    kernel)
+          unsigned int BlockSize = 512>
+__global__ void do_sparse_convolve_2d_2(ScaledImageExpression<D>           out,
+                                        const rtac::VectorView<const Tin>* dataBins,
+                                        KernelView2D<KernelT>              kernel)
 {
     // shared memory does not play well with templates
     using T = typename ScalarType<Tout>::type;
@@ -62,5 +66,23 @@ __global__ void sparse_convolve_2d_2(rtac::VectorView<Tin>*   dataBins,
 
 }; //namespace simulation
 }; //namespace rtac
+
+#endif //RTAC_CUDACC
+
+//namespace rtac { namespace simulation {
+//
+//template <typename T, class D, typename KT,
+//          unsigned int BlockSize = 512>
+//void sparse_convolve_2d_2(ScaledImageExpression<D>& out,
+//                          const rtac::cuda::DeviceVector<rtac::VectorView<T>>& dataBins,
+//                          const Kernel2D<KT>& kernel)
+//{
+//    do_sparse_convolve_2d_2(out.view(), dataBins.view(), kernel.view());
+//    cudaDeviceSynchronize();
+//    CUDA_CHECK_LAST();
+//}
+//
+//} //namespace simulation
+//} //namespace rtac
 
 #endif //_DEF_RTAC_SIMULATION_REDUCTIONS_H_
