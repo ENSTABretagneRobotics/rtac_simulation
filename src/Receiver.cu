@@ -6,21 +6,11 @@
 
 namespace rtac { namespace simulation {
 
-
+template <class S>
 struct Lesser
 {
-   __device__ __host__ bool operator()(const SimSample1D& lhs,
-                                        const SimSample1D& rhs) const
-   {
-       return lhs.travel() <= rhs.travel();
-   }
-    __device__ __host__ bool operator()(const SimSample2D& lhs,
-                                        const SimSample2D& rhs) const
-   {
-       return lhs.travel() <= rhs.travel();
-   }
-   __device__ __host__ bool operator()(const SimSample3D& lhs,
-                                        const SimSample3D& rhs) const
+   __device__ __host__ bool operator()(const Sample1D<S>& lhs,
+                                       const Sample1D<S>& rhs) const
    {
        return lhs.travel() <= rhs.travel();
    }
@@ -32,7 +22,7 @@ void sort(rtac::cuda::DeviceVector<SimSample1D>& samples)
     thrust::sort(thrust::device,
                  thrust::device_pointer_cast(samples.begin()),
                  thrust::device_pointer_cast(samples.end()),
-                 Lesser());
+                 Lesser<SimSample1D>());
 }
 
 void sort(rtac::cuda::DeviceVector<SimSample2D>& samples)
@@ -40,7 +30,7 @@ void sort(rtac::cuda::DeviceVector<SimSample2D>& samples)
     thrust::sort(thrust::device,
                  thrust::device_pointer_cast(samples.begin()),
                  thrust::device_pointer_cast(samples.end()),
-                 Lesser());
+                 Lesser<SimSample2D>());
 }
 
 void sort(rtac::cuda::DeviceVector<SimSample3D>& samples)
@@ -48,9 +38,8 @@ void sort(rtac::cuda::DeviceVector<SimSample3D>& samples)
     thrust::sort(thrust::device,
                  thrust::device_pointer_cast(samples.begin()),
                  thrust::device_pointer_cast(samples.end()),
-                 Lesser());
+                 Lesser<SimSample3D>());
 }
-
 
 } //namespace simulation
 } //namespace rtac
