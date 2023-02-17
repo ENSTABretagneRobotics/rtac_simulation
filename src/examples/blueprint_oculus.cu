@@ -201,12 +201,15 @@ Kernel2D<float> OculusSensor::make_lf_kernel(float rangeResolution)
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();
 
+    std::cout << "kernel : " << W << 'x' << H << std::endl;
+    std::cout << "pulse length : " << pulseLength << std::endl;
+
     Image<float> kernelData(W,H);
     for(int h = 0; h < H; h++) {
         for(int w = 0; w < W; w++) {
             //kernelData(h,w) = rangePsf.function()[h];
-            kernelData(h,w) = bearingPsf.function()[w];
-            //kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
+            //kernelData(h,w) = bearingPsf.function()[w];
+            kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
             //kernelData(h,w) = 1.0f;
         }
     }

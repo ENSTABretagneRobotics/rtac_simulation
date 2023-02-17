@@ -4,7 +4,6 @@
 #include <limits>
 
 #include <rtac_base/types/Bounds.h>
-
 #include <rtac_base/containers/HostVector.h>
 #include <rtac_base/cuda/DeviceVector.h>
 
@@ -59,11 +58,19 @@ class Binner
     Bounds<float> bounds_;
     float         margin_;
     rtac::cuda::DeviceVector<unsigned int> keys_;
+    rtac::cuda::DeviceVector<uint2> binIndexes_; // x is bin start, y is bin end
 
     void compute_keys(const rtac::cuda::DeviceVector<SimSample1D>& samples);
     void compute_keys(const rtac::cuda::DeviceVector<SimSample2D>& samples);
     void compute_keys(const rtac::cuda::DeviceVector<SimSample3D>& samples);
+    void make_segments();
 
+    //void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample1D>>& bins,
+    //               const rtac::cuda::DeviceVector<SimSample1D>& samples) {}
+    void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample2D>>& bins,
+                   const rtac::cuda::DeviceVector<SimSample2D>& samples);
+    //void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample3D>>& bins,
+    //               const rtac::cuda::DeviceVector<SimSample3D>& samples) {}
     template <typename T>
     void compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& bins,
                       const rtac::cuda::DeviceVector<T>& samples);
@@ -98,21 +105,35 @@ template <typename T>
 void Binner::compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& bins,
                           const rtac::cuda::DeviceVector<T>& samples)
 {
-    HostVector<unsigned int> keys = keys_;
-    std::vector<const T*>     binStarts(this->bin_count(), nullptr);
-    std::vector<unsigned int> binSizes(this->bin_count(),  0);
-    for(unsigned int i = 0; i < keys.size(); i++) {
-        if(keys[i] == Key::OutOfRange) continue;
-        if(binStarts[keys[i]] == nullptr) {
-            binStarts[keys[i]] = samples.begin() + i;
-        }
-        binSizes[keys[i]]++;
-    }
-    HostVector<rtac::VectorView<const T>> tmpBins(this->bin_count());
-    for(unsigned int i = 0; i < tmpBins.size(); i++) {
-        tmpBins[i] = VectorView<const T>(binSizes[i], binStarts[i]);
-    }
-    bins = tmpBins;
+    this->make_segments();
+    this->make_bins(bins, samples);
+
+    //HostVector<unsigned int> keys = keys_;
+    //std::vector<const T*>     binStarts(this->bin_count(), nullptr);
+    //std::vector<unsigned int> binSizes(this->bin_count(),  0);
+    //HostVector<rtac::VectorView<const T>> tmpBins(this->bin_count());
+
+    //for(unsigned int i = 0; i < keys.size(); i++) {
+    //    if(keys[i] == Key::OutOfRange) continue;
+    //    if(binStarts[keys[i]] == nullptr) {
+    //        binStarts[keys[i]] = samples.begin() + i;
+    //    }
+    //    binSizes[keys[i]]++;
+    //}
+    //HostVector<VectorView<const T>> tmp(bins);
+    //HostVector<uint2>               idx(binIndexes_);
+
+    //for(unsigned int i = 0; i < tmpBins.size(); i++) {
+    //    tmpBins[i] = VectorView<const T>(binSizes[i], binStarts[i]);
+    //    //std::cout << "bin0 : " << i << ", " << binStarts[i] - samples.begin()
+    //    //          << ", " << binSizes[i] << std::endl;
+    //    std::cout << "idx : " << i << ", " << idx[i].x
+    //              << ", " << idx[i].y - idx[i].x
+    //              << ", " << idx[i].x << ", " << idx[i].y << std::endl;
+    //    std::cout << "bin : " << i << ", " << tmp[i].data() - samples.data()
+    //              << ", " << tmp[i].size() << std::endl << std::endl;
+    //}
+    ////bins = tmpBins;
 }
 
 

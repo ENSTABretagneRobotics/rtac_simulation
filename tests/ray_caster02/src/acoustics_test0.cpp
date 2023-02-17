@@ -222,7 +222,8 @@ int main()
         auto tmp1 = abs(oculusSensor->sensor()->data().container());
         simRenderer->set_data({oculusSensor->sensor()->data().width(),
                                oculusSensor->sensor()->data().height()},
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)));
+                              plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
+
         //simRenderer->texture()->set_image({oculusSensor->sensor()->width(),
         //                                   oculusSensor->sensor()->height()},
         //                                  plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)));

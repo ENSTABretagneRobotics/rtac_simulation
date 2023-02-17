@@ -36,7 +36,7 @@ class SensorModel2D
                   const Kernel2D<KT>&       psf) :
         data_(rtac::cuda::TextureDim(bearings), ranges),
         pointSpreadFunction_(psf),
-        binner_(ranges.size(), ranges.bounds())
+        binner_(ranges.size(), ranges.bounds(), psf.y_span())
     {}
 
     public:
