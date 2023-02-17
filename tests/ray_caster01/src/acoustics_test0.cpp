@@ -176,6 +176,7 @@ int main()
     //    oculusDatum = bag.next();
     //}
     int screenshotCount = 0;
+    int loopCount = 0;
     while(!display.should_close() &&
           !simDisplay.should_close() &&
           !sonarDisplay.should_close())
@@ -208,6 +209,20 @@ int main()
         //CUDA_CHECK_LAST();
 
         oculusReceiver->reduce_samples();
+        rtac::HostVector<rtac::simulation::PolarSample2D<float>> tmp2 = oculusReceiver->samples();
+        float sum = 0;
+        double energy = 0.0;
+        unsigned int c = 0;
+        for(auto s : tmp2) {
+            //sum += abs(s.value());
+            if(abs(s.datum) > 0)  {
+                c++;
+                energy += norm(s.datum);
+                //std::cout << s.value() << std::endl;
+            }
+        }
+        //std::cout << loopCount++ << ", " << c << ", " << tmp2.size() << ", " << (float)c / tmp2.size() << std::endl;
+        std::cout << loopCount++ << ", " << (float)c / tmp2.size() << ", " << energy << std::endl;
 
         optixRenderer->points().copy_from_cuda(optixPoints.size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));

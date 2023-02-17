@@ -6,6 +6,8 @@
 
 namespace rtac { namespace simulation {
 
+const uint32_t RangeBinner::OutOfRangeIndex = 0xffffffff;
+
 RangeBinner::RangeBinner() :
     binCount_(0), rangeMin_(0.0f), rangeMax_(1.0f)
 {

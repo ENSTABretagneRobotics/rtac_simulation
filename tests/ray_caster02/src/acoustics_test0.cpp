@@ -17,6 +17,8 @@ using namespace rtac::navigation;
 using Mesh = rtac::Mesh<>;
 using Pose = rtac::Pose<float>;
 
+#include <rtac_base/cuda/vector_utils.h>
+
 #include <rtac_base/types/Pose.h>
 using Pose = rtac::Pose<float>;
 using Vec3       = Pose::Vec3;
@@ -38,6 +40,7 @@ using namespace rtac::cuda;
 #include <rtac_display/renderers/PointCloudRenderer.h>
 #include <rtac_display/renderers/ImageRenderer.h>
 #include <rtac_display/renderers/FrameInstances.h>
+#include <rtac_display/renderers/FanRenderer.h>
 #include <rtac_display/renderers/Frame.h>
 namespace plt = rtac::display;
 
@@ -145,7 +148,8 @@ int main()
     //auto emitter = rtac::simulation::Emitter2::Create(10.0f, 140.0f, 100.0f, 
         rtac::simulation::Directivity::from_sinc_parameters(130.0f, 20.0f));
     auto receiver = rtac::simulation::Receiver2<rtac::simulation::SimSample2D>::Create(emitter->directivity());
-    rtac::simulation::Binner binner;
+    auto oculusSensor = rtac::simulation::OculusSensor::Create();
+    //rtac::simulation::Binner binner;
 
     DeviceVector<float3> optixPoints;
 
@@ -172,13 +176,18 @@ int main()
 
     plt::Display simDisplay(display.context());
     simDisplay.disable_frame_counter();
-    auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
+    //auto simRenderer = simDisplay.create_renderer<plt::PolarTargetRenderer>(plt::View::Create());
+    auto simRenderer = simDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
+    //simRenderer->set_direction(plt::FanRenderer::Direction::Up);
+    //auto simRenderer = simDisplay.create_renderer<plt::ImageRenderer>(plt::View::Create());
+    //simRenderer->enable_colormap();
 
     //auto oculusDatum = bag.next();
     //for(int i = 0; i < 100; i++) {
     //    oculusDatum = bag.next();
     //}
     int screenshotCount = 0;
+    int loopCount = 0;
     while(!display.should_close() &&
           !simDisplay.should_close() &&
           !sonarDisplay.should_close())
@@ -194,6 +203,7 @@ int main()
         //oculusReceiver->samples().resize(directions.size());
 
         //oculusReceiver->reconfigure(meta, pingData);
+        oculusSensor->reconfigure(meta, pingData);
 
         emitter->pose()  = pose;
         receiver->pose() = pose;
@@ -204,15 +214,25 @@ int main()
         //                 directions, optixPoints);
         raycaster->trace(emitter, receiver, optixPoints);
         receiver->sort_received();
+        oculusSensor->sensor()->reduce_samples(receiver->samples());
 
-        rtac::cuda::DeviceVector<rtac::VectorView<const rtac::simulation::SimSample2D>> bins;
-        binner.reconfigure(meta.nRanges, {0.0f, (float)meta.fireMessage.range});
-        binner.compute(bins, receiver->samples());
-        rtac::HostVector<rtac::VectorView<const rtac::simulation::SimSample2D>> hbins = bins;
-        for(unsigned int i = 0; i < bins.size(); i++) {
-            std::cout << "bin " << i << " : " << hbins[i].size() << std::endl;
-        }
-        //std::cout << bins << std::endl;
+        simRenderer->set_range(oculusSensor->sensor()->data().height_dim().bounds());
+        simRenderer->set_bearings(oculusSensor->sensor()->data().width_dim().size(),
+                                  oculusSensor->sensor()->data().width_dim().data());
+        auto tmp1 = abs(oculusSensor->sensor()->data().container());
+        simRenderer->set_data({oculusSensor->sensor()->data().width(),
+                               oculusSensor->sensor()->data().height()},
+                              plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)));
+        //simRenderer->texture()->set_image({oculusSensor->sensor()->width(),
+        //                                   oculusSensor->sensor()->height()},
+        //                                  plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)));
+        //simRenderer->texture()->set_image({oculusSensor->sensor()->point_spread_function().width(),
+        //                                   oculusSensor->sensor()->point_spread_function().height()},
+        //                                  plt::GLVector<float>(rescale(render_kernel(oculusSensor->sensor()->point_spread_function()).container(), 0.0f, 1.0f)));
+
+        //rtac::cuda::DeviceVector<rtac::VectorView<const rtac::simulation::SimSample2D>> bins;
+        //binner.reconfigure(meta.nRanges, {0.0f, (float)meta.fireMessage.range});
+        //binner.compute(bins, receiver->samples());
 
         //optixParams.emitter    = oculusEmitter->view();
         //optixParams.receiver   = oculusReceiver->view();
@@ -234,13 +254,12 @@ int main()
         optixRenderer->set_pose(pose);
         trace->add_pose(pose);
 
-        //pingRenderer->set_data(meta, pingData);
+        pingRenderer->set_data(meta, pingData);
         //simRenderer->set_data(oculusReceiver->target());
 
-
         display.draw();
-        //sonarDisplay.draw();
-        //simDisplay.draw();
+        sonarDisplay.draw();
+        simDisplay.draw();
 
         //rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
         //sonarDisplay.take_screenshot(screenshot);

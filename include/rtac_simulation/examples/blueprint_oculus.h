@@ -8,6 +8,9 @@
 #include <rtac_simulation/PolarTarget2D.h>
 #include <rtac_simulation/PolarReceiver2D.h>
 
+#include <rtac_simulation/ReductionKernel.h>
+#include <rtac_simulation/SensorModel.h>
+
 #include <narval_oculus/Oculus.h>
 
 namespace rtac { namespace simulation {
@@ -65,46 +68,57 @@ class OculusReceiver : public PolarReceiver2D<float>
 
 //#if defined(RTAC_OCULUS_DRIVER) || defined(RTAC_OCULUS_DEPRECATED)
 
-inline bool OculusReceiver::reconfigure(const OculusSimplePingResult& metadata,
-                                        const uint8_t* data,
-                                        bool forceReconfigure)
+class OculusSensor
 {
-    FrequencyMode requestedMode = ModeNone;
-    if(metadata.fireMessage.masterMode == 1) {
-        requestedMode      = LowFrequency;
-        this->target_      = lfTarget_;
-        this->psf_         = lfKernel_;
-        this->directivity_ = lfDirectivity_;
-    }
-    else if(metadata.fireMessage.masterMode == 2) {
-        requestedMode      = HighFrequency;
-        this->target_      = hfTarget_;
-        this->psf_         = hfKernel_;
-        this->directivity_ = hfDirectivity_;
-    }
-    else {
-        std::cerr << "OculusReceiver : Invalid requested frequency mode : "
-                  << (int)metadata.fireMessage.masterMode 
-                  << ". Ignoring reconfiguration." << std::endl;
-        return false;
-    }
+    public:
 
-    if(forceReconfigure || this->needs_update(requestedMode, 
-                                              metadata.fireMessage.range,
-                                              metadata.nRanges,
-                                              metadata.nBeams))
-    {
-        std::vector<float> bearingData(metadata.nBeams);
-        auto bearings = (const int16_t*)(data + sizeof(OculusSimplePingResult));
-        for(int i = 0; i < metadata.nBeams; i++) {
-            bearingData[i] = (0.01f*M_PI/180.0f) * bearings[i];
+    using Ptr      = std::shared_ptr<OculusSensor>;
+    using ConstPtr = std::shared_ptr<const OculusSensor>;
+
+    using SensorModel = SensorModel2D<Complex<float>, float>;
+
+    static Kernel2D<float> make_lf_kernel(float rangeResolution);
+    static Kernel2D<float> make_hf_kernel(float rangeResolution);
+
+    enum FrequencyMode {
+        ModeNone,
+        LowFrequency,
+        HighFrequency
+    };
+
+    protected:
+
+    FrequencyMode    currentMode_;
+    SensorModel::Ptr lfSensor_;
+    SensorModel::Ptr hfSensor_;
+
+    OculusSensor() : currentMode_(ModeNone) {}
+
+    public:
+
+    static Ptr Create() { return Ptr(new OculusSensor()); }
+
+    SensorModel::Ptr sensor() const {
+        switch(currentMode_) {
+            default:            return nullptr;   break;
+            case LowFrequency:  return lfSensor_; break;
+            case HighFrequency: return hfSensor_; break;
         }
-        return this->reconfigure(requestedMode, metadata.fireMessage.range,
-                                 metadata.nRanges, bearingData, true);
     }
 
-    return false;
-}
+    bool needs_update(FrequencyMode requestedMode, 
+                      float minRange, float maxRange,
+                      unsigned int nRanges, unsigned int nBearings);
+    bool reconfigure(FrequencyMode Mode,
+                     float minRange, float maxRange,
+                     unsigned int nRanges,
+                     const std::vector<float>& bearings,
+                     bool forceReconfigure = false);
+    
+    bool reconfigure(const OculusSimplePingResult& metadata,
+                     const uint8_t* data,
+                     bool forceReconfigure = false);
+};
 
 //#endif //RTAC_OCULUS_DRIVER
 

@@ -41,6 +41,7 @@ __global__ void __raygen__polar_ray_caster()
 
         ray.datum /= range*range; // replace this with full complex multiplication.
         params->receiver.set_sample(idx, ray.datum, range, -delta / range);
+        //params->receiver.set_sample(idx, 1.0f, range, -delta / range);
     }
 }
 

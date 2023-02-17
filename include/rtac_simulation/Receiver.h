@@ -101,8 +101,9 @@ struct ReceiverView2
                                const float3& direction)
     {
         float3 localDir = this->pose.rotation_matrix().transpose()*(-direction);
-        samples[idx] = SampleType::Make(directivity(localDir)*value,
-                                        travel, localDir);
+        //samples[idx] = SampleType::Make(directivity(localDir)*value,
+        //                                travel, localDir);
+        samples[idx] = SampleType::Make(value, travel, localDir);
     }
 
     __device__ void set_null_sample(std::size_t idx)

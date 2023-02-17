@@ -93,7 +93,7 @@ struct SimSample2D : public Sample2D<SimSample2D>
         SimSample2D res;
         res.value_   = value;
         res.travel_  = travel;
-        res.bearing_ = atan2(dir.y, dir.x);
+        res.bearing_ = atan2(-dir.y, dir.x);
         return res;
     }
 

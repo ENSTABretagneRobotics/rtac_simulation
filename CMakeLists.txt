@@ -49,6 +49,8 @@ list(APPEND rtac_simulation_headers
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/Emitter.cu
+    src/reductions_2.cu
+    src/ReductionKernel.cu
 
     src/RangeBinner.cu
 

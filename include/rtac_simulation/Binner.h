@@ -99,49 +99,20 @@ void Binner::compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& b
                           const rtac::cuda::DeviceVector<T>& samples)
 {
     HostVector<unsigned int> keys = keys_;
-    HostVector<rtac::VectorView<const T>> tmpBins(this->bin_count());
-
-    unsigned int currentBin = 0;
-    const T* binStart       = samples.begin();
-    unsigned int binSize    = 0;
-
+    std::vector<const T*>     binStarts(this->bin_count(), nullptr);
+    std::vector<unsigned int> binSizes(this->bin_count(),  0);
     for(unsigned int i = 0; i < keys.size(); i++) {
-        // Skipping OutOfRange
         if(keys[i] == Key::OutOfRange) continue;
-        while(currentBin < keys[i]) {
-            tmpBins[currentBin] = VectorView<const T>(binSize, binStart);
-            binStart += binSize;
-            binSize   = 0;
-            currentBin++;
-            if(currentBin >= tmpBins.size()) return;
+        if(binStarts[keys[i]] == nullptr) {
+            binStarts[keys[i]] = samples.begin() + i;
         }
-        if(keys[i] == currentBin) binSize++;
+        binSizes[keys[i]]++;
+    }
+    HostVector<rtac::VectorView<const T>> tmpBins(this->bin_count());
+    for(unsigned int i = 0; i < tmpBins.size(); i++) {
+        tmpBins[i] = VectorView<const T>(binSizes[i], binStarts[i]);
     }
     bins = tmpBins;
-
-    //unsigned int bin = 0;
-    //unsigned int sum = 0;
-    //unsigned int gSum = 0;
-    //for(unsigned int i = 0; i < keys.size(); i++) {
-    //    if(keys[i] == Key::OutOfRange) continue;
-    //    while(bin < keys[i]) {
-    //        //std::cout << "key : " << keys[i] << std::endl;
-    //        std::cout << "bin : " << bin << ", " << sum << std::endl;
-    //        gSum += sum;
-    //        sum = 0;
-    //        bin++;
-    //        if(bin >= this->bin_count()) {
-    //            gSum += sum;
-    //            std::cout << "Total sum : " << gSum << '/' << keys_.size() << std::endl;
-    //            std::cout << bounds_ << std::endl;
-    //            return;
-    //        }
-    //    }
-    //    if(keys[i] == bin) sum++;
-    //}
-    //gSum += sum;
-    //std::cout << "Total sum : " << gSum << '/' << keys_.size() << std::endl;
-    //std::cout << bounds_ << std::endl;
 }
 
 

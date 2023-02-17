@@ -23,7 +23,8 @@ class RangeBinner
     using Ptr      = std::shared_ptr<RangeBinner>;
     using ConstPtr = std::shared_ptr<const RangeBinner>;
 
-    static constexpr uint32_t OutOfRangeIndex = 0xffffffff;
+    //static constexpr uint32_t OutOfRangeIndex = 0xffffffff;
+    static const uint32_t OutOfRangeIndex;
 
     struct KeyProcessor {
         const float         a_;
