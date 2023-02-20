@@ -35,6 +35,9 @@ if(NOT TARGET rtac_display)
     find_package(rtac_display REQUIRED)
 endif()
 
+list(APPEND test_files
+    src/psf_test01.cpp
+)
 if(OPTIX_SUPPORT_ENABLED)
     list(APPEND test_files
         # src/algebra_test.cpp
@@ -54,21 +57,23 @@ endforeach()
 
 
 
-# rtac_generate_asm(index_test_asm
-#     SOURCES src/algebra_test_indexes.cpp
-#     LINK_LIBRARIES rtac_simulation
-# )
-# rtac_generate_ptx(index_test_ptx
-#     SOURCES src/algebra_test_indexes.cu
-#     LINK_LIBRARIES rtac_simulation
-# )
+# # rtac_generate_asm(index_test_asm
+# #     SOURCES src/algebra_test_indexes.cpp
+# #     LINK_LIBRARIES rtac_simulation
+# # )
+# # rtac_generate_ptx(index_test_ptx
+# #     SOURCES src/algebra_test_indexes.cu
+# #     LINK_LIBRARIES rtac_simulation
+# # )
+# 
+# if(OPTIX_SUPPORT_ENABLED)
+#     # add_subdirectory(oculus_replay)
+#     add_subdirectory(ray_caster01)
+#     add_subdirectory(ray_caster02)
+#     add_subdirectory(gl_sim01)
+# endif()
+# add_subdirectory(gl_only01)
 
-if(OPTIX_SUPPORT_ENABLED)
-    # add_subdirectory(oculus_replay)
-    add_subdirectory(ray_caster01)
-    add_subdirectory(ray_caster02)
-    add_subdirectory(gl_sim01)
-endif()
-add_subdirectory(gl_only01)
+add_subdirectory(factories)
 
-# add_subdirectory(config_files)
+

@@ -19,7 +19,7 @@ endif()
 
 # These package are not mandatory. it only allows for easy setup in oculus
 # example.
-find_package(rtac_display  QUIET) # Display utilities
+find_package(rtac_display QUIET) # Display utilities
 
 
 list(APPEND rtac_simulation_headers
@@ -61,6 +61,9 @@ add_library(rtac_simulation SHARED
     src/PolarReceiver2D.cu
 
     src/examples/blueprint_oculus.cu
+
+    src/factories/PSFFactory.cpp
+    src/PointSpreadFunction.cpp
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -72,6 +75,10 @@ target_link_libraries(rtac_simulation PUBLIC
     yaml-cpp
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
+target_compile_options(rtac_simulation PUBLIC
+    # $<BUILD_INTERFACE:-DRTAC_CONFIG_FILES_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/examples/\">
+    -DRTAC_CONFIG_FILES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"
+)
 
 # if optix found adding optix dependent modules.
 if(rtac_optix_FOUND)

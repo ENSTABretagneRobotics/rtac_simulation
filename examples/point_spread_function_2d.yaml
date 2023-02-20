@@ -1,0 +1,33 @@
+# Example fixed configuration of a point pread function for an Oculus M1200d
+# front scan sonar.  The 2D PSF is considered separable. As such, bearing and
+# range PSF are defined independently and the resulting 2D PSF is the product
+# of the bearing and range 1D functions.
+
+
+--- # Oculus M1200d, master mode 1
+name: oculus_m1200d_1 # optional, defaulted to "unnamed_0...N"
+type: polar2d
+
+bearing_span: 130.0
+bearing_psf: sinc
+bearing_resolution: 0.6
+
+# bearing_psf: gauss
+# bearing_sigma: 0.6
+
+# bearing_psf: square
+# bearing_resolution: 0.6 # this will only influence psf image width
+
+range_mode: adaptive # in this mode, psf image height / range_span will depend on output range resolution
+# range_mode: fixed # in this mode, range span is fixed
+# range_span:  0.03 
+
+# range_psf: sin
+# range_frequency: 1.2e6
+# sound_celerity:  1500.0
+
+range_psf: square
+
+# range_psf: chirp # not implemented yet
+
+
