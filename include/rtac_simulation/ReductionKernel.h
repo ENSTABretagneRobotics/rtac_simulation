@@ -6,6 +6,7 @@
 #include <rtac_base/containers/Image.h>
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/Texture2D.h>
+#include <rtac_base/cuda/vec_math.h>
 
 namespace rtac { namespace simulation {
 
@@ -38,6 +39,24 @@ struct KernelView2D
     }
     #endif //RTAC_CUDACC
 };
+
+template <>
+struct KernelView2D<Complex<float>>
+{
+    float2 xScaling_;
+    float2 yScaling_;
+    cudaTextureObject_t function_;
+
+    #ifdef RTAC_CUDACC
+    __device__ Complex<float> operator()(float x, float y) const {
+        return make_complex(tex2D<float2>(function_,
+                                          fmaf(xScaling_.x, x, xScaling_.y),
+                                          fmaf(yScaling_.x, y, yScaling_.y)));
+
+    }
+    #endif //RTAC_CUDACC
+};
+
 
 template <typename T>
 class Kernel2D

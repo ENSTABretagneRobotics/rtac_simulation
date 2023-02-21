@@ -93,8 +93,8 @@ class PSF2D_Real : public PointSpreadFunction2D
 
     KernelView2D<float> kernel() const {
         KernelView2D<float> kernel;
-        kernel.xScaling_ = float2{1.0f / this->bearing_span()};
-        kernel.yScaling_ = float2{1.0f / this->range_span()};
+        kernel.xScaling_ = float2{1.0f / this->bearing_span(), 0.5f};
+        kernel.yScaling_ = float2{1.0f / this->range_span(), 0.5f};
         kernel.function_ = data_.texture();
         return kernel;
     }
@@ -132,10 +132,10 @@ class PSF2D_Complex : public PointSpreadFunction2D
         return Ptr(new PSF2D_Complex(bearingPSF, rangePSF));
     }
 
-    KernelView2D<float2> kernel() const {
-        KernelView2D<float2> kernel;
-        kernel.xScaling_ = float2{1.0f / this->bearing_span()};
-        kernel.yScaling_ = float2{1.0f / this->range_span()};
+    KernelView2D<Complex<float>> kernel() const {
+        KernelView2D<Complex<float>> kernel;
+        kernel.xScaling_ = float2{1.0f / this->bearing_span(), 0.5f};
+        kernel.yScaling_ = float2{1.0f / this->range_span(),   0.5f};
         kernel.function_ = data_.texture();
         return kernel;
     }
@@ -144,15 +144,7 @@ class PSF2D_Complex : public PointSpreadFunction2D
 };
 
 PointSpreadFunction2D::Ptr make_point_spread_function(const PSFGenerator::Ptr& bearingPSF,
-                                                    const PSFGenerator::Ptr& rangePSF)
-{
-    if(bearingPSF->is_complex() || rangePSF->is_complex()) {
-        return PSF2D_Complex::Create(bearingPSF, rangePSF);
-    }
-    else {
-        return PSF2D_Real::Create(bearingPSF, rangePSF);
-    }
-}
+                                                      const PSFGenerator::Ptr& rangePSF);
  
 } //namespace simulation
 } //namespace rtac

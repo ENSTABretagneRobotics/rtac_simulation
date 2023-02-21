@@ -186,63 +186,103 @@ bool OculusSensor::needs_update(FrequencyMode requestedMode,
     return false;
 }
 
-Kernel2D<float> OculusSensor::make_lf_kernel(float rangeResolution)
+//Kernel2D<float> OculusSensor::make_lf_kernel(float rangeResolution)
+//{
+//    float bearingResolution   = 0.6f;
+//    float bearingSpan         = 130.0f;
+//    float pulseLength         = 2*rangeResolution;
+//    float waveLength          = 1500.0 / 1.2e6;
+//    float numPeriod           = pulseLength / waveLength;
+//    unsigned int oversampling = 8;
+//
+//    signal::SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
+//    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
+//
+//    unsigned int W = bearingPsf.size();
+//    unsigned int H = rangePsf.size();
+//
+//    std::cout << "kernel : " << W << 'x' << H << std::endl;
+//    std::cout << "pulse length : " << pulseLength << std::endl;
+//
+//    Image<float> kernelData(W,H);
+//    for(int h = 0; h < H; h++) {
+//        for(int w = 0; w < W; w++) {
+//            //kernelData(h,w) = rangePsf.function()[h];
+//            //kernelData(h,w) = bearingPsf.function()[w];
+//            kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
+//            //kernelData(h,w) = 1.0f;
+//        }
+//    }
+//    
+//    return Kernel2D<float>(bearingSpan * M_PI / 180.0f, pulseLength, kernelData);
+//}
+//
+//Kernel2D<float> OculusSensor::make_hf_kernel(float rangeResolution)
+//{
+//    float bearingResolution   = 0.4f;
+//    float bearingSpan         = 80.0f;
+//    float pulseLength         = 2*rangeResolution;
+//    float waveLength          = 1500.0 / 2.1e6;
+//    float numPeriod           = pulseLength / waveLength;
+//    unsigned int oversampling = 8;
+//
+//    signal::SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
+//    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
+//
+//    unsigned int W = bearingPsf.size();
+//    unsigned int H = rangePsf.size();
+//
+//    Image<float> kernelData(W,H);
+//    for(int h = 0; h < H; h++) {
+//        for(int w = 0; w < W; w++) {
+//            //kernelData(h,w) = rangePsf.function()[h];
+//            kernelData(h,w) = bearingPsf.function()[w];
+//            //kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
+//            //kernelData(h,w) = 1.0f;
+//        }
+//    }
+//    
+//    return Kernel2D<float>(bearingSpan * M_PI / 180.0f, pulseLength, kernelData);
+//}
+
+PointSpreadFunction2D::Ptr OculusSensor::make_lf_kernel(float rangeResolution)
 {
     float bearingResolution   = 0.6f;
     float bearingSpan         = 130.0f;
     float pulseLength         = 2*rangeResolution;
-    float waveLength          = 1500.0 / 1.2e6;
-    float numPeriod           = pulseLength / waveLength;
+    float soundCelerity       = 1500.0;
+    float frequency           = 1.2e6;
     unsigned int oversampling = 8;
 
-    signal::SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
-    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
-
-    unsigned int W = bearingPsf.size();
-    unsigned int H = rangePsf.size();
-
-    std::cout << "kernel : " << W << 'x' << H << std::endl;
-    std::cout << "pulse length : " << pulseLength << std::endl;
-
-    Image<float> kernelData(W,H);
-    for(int h = 0; h < H; h++) {
-        for(int w = 0; w < W; w++) {
-            //kernelData(h,w) = rangePsf.function()[h];
-            //kernelData(h,w) = bearingPsf.function()[w];
-            kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
-            //kernelData(h,w) = 1.0f;
-        }
-    }
-    
-    return Kernel2D<float>(bearingSpan * M_PI / 180.0f, pulseLength, kernelData);
+    auto bearingPSF = BearingPSF_Sinc::Create(bearingSpan       * M_PI / 180.0f,
+                                              bearingResolution * M_PI / 180.0f,
+                                              oversampling);
+    //auto rangePSF = RangePSF_Square::Create(pulseLength);
+    //auto rangePSF   = RangePSF_Sine::Create(pulseLength, soundCelerity,
+    //                                        frequency, oversampling);
+    auto rangePSF = RangePSF_ComplexSine::Create(pulseLength, soundCelerity,
+                                                 frequency, oversampling);
+    return make_point_spread_function(bearingPSF, rangePSF);
 }
 
-Kernel2D<float> OculusSensor::make_hf_kernel(float rangeResolution)
+PointSpreadFunction2D::Ptr OculusSensor::make_hf_kernel(float rangeResolution)
 {
     float bearingResolution   = 0.4f;
     float bearingSpan         = 80.0f;
     float pulseLength         = 2*rangeResolution;
-    float waveLength          = 1500.0 / 2.1e6;
-    float numPeriod           = pulseLength / waveLength;
+    float soundCelerity       = 1500.0;
+    float frequency           = 2.1e6;
     unsigned int oversampling = 8;
-
-    signal::SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
-    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
-
-    unsigned int W = bearingPsf.size();
-    unsigned int H = rangePsf.size();
-
-    Image<float> kernelData(W,H);
-    for(int h = 0; h < H; h++) {
-        for(int w = 0; w < W; w++) {
-            //kernelData(h,w) = rangePsf.function()[h];
-            kernelData(h,w) = bearingPsf.function()[w];
-            //kernelData(h,w) = rangePsf.function()[h] * bearingPsf.function()[w];
-            //kernelData(h,w) = 1.0f;
-        }
-    }
     
-    return Kernel2D<float>(bearingSpan * M_PI / 180.0f, pulseLength, kernelData);
+    auto bearingPSF = BearingPSF_Sinc::Create(bearingSpan       * M_PI / 180.0f,
+                                              bearingResolution * M_PI / 180.0f,
+                                              oversampling);
+    auto rangePSF = RangePSF_Square::Create(pulseLength);
+    //auto rangePSF   = RangePSF_Sine::Create(pulseLength, soundCelerity,
+    //                                        frequency, oversampling);
+    //auto rangePSF = RangePSF_ComplexSine::Create(pulseLength, soundCelerity,
+    //                                             frequency, oversampling);
+    return make_point_spread_function(bearingPSF, rangePSF);
 }
 
 bool OculusSensor::reconfigure(FrequencyMode mode,

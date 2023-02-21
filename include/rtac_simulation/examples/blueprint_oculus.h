@@ -75,10 +75,13 @@ class OculusSensor
     using Ptr      = std::shared_ptr<OculusSensor>;
     using ConstPtr = std::shared_ptr<const OculusSensor>;
 
-    using SensorModel = SensorModel2D<Complex<float>, float>;
+    //using SensorModel = SensorModel2D<Complex<float>, float>;
+    //static Kernel2D<float> make_lf_kernel(float rangeResolution);
+    //static Kernel2D<float> make_hf_kernel(float rangeResolution);
 
-    static Kernel2D<float> make_lf_kernel(float rangeResolution);
-    static Kernel2D<float> make_hf_kernel(float rangeResolution);
+    using SensorModel = SensorModel2D_2<Complex<float>>;
+    static PointSpreadFunction2D::Ptr make_lf_kernel(float rangeResolution);
+    static PointSpreadFunction2D::Ptr make_hf_kernel(float rangeResolution);
 
     enum FrequencyMode {
         ModeNone,

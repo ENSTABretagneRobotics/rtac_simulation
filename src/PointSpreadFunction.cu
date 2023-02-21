@@ -79,9 +79,7 @@ void fill_kernel_data(cuda::Texture2D<float2>& out,
     for(unsigned int h = 0; h < data.height(); h++) {
         for(unsigned int w = 0; w < data.width(); w++) {
             data(h,w) = bearings[w] * ranges[h];
-            std::cout << " " << data(h,w);
         }
-        std::cout << std::endl;
     }
 
     out.set_image(data.width(), data.height(), (const float2*)data.data());
@@ -119,6 +117,18 @@ Image<float2, cuda::DeviceVector> PSF2D_Complex::render() const
     render_texture(data_, res.view());
     return res;
 }
+
+PointSpreadFunction2D::Ptr make_point_spread_function(const PSFGenerator::Ptr& bearingPSF,
+                                                      const PSFGenerator::Ptr& rangePSF)
+{
+    if(bearingPSF->is_complex() || rangePSF->is_complex()) {
+        return PSF2D_Complex::Create(bearingPSF, rangePSF);
+    }
+    else {
+        return PSF2D_Real::Create(bearingPSF, rangePSF);
+    }
+}
+ 
 
 } //namespace simulation
 } //namespace rtac

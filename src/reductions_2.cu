@@ -7,12 +7,12 @@
 namespace rtac { namespace simulation {
 
 template <typename D, typename Tin, typename KT, unsigned int BlockSize = 512>
-__global__ void do_sparse_convolve_2d(D out,
-                                      const rtac::VectorView<const Tin>* bins,
-                                      KernelView2D<KT> kernel)
+__global__ void do_sparse_convolve_2d_f(D out,
+                                        const rtac::VectorView<const Tin>* bins,
+                                        KernelView2D<KT> kernel)
 {
     // shared memory does not play well with templates
-    using T = KT;
+    using T = float;
     extern __shared__ __align__(sizeof(T)) unsigned char sharedMemory[];
     T* sdata = reinterpret_cast<T*>(sharedMemory);
 
@@ -55,8 +55,32 @@ void sparse_convolve_2d(SensorModel2D<Complex<float>, float>& out,
 
     static constexpr unsigned int BlockSize = 512;
     uint3 grid{out.width(), out.height(), 1};
-    do_sparse_convolve_2d<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+    do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
         out.data().view(), bins.data(), out.point_spread_function().view());
+    cudaDeviceSynchronize();
+    CUDA_CHECK_LAST();
+}
+
+void sparse_convolve_2d(SensorModel2D_2<Complex<float>>& out,
+                        const cuda::DeviceVector<VectorView<const SimSample2D>>& bins)
+{
+    if(out.height() != bins.size()) {
+        throw std::runtime_error("Inconsistent sizes");
+    }
+    static constexpr unsigned int BlockSize = 512;
+    uint3 grid{out.width(), out.height(), 1};
+
+    if(out.point_spread_function()->is_complex()) {
+        do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+            out.data().view(), bins.data(),
+            out.point_spread_function()->complex_cast()->kernel());
+    }
+    else {
+        do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+            out.data().view(), bins.data(),
+            out.point_spread_function()->real_cast()->kernel());
+    }
+
     cudaDeviceSynchronize();
     CUDA_CHECK_LAST();
 }

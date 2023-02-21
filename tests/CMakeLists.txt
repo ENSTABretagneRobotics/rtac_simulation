@@ -57,21 +57,21 @@ endforeach()
 
 
 
-# # rtac_generate_asm(index_test_asm
-# #     SOURCES src/algebra_test_indexes.cpp
-# #     LINK_LIBRARIES rtac_simulation
-# # )
-# # rtac_generate_ptx(index_test_ptx
-# #     SOURCES src/algebra_test_indexes.cu
-# #     LINK_LIBRARIES rtac_simulation
-# # )
-# 
-# if(OPTIX_SUPPORT_ENABLED)
-#     # add_subdirectory(oculus_replay)
-#     add_subdirectory(ray_caster01)
-#     add_subdirectory(ray_caster02)
-#     add_subdirectory(gl_sim01)
-# endif()
+# rtac_generate_asm(index_test_asm
+#     SOURCES src/algebra_test_indexes.cpp
+#     LINK_LIBRARIES rtac_simulation
+# )
+# rtac_generate_ptx(index_test_ptx
+#     SOURCES src/algebra_test_indexes.cu
+#     LINK_LIBRARIES rtac_simulation
+# )
+
+if(OPTIX_SUPPORT_ENABLED)
+    # add_subdirectory(oculus_replay)
+    # add_subdirectory(ray_caster01)
+    add_subdirectory(ray_caster02)
+    # add_subdirectory(gl_sim01)
+endif()
 # add_subdirectory(gl_only01)
 
 add_subdirectory(factories)
