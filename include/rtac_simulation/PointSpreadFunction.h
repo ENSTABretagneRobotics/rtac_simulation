@@ -4,163 +4,159 @@
 #include <memory>
 
 #include <rtac_base/types/Complex.h>
-#include <rtac_base/signal_helpers.h>
+#include <rtac_base/containers/Image.h>
+#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/Texture2D.h>
+
+#include <rtac_simulation/factories/PSFGenerator.h>
+#include <rtac_simulation/ReductionKernel.h>
 
 namespace rtac { namespace simulation {
 
-/*
-class PSFGenerator// : public std::enable_shared_from_this<PSFGenerator>
+class PSF2D_Real;
+class PSF2D_Complex;
+
+class PointSpreadFunction2D : public std::enable_shared_from_this<PointSpreadFunction2D>
 {
     public:
-    
-    using Ptr      = std::shared_ptr<PSFGenerator>;
-    using ConstPtr = std::shared_ptr<const PSFGenerator>;
+
+    using Ptr      = std::shared_ptr<PointSpreadFunction2D>;
+    using ConstPtr = std::shared_ptr<const PointSpreadFunction2D>;
 
     protected:
 
-    //PSFGenerator(float span) : span_(span) {}
-    PSFGenerator() = default;
+    PSFGenerator::Ptr bearingPSF_;
+    PSFGenerator::Ptr rangePSF_;
 
-    public:
-
-    virtual float span()        const = 0;
-    virtual unsigned int size() const = 0;
-    virtual bool is_complex()   const = 0;
-};
-
-struct PSFGenerator_Real : public PSFGenerator
-{
-    using Ptr      = std::shared_ptr<PSFGenerator_Real>;
-    using ConstPtr = std::shared_ptr<const PSFGenerator_Real>;
-
-    bool is_complex() const { return false; }
-
-    virtual float operator[](unsigned int idx) const = 0;
-};
-
-struct PSFGenerator_Complex : public PSFGenerator
-{
-    using Ptr      = std::shared_ptr<PSFGenerator_Complex>;
-    using ConstPtr = std::shared_ptr<const PSFGenerator_Complex>;
-
-    bool is_complex() const { return true; }
-
-    virtual Complex<float> operator[](unsigned int idx) const = 0;
-};
-
-class RangePSF
-{
-    public:
-    
-    using Ptr      = std::shared_ptr<RangePSF>;
-    using ConstPtr = std::shared_ptr<const RangePSF>;
-
-    protected:
-   
-    float pulseLength_;
-
-    RangePSF(float pulseLength) : pulseLength_(pulseLength) {}
-
-    public:
-
-    float pulse_length() const { return pulseLength_; }
-
-    virtual void reconfigure(float pulseLength) { pulseLength_ = pulseLength; }
-};
-
-class RangePSF_Square : public RangePSF, public PSFGenerator_Real
-{
-    public:
-
-    using Ptr      = std::shared_ptr<RangePSF_Square>;
-    using ConstPtr = std::shared_ptr<const RangePSF_Square>;
-
-    protected:
-
-    RangePSF_Square(float pulseLength) : RangePSF(pulseLength) {}
-
-    public:
-
-    static Ptr Create(float pulseLength) { return Ptr(new RangePSF_Square(pulseLength)); }
-
-    unsigned int size() const { return 1; }
-    float span() const { return this->pulse_length(); }
-    float operator[](unsigned int idx) const { return 1.0f; }
-};
-
-class RangePSF_Sine : public RangePSF, public PSFGenerator_Real
-{
-    public:
-
-    using Ptr      = std::shared_ptr<RangePSF_Sine>;
-    using ConstPtr = std::shared_ptr<const RangePSF_Sine>;
-
-    protected:
-
-    float soundCelerity_;
-    float frequency_;
-    float wavelength_;
-    unsigned int oversampling_;
-    std::shared_ptr<signal::SineFunction<float>> function_;
-
-    RangePSF_Sine(float soundCelerity, float frequency,
-                  float pulseLength, unsigned int oversampling = 8);
-
-    public:
-
-    static Ptr Create(float soundCelerity, float frequency,
-                      float pulseLength, unsigned int oversampling = 8) 
+    PointSpreadFunction2D(const PSFGenerator::Ptr& bearingPSF,
+                          const PSFGenerator::Ptr& rangePSF) :
+        bearingPSF_(bearingPSF),
+        rangePSF_(rangePSF)
     {
-        return Ptr(new RangePSF_Sine(soundCelerity, frequency, pulseLength, oversampling));
+        if(!std::dynamic_pointer_cast<RangePSF>(rangePSF)) {
+            throw std::runtime_error(
+                "PointSpreadFunction : rangePSF must be derived from the RangePSF type");
+        }
     }
 
-    void reconfigure(float soundCelerity, float frequency,
-                     float pulseLength, unsigned int oversampling = 8);
-    void reconfigure(float pulseLength);
+    virtual void generate_kernel() = 0;
+    
+    public:
 
-    float span() const { return this->pulse_length(); }
-    unsigned int size() const { return function_->size(); }
-    float operator[](unsigned int idx) const { return function_->function()[idx]; }
+    float bearing_span()        const { return bearingPSF_->span(); }
+    float range_span()          const { return rangePSF_->span();   }
+    unsigned int bearing_size() const { return bearingPSF_->size(); }
+    unsigned int range_size()   const { return rangePSF_->size();   }
+    unsigned int width()        const { return bearingPSF_->size(); }
+    unsigned int height()       const { return rangePSF_->size();   }
+    bool is_complex() const { 
+        return bearingPSF_->is_complex() || rangePSF_->is_complex();
+    }
+
+    void set_pulse_length(float pulseLength);
+    
+    std::shared_ptr<PSF2D_Real>          real_cast();
+    std::shared_ptr<PSF2D_Complex>       complex_cast();
+    std::shared_ptr<const PSF2D_Real>    real_cast()    const;
+    std::shared_ptr<const PSF2D_Complex> complex_cast() const;
 };
 
-class RangePSF_ComplexSine : public RangePSF, public PSFGenerator_Complex
+class PSF2D_Real : public PointSpreadFunction2D
 {
     public:
 
-    using Ptr      = std::shared_ptr<RangePSF_ComplexSine>;
-    using ConstPtr = std::shared_ptr<const RangePSF_ComplexSine>;
+    using Ptr      = std::shared_ptr<PSF2D_Real>;
+    using ConstPtr = std::shared_ptr<const PSF2D_Real>;
 
     protected:
 
-    float soundCelerity_;
-    float frequency_;
-    float wavelength_;
-    unsigned int oversampling_;
-    std::shared_ptr<signal::ComplexSineFunction<float>> function_;
+    cuda::Texture2D<float> data_; 
 
-    RangePSF_ComplexSine(float soundCelerity, float frequency,
-                         float pulseLength, unsigned int oversampling = 8);
-
-    public:
-
-    static Ptr Create(float soundCelerity, float frequency,
-                      float pulseLength, unsigned int oversampling = 8) 
+    PSF2D_Real(const PSFGenerator::Ptr& bearingPSF,
+               const PSFGenerator::Ptr& rangePSF) :
+        PointSpreadFunction2D(bearingPSF, rangePSF)
     {
-        return Ptr(new RangePSF_ComplexSine(soundCelerity, frequency,
-                                            pulseLength, oversampling));
+        data_.set_filter_mode(cuda::Texture2D<float>::FilterLinear, false);
+        data_.set_wrap_mode(cuda::Texture2D<float>::WrapBorder, true);
+        this->PSF2D_Real::generate_kernel();
     }
 
-    void reconfigure(float soundCelerity, float frequency,
-                     float pulseLength, unsigned int oversampling = 8);
-    void reconfigure(float pulseLength);
+    void generate_kernel();
+    
+    public:
 
-    float span() const { return this->pulse_length(); }
-    unsigned int size() const { return function_->size(); }
-    Complex<float> operator[](unsigned int idx) const { return function_->function()[idx]; }
+    static Ptr Create(const PSFGenerator::Ptr& bearingPSF,
+                      const PSFGenerator::Ptr& rangePSF)
+    {
+        return Ptr(new PSF2D_Real(bearingPSF, rangePSF));
+    }
+
+    KernelView2D<float> kernel() const {
+        KernelView2D<float> kernel;
+        kernel.xScaling_ = float2{1.0f / this->bearing_span()};
+        kernel.yScaling_ = float2{1.0f / this->range_span()};
+        kernel.function_ = data_.texture();
+        return kernel;
+    }
+
+    Image<float, cuda::DeviceVector> render() const;
 };
-*/
 
+class PSF2D_Complex : public PointSpreadFunction2D
+{
+    public:
+
+    using Ptr      = std::shared_ptr<PSF2D_Complex>;
+    using ConstPtr = std::shared_ptr<const PSF2D_Complex>;
+
+    protected:
+
+    cuda::Texture2D<float2> data_; 
+
+    PSF2D_Complex(const PSFGenerator::Ptr& bearingPSF,
+                  const PSFGenerator::Ptr& rangePSF) :
+        PointSpreadFunction2D(bearingPSF, rangePSF)
+    {
+        data_.set_filter_mode(cuda::Texture2D<float2>::FilterLinear, false);
+        data_.set_wrap_mode(cuda::Texture2D<float2>::WrapBorder, true);
+        this->PSF2D_Complex::generate_kernel();
+    }
+
+    void generate_kernel();
+    
+    public:
+
+    static Ptr Create(const PSFGenerator::Ptr& bearingPSF,
+                      const PSFGenerator::Ptr& rangePSF)
+    {
+        return Ptr(new PSF2D_Complex(bearingPSF, rangePSF));
+    }
+
+    KernelView2D<float2> kernel() const {
+        KernelView2D<float2> kernel;
+        kernel.xScaling_ = float2{1.0f / this->bearing_span()};
+        kernel.yScaling_ = float2{1.0f / this->range_span()};
+        kernel.function_ = data_.texture();
+        return kernel;
+    }
+
+    Image<float2, cuda::DeviceVector> render() const;
+};
+
+PointSpreadFunction2D::Ptr make_point_spread_function(const PSFGenerator::Ptr& bearingPSF,
+                                                    const PSFGenerator::Ptr& rangePSF)
+{
+    if(bearingPSF->is_complex() || rangePSF->is_complex()) {
+        return PSF2D_Complex::Create(bearingPSF, rangePSF);
+    }
+    else {
+        return PSF2D_Real::Create(bearingPSF, rangePSF);
+    }
+}
+ 
 } //namespace simulation
 } //namespace rtac
+
+std::ostream& operator<<(std::ostream& os, const rtac::simulation::PointSpreadFunction2D& psf);
 
 #endif //_DEF_RTAC_SIMULATION_POINT_SPREAD_FUNCTION_H_

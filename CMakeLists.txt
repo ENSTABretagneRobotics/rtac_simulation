@@ -64,7 +64,7 @@ add_library(rtac_simulation SHARED
 
     src/factories/PSFGenerator.cpp
     src/factories/PSFFactory.cpp
-    src/PointSpreadFunction.cpp
+    src/PointSpreadFunction.cu
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

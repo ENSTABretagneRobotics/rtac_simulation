@@ -1,5 +1,5 @@
-#ifndef _DEF_RTAC_SIMULATION_POINT_SPREAD_FUNCTION_H_
-#define _DEF_RTAC_SIMULATION_POINT_SPREAD_FUNCTION_H_
+#ifndef _DEF_RTAC_SIMULATION_PSF_GENERATOR_H_
+#define _DEF_RTAC_SIMULATION_PSF_GENERATOR_H_
 
 #include <memory>
 
@@ -64,7 +64,7 @@ class RangePSF
 
     float pulse_length() const { return pulseLength_; }
 
-    virtual void reconfigure(float pulseLength) { pulseLength_ = pulseLength; }
+    virtual void set_pulse_length(float pulseLength) { pulseLength_ = pulseLength; }
 };
 
 class RangePSF_Square : public RangePSF, public PSFGenerator_Real
@@ -102,20 +102,21 @@ class RangePSF_Sine : public RangePSF, public PSFGenerator_Real
     unsigned int oversampling_;
     std::shared_ptr<signal::SineFunction<float>> function_;
 
-    RangePSF_Sine(float soundCelerity, float frequency,
-                  float pulseLength, unsigned int oversampling = 8);
-;
+    RangePSF_Sine(float pulseLength, float soundCelerity,
+                  float frequency, unsigned int oversampling = 8);
+
     public:
 
-    static Ptr Create(float soundCelerity, float frequency,
-                      float pulseLength, unsigned int oversampling = 8) 
+    static Ptr Create(float pulseLength, float soundCelerity,
+                      float frequency, unsigned int oversampling = 8) 
     {
-        return Ptr(new RangePSF_Sine(soundCelerity, frequency, pulseLength, oversampling));
+        return Ptr(new RangePSF_Sine(pulseLength, soundCelerity,
+                                     frequency, oversampling));
     }
 
-    void reconfigure(float soundCelerity, float frequency,
-                     float pulseLength, unsigned int oversampling = 8);
-    void reconfigure(float pulseLength);
+    void set_pulse_length(float pulseLength, float soundCelerity,
+                          float frequency, unsigned int oversampling = 8);
+    void set_pulse_length(float pulseLength);
 
     float span() const { return this->pulse_length(); }
     unsigned int size() const { return function_->size(); }
@@ -137,27 +138,26 @@ class RangePSF_ComplexSine : public RangePSF, public PSFGenerator_Complex
     unsigned int oversampling_;
     std::shared_ptr<signal::ComplexSineFunction<float>> function_;
 
-    RangePSF_ComplexSine(float soundCelerity, float frequency,
-                         float pulseLength, unsigned int oversampling = 8);
+    RangePSF_ComplexSine(float pulseLength, float soundCelerity,
+                         float frequency, unsigned int oversampling = 8);
 
     public:
 
-    static Ptr Create(float soundCelerity, float frequency,
-                      float pulseLength, unsigned int oversampling = 8) 
+    static Ptr Create(float pulseLength, float soundCelerity,
+                      float frequency, unsigned int oversampling = 8) 
     {
-        return Ptr(new RangePSF_ComplexSine(soundCelerity, frequency,
-                                            pulseLength, oversampling));
+        return Ptr(new RangePSF_ComplexSine(pulseLength, soundCelerity,
+                                            frequency, oversampling));
     }
 
-    void reconfigure(float soundCelerity, float frequency,
-                     float pulseLength, unsigned int oversampling = 8);
-    void reconfigure(float pulseLength);
+    void set_pulse_length(float pulseLength, float soundCelerity,
+                          float frequency, unsigned int oversampling = 8);
+    void set_pulse_length(float pulseLength);
 
     float span() const { return this->pulse_length(); }
     unsigned int size() const { return function_->size(); }
     Complex<float> operator[](unsigned int idx) const { return function_->function()[idx]; }
 };
-
 
 class BearingPSF_Real : public PSFGenerator_Real
 {
@@ -168,17 +168,20 @@ class BearingPSF_Real : public PSFGenerator_Real
 
     protected:
 
+    float span_;
     std::vector<float> coeffs_;
 
-    BearingPSF_Real(const std::vector<float>& coeffs) : coeffs_(coeffs) {}
+    BearingPSF_Real(float span, const std::vector<float>& coeffs) : 
+        span_(span), coeffs_(coeffs)
+    {}
 
     public:
 
-    static Ptr Create(const std::vector<float>& coeffs) {
-        return Ptr(new BearingPSF_Real(coeffs));
+    static Ptr Create(float span, const std::vector<float>& coeffs) {
+        return Ptr(new BearingPSF_Real(span, coeffs));
     }
 
-    float span() const { return coeffs_.back() - coeffs_.front(); }
+    float span() const { return span_; }
     unsigned int size() const { return coeffs_.size(); }
     float operator[](unsigned int idx) const { return coeffs_[idx]; }
 
@@ -194,7 +197,7 @@ class BearingPSF_Sinc : public BearingPSF_Real
     protected:
 
     BearingPSF_Sinc(float span, float resolution, unsigned int oversampling) : 
-        BearingPSF_Real(signal::SincFunction(span / resolution, oversampling).function())
+        BearingPSF_Real(span, signal::SincFunction<float>(span / resolution, oversampling).function())
     {}
 
     public:
@@ -214,7 +217,7 @@ class BearingPSF_Gauss : public BearingPSF_Real
     protected:
 
     BearingPSF_Gauss(float span, float sigma, unsigned int oversampling) : 
-        BearingPSF_Real(signal::GaussFunction(span, sigma, oversampling).function())
+        BearingPSF_Real(span, signal::GaussFunction<float>(span, sigma, oversampling).function())
     {}
 
     public:
@@ -227,4 +230,4 @@ class BearingPSF_Gauss : public BearingPSF_Real
 } //namespace simulation
 } //namespace rtac
 
-#endif //_DEF_RTAC_SIMULATION_POINT_SPREAD_FUNCTION_H_
+#endif //_DEF_RTAC_SIMULATION_PSF_GENERATOR_H_

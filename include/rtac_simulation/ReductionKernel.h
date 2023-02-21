@@ -77,8 +77,8 @@ class Kernel2D
 
     KernelView2D<T> view() const  {
         KernelView2D<T> res;
-        res.xScaling_ = float2{1.0f / xSpan_, 0.5f},
-        res.yScaling_ = float2{1.0f / ySpan_, 0.5f},
+        res.xScaling_ = float2{1.0f / xSpan_, 0.5f};
+        res.yScaling_ = float2{1.0f / ySpan_, 0.5f};
         res.function_ = function_.texture();
         return res;
     }
