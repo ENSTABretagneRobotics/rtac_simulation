@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-#include <rtac_simulation/PointSpreadFunction.h>
+#include <rtac_simulation/factories/PSFGenerator.h>
 using namespace rtac::simulation;
 
 
@@ -15,7 +15,7 @@ void print(std::ostream& os, const PSFGenerator_Real::Ptr& generator)
     for(unsigned int i = 0; i < generator->size(); i++) {
         os << ' ' << (*generator)[i];
     }
-    os << std::endl;
+    os << std::endl << std::endl;
 }
 
 void print(std::ostream& os, const PSFGenerator_Complex::Ptr& generator)
@@ -28,7 +28,7 @@ void print(std::ostream& os, const PSFGenerator_Complex::Ptr& generator)
     for(unsigned int i = 0; i < generator->size(); i++) {
         os << ' ' << (*generator)[i];
     }
-    os << std::endl;
+    os << std::endl << std::endl;
 }
 
 int main()
@@ -41,6 +41,12 @@ int main()
 
     auto csinPsf = RangePSF_ComplexSine::Create(1500.0, 1.2e6, 0.03);
     print(cout, csinPsf);
+
+    auto bsincPsf = BearingPSF_Sinc::Create(130.0f, 0.6f);
+    print(cout, bsincPsf);
+
+    auto bgaussPsf = BearingPSF_Gauss::Create(10*0.6f, 0.6f);
+    print(cout, bgaussPsf);
 
     return 0;
 }

@@ -8,7 +8,6 @@
 
 namespace rtac { namespace simulation {
 
-/*
 class PSFGenerator// : public std::enable_shared_from_this<PSFGenerator>
 {
     public:
@@ -105,7 +104,7 @@ class RangePSF_Sine : public RangePSF, public PSFGenerator_Real
 
     RangePSF_Sine(float soundCelerity, float frequency,
                   float pulseLength, unsigned int oversampling = 8);
-
+;
     public:
 
     static Ptr Create(float soundCelerity, float frequency,
@@ -158,7 +157,72 @@ class RangePSF_ComplexSine : public RangePSF, public PSFGenerator_Complex
     unsigned int size() const { return function_->size(); }
     Complex<float> operator[](unsigned int idx) const { return function_->function()[idx]; }
 };
-*/
+
+
+class BearingPSF_Real : public PSFGenerator_Real
+{
+    public:
+
+    using Ptr      = std::shared_ptr<BearingPSF_Real>;
+    using ConstPtr = std::shared_ptr<const BearingPSF_Real>;
+
+    protected:
+
+    std::vector<float> coeffs_;
+
+    BearingPSF_Real(const std::vector<float>& coeffs) : coeffs_(coeffs) {}
+
+    public:
+
+    static Ptr Create(const std::vector<float>& coeffs) {
+        return Ptr(new BearingPSF_Real(coeffs));
+    }
+
+    float span() const { return coeffs_.back() - coeffs_.front(); }
+    unsigned int size() const { return coeffs_.size(); }
+    float operator[](unsigned int idx) const { return coeffs_[idx]; }
+
+};
+
+class BearingPSF_Sinc : public BearingPSF_Real
+{
+    public:
+
+    using Ptr      = std::shared_ptr<BearingPSF_Sinc>;
+    using ConstPtr = std::shared_ptr<const BearingPSF_Sinc>;
+
+    protected:
+
+    BearingPSF_Sinc(float span, float resolution, unsigned int oversampling) : 
+        BearingPSF_Real(signal::SincFunction(span / resolution, oversampling).function())
+    {}
+
+    public:
+
+    static Ptr Create(float span, float resolution, unsigned int oversampling = 8) {
+        return Ptr(new BearingPSF_Sinc(span, resolution, oversampling));
+    }
+};
+
+class BearingPSF_Gauss : public BearingPSF_Real
+{
+    public:
+
+    using Ptr      = std::shared_ptr<BearingPSF_Gauss>;
+    using ConstPtr = std::shared_ptr<const BearingPSF_Gauss>;
+
+    protected:
+
+    BearingPSF_Gauss(float span, float sigma, unsigned int oversampling) : 
+        BearingPSF_Real(signal::GaussFunction(span, sigma, oversampling).function())
+    {}
+
+    public:
+
+    static Ptr Create(float span, float sigma, unsigned int oversampling = 8) {
+        return Ptr(new BearingPSF_Gauss(span, sigma, oversampling));
+    }
+};
 
 } //namespace simulation
 } //namespace rtac

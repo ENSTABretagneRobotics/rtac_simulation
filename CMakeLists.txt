@@ -62,6 +62,7 @@ add_library(rtac_simulation SHARED
 
     src/examples/blueprint_oculus.cu
 
+    src/factories/PSFGenerator.cpp
     src/factories/PSFFactory.cpp
     src/PointSpreadFunction.cpp
 )
