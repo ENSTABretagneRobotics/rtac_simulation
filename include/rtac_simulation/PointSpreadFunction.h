@@ -87,12 +87,12 @@ class RangePSF_Square : public RangePSF, public PSFGenerator_Real
     float operator[](unsigned int idx) const { return 1.0f; }
 };
 
-class RangePSF_Sin : public RangePSF, public PSFGenerator_Real
+class RangePSF_Sine : public RangePSF, public PSFGenerator_Real
 {
     public:
 
-    using Ptr      = std::shared_ptr<RangePSF_Sin>;
-    using ConstPtr = std::shared_ptr<const RangePSF_Sin>;
+    using Ptr      = std::shared_ptr<RangePSF_Sine>;
+    using ConstPtr = std::shared_ptr<const RangePSF_Sine>;
 
     protected:
 
@@ -100,17 +100,17 @@ class RangePSF_Sin : public RangePSF, public PSFGenerator_Real
     float frequency_;
     float wavelength_;
     unsigned int oversampling_;
-    std::shared_ptr<signal::SinFunction<float>> function_;
+    std::shared_ptr<signal::SineFunction<float>> function_;
 
-    RangePSF_Sin(float soundCelerity, float frequency,
-                 float pulseLength, unsigned int oversampling = 8);
+    RangePSF_Sine(float soundCelerity, float frequency,
+                  float pulseLength, unsigned int oversampling = 8);
 
     public:
 
     static Ptr Create(float soundCelerity, float frequency,
                       float pulseLength, unsigned int oversampling = 8) 
     {
-        return Ptr(new RangePSF_Sin(soundCelerity, frequency , pulseLength, oversampling));
+        return Ptr(new RangePSF_Sine(soundCelerity, frequency, pulseLength, oversampling));
     }
 
     void reconfigure(float soundCelerity, float frequency,
@@ -120,6 +120,42 @@ class RangePSF_Sin : public RangePSF, public PSFGenerator_Real
     float span() const { return this->pulse_length(); }
     unsigned int size() const { return function_->size(); }
     float operator[](unsigned int idx) const { return function_->function()[idx]; }
+};
+
+class RangePSF_ComplexSine : public RangePSF, public PSFGenerator_Complex
+{
+    public:
+
+    using Ptr      = std::shared_ptr<RangePSF_ComplexSine>;
+    using ConstPtr = std::shared_ptr<const RangePSF_ComplexSine>;
+
+    protected:
+
+    float soundCelerity_;
+    float frequency_;
+    float wavelength_;
+    unsigned int oversampling_;
+    std::shared_ptr<signal::ComplexSineFunction<float>> function_;
+
+    RangePSF_ComplexSine(float soundCelerity, float frequency,
+                         float pulseLength, unsigned int oversampling = 8);
+
+    public:
+
+    static Ptr Create(float soundCelerity, float frequency,
+                      float pulseLength, unsigned int oversampling = 8) 
+    {
+        return Ptr(new RangePSF_ComplexSine(soundCelerity, frequency,
+                                            pulseLength, oversampling));
+    }
+
+    void reconfigure(float soundCelerity, float frequency,
+                     float pulseLength, unsigned int oversampling = 8);
+    void reconfigure(float pulseLength);
+
+    float span() const { return this->pulse_length(); }
+    unsigned int size() const { return function_->size(); }
+    Complex<float> operator[](unsigned int idx) const { return function_->function()[idx]; }
 };
 
 

@@ -196,7 +196,7 @@ Kernel2D<float> OculusSensor::make_lf_kernel(float rangeResolution)
     unsigned int oversampling = 8;
 
     signal::SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
-    signal::SinFunction<float>  rangePsf(numPeriod, oversampling);
+    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
 
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();
@@ -227,7 +227,7 @@ Kernel2D<float> OculusSensor::make_hf_kernel(float rangeResolution)
     unsigned int oversampling = 8;
 
     signal::SincFunction<float> bearingPsf(bearingSpan / bearingResolution, oversampling);
-    signal::SinFunction<float>  rangePsf(numPeriod, oversampling);
+    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
 
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();

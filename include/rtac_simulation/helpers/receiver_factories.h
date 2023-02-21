@@ -19,7 +19,7 @@ typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution,
     float bearingSpan = bearingPsf.physical_span(bearingResolution * M_PI / 180.0f);
 
     float numPeriod = pulseLength / waveLength;
-    signal::SinFunction<float> rangePsf(numPeriod, oversampling);
+    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
 
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();
@@ -45,7 +45,7 @@ typename PolarKernel2D<T>::Ptr simple_polar_kernel(float bearingResolution,
     //float bearingSpan = bearingPsf.physical_span(bearingResolution * M_PI / 180.0f);
 
     float numPeriod = pulseLength / waveLength;
-    signal::SinFunction<float> rangePsf(numPeriod, oversampling);
+    signal::SineFunction<float> rangePsf(numPeriod, oversampling);
 
     unsigned int W = bearingPsf.size();
     unsigned int H = rangePsf.size();

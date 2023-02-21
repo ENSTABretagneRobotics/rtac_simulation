@@ -36,8 +36,11 @@ int main()
     auto squarePsf = RangePSF_Square::Create(10.0);
     print(cout, squarePsf);
 
-    auto sinPsf = RangePSF_Sin::Create(1500.0, 1.2e6, 0.03);
+    auto sinPsf = RangePSF_Sine::Create(1500.0, 1.2e6, 0.03);
     print(cout, sinPsf);
+
+    auto csinPsf = RangePSF_ComplexSine::Create(1500.0, 1.2e6, 0.03);
+    print(cout, csinPsf);
 
     return 0;
 }
