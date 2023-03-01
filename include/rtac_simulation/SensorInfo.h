@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <rtac_base/types/Complex.h>
 #include <rtac_base/types/Bounds.h>
 #include <rtac_base/types/Linspace.h>
 
@@ -50,6 +51,7 @@ class SensorInfo2D
 
     unsigned int width()  const { return bearings_.size(); }
     unsigned int height() const { return ranges_.size();   }
+    unsigned int size()   const { return this->width()*this->height(); }
 
     const std::vector<float>& bearings() const { return bearings_; }
     const Linspace<float>&    ranges()   const { return ranges_;   }

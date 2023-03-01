@@ -157,6 +157,119 @@ class SensorModel2D_2
     }
 };
 
+class SensorModel2D_Base
+{
+    public:
+
+    using Ptr      = std::shared_ptr<SensorModel2D_Base>;
+    using ConstPtr = std::shared_ptr<const SensorModel2D_Base>;
+
+    protected:
+
+    SensorInfo2D::Ptr info_;
+
+    SensorModel2D_Base(const SensorInfo2D::Ptr& info) : info_(info) {}
+
+    public:
+
+    SensorInfo2D::ConstPtr info() const { return info_; }
+
+    unsigned int width()  const { return info_->width();  }
+    unsigned int height() const { return info_->height(); }
+    unsigned int size()   const { return this->width()*this->height(); }
+
+    virtual void reconfigure(const std::vector<float>& bearings,
+                             const Linspace<float>& ranges) = 0;
+    virtual void set_bearings(const std::vector<float>& bearings) = 0;
+    virtual void set_ranges(const Linspace<float>& ranges) = 0;
+    virtual bool is_complex() const = 0;
+};
+
+template <typename T>
+class SensorModel2D_3 : public SensorModel2D_Base
+{
+    public:
+
+    using Ptr      = std::shared_ptr<SensorModel2D_3>;
+    using ConstPtr = std::shared_ptr<const SensorModel2D_3>;
+
+    protected:
+
+    cuda::DeviceVector<T> data_;
+
+    SensorModel2D_3(const SensorInfo2D::Ptr& info) : 
+        SensorModel2D_Base(info),
+        data_(info->size())
+    {}
+
+    public:
+
+    const cuda::DeviceVector<T>& data() const { return data_; }
+
+    ImageView<T> data_view() { 
+        return ImageView<T>({this->width(), this->height()}, data_.data());
+    }
+    ImageView<const T> data_view() const { 
+        return ImageView<const T>({this->width(), this->height()}, data_.data());
+    }
+
+    void reconfigure(const std::vector<float>& bearings, const Linspace<float>& ranges)
+    {
+        this->info_->reconfigure(bearings, ranges);
+        data_.resize(this->size());
+    }
+    void set_bearings(const std::vector<float>& bearings) {
+        this->info_->set_bearings(bearings);
+        data_.resize(this->size());
+    }
+    void set_ranges(const Linspace<float>& ranges) {
+        this->info_->set_ranges(ranges);
+        data_.resize(this->size());
+    }
+};
+
+class SensorModel2D_Real : public SensorModel2D_3<float>
+{
+    public:
+
+    using Ptr      = std::shared_ptr<SensorModel2D_Real>;
+    using ConstPtr = std::shared_ptr<const SensorModel2D_Real>;
+
+    protected:
+
+    SensorModel2D_Real(const SensorInfo2D::Ptr& info) : 
+        SensorModel2D_3<float>(info)
+    {}
+
+    public:
+
+    static Ptr Create(const SensorInfo2D::Ptr& info) {
+        return Ptr(new SensorModel2D_Real(info));
+    }
+    bool is_complex() const { return false; }
+};
+
+class SensorModel2D_Complex : public SensorModel2D_3<Complex<float>>
+{
+    public:
+
+    using Ptr      = std::shared_ptr<SensorModel2D_Complex>;
+    using ConstPtr = std::shared_ptr<const SensorModel2D_Complex>;
+
+    protected:
+
+    SensorModel2D_Complex(const SensorInfo2D::Ptr& info) : 
+        SensorModel2D_3<Complex<float>>(info)
+    {}
+
+    public:
+
+    static Ptr Create(const SensorInfo2D::Ptr& info) {
+        return Ptr(new SensorModel2D_Complex(info));
+    }
+    bool is_complex() const { return true; }
+};
+
 } //namespace simulation
 } //namespace rtac
 
