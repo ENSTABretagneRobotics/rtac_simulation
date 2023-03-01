@@ -77,7 +77,7 @@ class Binner
 
     public:
 
-    Binner() = default; // remove this ?
+    Binner() = default;
     Binner(unsigned int binCount, const Bounds<float>& bounds,
            float margin = 0.0f);
 
