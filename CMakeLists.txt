@@ -27,6 +27,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/RangeBinner.h
     include/rtac_simulation/Directivity.h
     include/rtac_simulation/Antenna.h
+    include/rtac_simulation/SensorInfo.h
     include/rtac_simulation/Receiver.h
     include/rtac_simulation/Emitter.h
     include/rtac_simulation/Sample.h

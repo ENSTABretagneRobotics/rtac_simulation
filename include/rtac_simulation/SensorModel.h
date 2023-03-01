@@ -11,6 +11,8 @@
 #include <rtac_simulation/PointSpreadFunction.h>
 #include <rtac_simulation/reductions_2.h>
 
+#include <rtac_simulation/SensorInfo.h>
+
 namespace rtac { namespace simulation {
 
 template <typename T, typename KT = T>
@@ -153,62 +155,6 @@ class SensorModel2D_2
         binner_.compute(bins, samples);
         sparse_convolve_2d(*this, bins);
     }
-};
-
-class SensorInfo2D
-{
-    public:
-
-    using Ptr      = std::shared_ptr<SensorInfo2D>;
-    using ConstPtr = std::shared_ptr<const SensorInfo2D>;
-
-    protected:
-
-    std::vector<float> bearings_;
-    Linspace<float>    ranges_;
-    PointSpreadFunction2D::Ptr psf_;
-    Binner                     binner_;
-
-    SensorInfo2D(const std::vector<float>& bearings,
-                 const Linspace<float>&    ranges,
-                 const PointSpreadFunction2D::Ptr& psf) :
-        bearings_(bearings),
-        ranges_(ranges),
-        psf_(psf)
-    {
-        psf_->set_pulse_length(2*ranges_.resolution());
-        binner_   = Binner(ranges_.size(), ranges_.bounds(), psf_->range_span());
-    }
-
-    public:
-
-    static Ptr Create(const std::vector<float>& bearings,
-                      const Linspace<float>&    ranges,
-                      const PointSpreadFunction2D::Ptr& psf)
-    {
-        return Ptr(new SensorInfo2D(bearings, ranges, psf));
-    }
-
-    unsigned int width()  const { return bearings_.size(); }
-    unsigned int height() const { return ranges_.size();   }
-
-    void set_bearings(const std::vector<float>& bearings) {
-        bearings_ = bearings;
-    }
-    void set_ranges(const Linspace<float>& ranges) {
-        ranges_   = ranges;
-        psf_->set_pulse_length(2*ranges_.resolution());
-        binner_   = Binner(ranges_.size(), ranges_.bounds(), psf_->range_span());
-    }
-    void set_ranges(const Bounds<float>& bounds, unsigned int count) {
-        this->set_ranges(Linspace<float>(bounds, count));
-    }
-    void reconfigure(const std::vector<float>& bearings, const Linspace<float>& ranges) {
-        this->set_bearings(bearings);
-        this->set_ranges(ranges);
-    }
-    PointSpreadFunction2D::ConstPtr point_spread_function() const { return psf_; }
-    PointSpreadFunction2D::Ptr      point_spread_function()       { return psf_; }
 };
 
 } //namespace simulation
