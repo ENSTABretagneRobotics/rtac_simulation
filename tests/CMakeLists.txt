@@ -37,6 +37,7 @@ endif()
 
 list(APPEND test_files
     src/psf_test01.cpp
+    src/filefinder01.cpp
 )
 if(OPTIX_SUPPORT_ENABLED)
     list(APPEND test_files
@@ -53,6 +54,8 @@ foreach(filename ${test_files})
         rtac_simulation
         rtac_display
     )
+    target_compile_definitions(${target_name} PRIVATE
+                               RTAC_TEST_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/../examples")
 endforeach()
 
 
