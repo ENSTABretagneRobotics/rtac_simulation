@@ -16,34 +16,28 @@ class FileFinder
 
     protected:
 
+    static Ptr GlobalInstance;
+
     std::vector<std::string> searchPaths_;
 
     FileFinder(const std::vector<std::string>& searchPaths = {},
                const std::string& envVar = "RTAC_CONFIG_PATH");
 
-    void load_rtac_config_paths(const std::string& envVar);
-
     public:
 
-    static Ptr Create(const std::vector<std::string>& searchPaths = {},
-                      const std::string& envVar = "RTAC_CONFIG_PATH")
-    {
-        return Ptr(new FileFinder(searchPaths, envVar));
-    }
+    static Ptr Get(const std::vector<std::string>& searchPaths = {},
+                   const std::string& envVar = "RTAC_CONFIG_PATH");
 
     const std::vector<std::string>& search_paths() const { return searchPaths_; }
 
+    void load_rtac_config_paths(const std::string& envVar);
     bool add_search_path(const std::string& path);
 
     std::string find_one(const std::string& filename);
     std::vector<std::string> find(const std::string& filename);
 };
 
-//FileFinder::Ptr file_finder();
-//void add_search_path(const std::string& path);
-//
-//std::string find_one_config_file(const std::string& filename);
-//std::vector<std::string> find_one_config_file(const std::string& filename);
+std::vector<float> load_csv_bearings(const std::string& filename);
 
 } //namespace simulation
 } //namespace rtac

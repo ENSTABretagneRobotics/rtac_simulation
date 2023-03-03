@@ -6,7 +6,7 @@ using namespace rtac::simulation;
 
 int main()
 {
-    auto finder = FileFinder::Create({std::string(RTAC_TEST_CONFIG)});
+    auto finder = FileFinder::Get({std::string(RTAC_TEST_CONFIG)});
     cout << *finder << endl;
 
     auto paths = finder->find(".*.yaml");

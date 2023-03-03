@@ -38,6 +38,7 @@ endif()
 list(APPEND test_files
     src/psf_test01.cpp
     src/filefinder01.cpp
+    src/sensor_info_factory01.cpp
 )
 if(OPTIX_SUPPORT_ENABLED)
     list(APPEND test_files

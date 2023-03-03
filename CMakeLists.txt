@@ -39,6 +39,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/RayCaster.h
 
     include/rtac_simulation/factories/utilities.h
+    include/rtac_simulation/factories/SensorInfoFactory.h
 
     include/rtac_simulation/PolarKernel2D.h
     include/rtac_simulation/PolarTarget2D.h
@@ -62,6 +63,7 @@ add_library(rtac_simulation SHARED
     src/RayCaster.cpp
 
     src/factories/utilities.cpp
+    src/factories/SensorInfoFactory.cpp
 
     src/PolarReceiver2D.cu
 

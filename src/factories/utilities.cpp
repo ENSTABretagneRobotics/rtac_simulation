@@ -11,11 +11,22 @@ namespace rtac { namespace simulation {
 
 namespace fs = std::experimental::filesystem;
 
+FileFinder::Ptr FileFinder::GlobalInstance = nullptr;
+
 FileFinder::FileFinder(const std::vector<std::string>& searchPaths,
                        const std::string& envVar) :
     searchPaths_(searchPaths)
 {
     this->load_rtac_config_paths(envVar);
+}
+
+FileFinder::Ptr FileFinder::Get(const std::vector<std::string>& searchPaths,
+                                const std::string& envVar)
+{
+    if(!GlobalInstance) {
+        GlobalInstance = Ptr(new FileFinder(searchPaths, envVar));
+    }
+    return GlobalInstance;
 }
 
 void FileFinder::load_rtac_config_paths(const std::string& envVar)
@@ -80,11 +91,16 @@ std::vector<std::string> FileFinder::find(const std::string& filename)
     return res;
 }
 
-//FileFinder::Ptr file_finder();
-//void add_search_path(const std::string& path);
-//
-//std::string find_one_config_file(const std::string& filename);
-//std::vector<std::string> find_one_config_file(const std::string& filename);
+/**
+ * Loads bearing data from a .csv file. Delimiters MUST be commas.
+ */
+std::vector<float> load_csv_bearings(const std::string& filename)
+{
+    std::vector<float> res;
+
+    return res;
+}
+
 } //namespace simulation
 } //namespace rtac
 
