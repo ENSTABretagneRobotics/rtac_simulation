@@ -5,7 +5,14 @@
 #include <vector>
 #include <iostream>
 
+#include <rtac_base/Exception.h>
+
 namespace rtac { namespace simulation {
+
+struct ConfigError : public Exception
+{
+    ConfigError() : Exception("RTAC_CONFIG_ERROR") {}
+};
 
 class FileFinder
 {
@@ -37,7 +44,7 @@ class FileFinder
     std::vector<std::string> find(const std::string& filename);
 };
 
-std::vector<float> load_csv_bearings(const std::string& filename);
+std::vector<float> parse_bearings_from_csv(const std::string& filename);
 
 } //namespace simulation
 } //namespace rtac

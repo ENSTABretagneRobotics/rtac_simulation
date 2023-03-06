@@ -6,6 +6,11 @@
 #include <experimental/filesystem>
 
 #include <rtac_base/files.h>
+#include <rtac_base/Exception.h>
+
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 namespace rtac { namespace simulation {
 
@@ -94,10 +99,44 @@ std::vector<std::string> FileFinder::find(const std::string& filename)
 /**
  * Loads bearing data from a .csv file. Delimiters MUST be commas.
  */
-std::vector<float> load_csv_bearings(const std::string& filename)
+std::vector<float> parse_bearings_from_csv(const std::string& filename)
 {
     std::vector<float> res;
 
+    std::ifstream f(filename);
+    if(!f.is_open()) {
+        throw FileError(filename) << " : could not open.";
+    }
+    std::string token;
+    if(!std::getline(f, token, ',')) {
+        throw FileError(filename) << " : invalid format";
+    }
+
+    float scaling = 1.0f;
+    if(token == "deg") {
+        scaling = M_PI / 180.0f;
+    }
+    else if(token != "rad") {
+        try {
+            res.push_back(std::stof(token));
+        }
+        catch(const std::invalid_argument&) {
+            throw FileError(filename)
+                << " : invalid format (first item should be either 'deg', 'rad'"
+                << " or a decimal value for the first bearing. Got : "
+                << token << ')';
+        }
+    }
+    try {
+        while(std::getline(f, token, ',')) {
+            res.push_back(scaling*std::stof(token));
+        }
+    }
+    catch(const std::invalid_argument) {
+        throw FileError(filename)
+            << " : invalid format (could not parse "
+            << token << " as a number).";
+    }
     return res;
 }
 
