@@ -73,6 +73,9 @@ class Directivity
     static Ptr from_sinc_parameters(float bearingAperture,
                                     float elevationAperture,
                                     unsigned int oversampling = 8);
+    static Ptr rectangle_antenna(float width, float height, float wavelength,
+                                 const std::string& baffleMode = "single-sided",
+                                 unsigned int oversampling = 8);
 };
 
 } //namespace simulation

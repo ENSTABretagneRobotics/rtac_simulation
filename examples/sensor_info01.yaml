@@ -16,6 +16,7 @@ directivity:
     width:  100
     height: 8
     unit:   mm # optional (supported m, cm, mm), defaults to m
+    baffleMode: single-sided # optional (none, single-sided, cardioid), defaults to none.
 
 sampling:
     globals: *global-params
@@ -30,7 +31,7 @@ sampling:
     
     ranges: # default value, can be overriden during simulation
         size: 512
-        max:  10.0
+        range-max:  10.0
         unit: m # optional (supported m, cm, mm), defaults to m
 
 point-spread-function:
