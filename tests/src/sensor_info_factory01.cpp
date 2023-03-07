@@ -20,7 +20,7 @@ using namespace rtac::simulation;
 int main()
 {
     auto finder = FileFinder::Get({std::string(RTAC_TEST_CONFIG)});
-    auto filename = finder->find_one(".*sensor_info01.yaml");
+    auto filename = finder->find_one(".*oculus_M1200d_1.yaml");
     std::cout << "config file : " << filename << std::endl;
 
     auto sensorInfo = SensorInfoFactory2D::Make(YAML::LoadFile(filename));
