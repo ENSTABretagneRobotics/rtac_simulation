@@ -35,6 +35,8 @@ sampling:
         unit: m # optional (supported m, cm, mm), defaults to m
 
 point-spread-function:
+    globals: *global-params
+    type: beamsteering
     waveform:
         globals: *global-params
         type: complex-sine # (supported complex-sine)

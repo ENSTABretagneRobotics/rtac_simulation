@@ -21,6 +21,7 @@ struct SensorInfoFactory2D
     static std::vector<float> parse_bearings(const YAML::Node& config);
     static Linspace<float>    parse_ranges(const YAML::Node& config);
     static Directivity::Ptr   parse_directivity(const YAML::Node& config);
+    static PointSpreadFunction2D::Ptr parse_psf(const YAML::Node& config);
 };
 
 } //namespace simulation

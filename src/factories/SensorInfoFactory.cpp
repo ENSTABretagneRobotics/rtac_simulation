@@ -11,8 +11,9 @@ SensorInfo2D::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
     std::vector<float> bearings = parse_bearings(samplingNode["bearings"]);
     Linspace<float>    ranges   = parse_ranges(samplingNode["ranges"]);
     auto directivity = parse_directivity(config["directivity"]);
+    auto psf = parse_psf(config["point-spread-function"]);
 
-    return nullptr;
+    return SensorInfo2D::Create(bearings, ranges, psf, directivity);
 }
 
 Linspace<float> SensorInfoFactory2D::parse_ranges(const YAML::Node& config)
@@ -110,6 +111,65 @@ Directivity::Ptr SensorInfoFactory2D::parse_directivity(const YAML::Node& config
         oss << "Unsupported bearing config type : " << type;
         throw std::runtime_error(oss.str());
     }
+}
+
+PointSpreadFunction2D::Ptr SensorInfoFactory2D::parse_psf(const YAML::Node& config)
+{
+    if(!config) {
+        throw ConfigError() << " : Invalid point-spread-function node.";
+    }
+
+    std::string type = config["type"].as<std::string>();
+
+    PSFGenerator::Ptr rangePSF;
+    auto waveform = config["waveform"];
+    if(!waveform) {
+        throw ConfigError() << " : Missing waveform configuration";
+    }
+    std::string waveformType = waveform["type"].as<std::string>();
+    if(waveformType == "complex-sine") {
+        rangePSF = RangePSF_ComplexSine::Create(0.1f,
+                                                config["globals"]["sound-celerity"].as<float>(),
+                                                config["globals"]["frequency"].as<float>());
+    }
+    else {
+        throw ConfigError() << " : Unsupported waveform type ("
+                            << waveformType << ')';
+    }
+
+    PSFGenerator::Ptr bearingPSF;
+    if(type == "beamsteering") {
+        auto bConfig = config["beamsteering"];
+        if(!bConfig) {
+            throw ConfigError() << " : Missing 'beamsteering' configuration";
+        }
+        std::string bearingsType = bConfig["type"].as<std::string>();
+        if(bearingsType == "sinc") {
+            float scaling = 1.0f;
+            if(auto unitNode = bConfig["unit"]) {
+                std::string unit = unitNode.as<std::string>();
+                if(unit == "deg") {
+                    scaling = M_PI / 180.0f;
+                }
+                else if(unit != "rad"){
+                    std::cerr << "Invalid unit : '" << unit
+                              << "'. defaulting to 'rad'.";
+                }
+            }
+            bearingPSF = BearingPSF_Sinc::Create(scaling*bConfig["span"].as<float>(),
+                                                 scaling*bConfig["resolution"].as<float>());
+        }
+        else {
+            throw ConfigError() << " : Unsupported bearing psf type ("
+                                << bearingsType << ')';
+        }
+    }
+    else {
+        throw ConfigError() << " : Unsupported bearing psf type ("
+                            << type << ')';
+    }
+    
+    return make_point_spread_function(bearingPSF, rangePSF);
 }
 
 } //namespace simulation
