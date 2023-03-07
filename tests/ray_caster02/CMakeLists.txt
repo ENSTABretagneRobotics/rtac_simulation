@@ -15,6 +15,8 @@ target_link_libraries(${target_name} PRIVATE
     narval_oculus
     rosbag_helpers
 )
+target_compile_definitions(${target_name} PRIVATE
+                           RTAC_TEST_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/../../examples")
 target_add_ptx(${target_name}
     CUDA_SOURCES src/oculus_sim.cu
 )

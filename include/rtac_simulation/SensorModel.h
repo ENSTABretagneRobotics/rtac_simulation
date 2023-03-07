@@ -167,8 +167,14 @@ class SensorModel2D_Base
     protected:
 
     SensorInfo2D::Ptr info_;
+    Binner            binner_;
 
-    SensorModel2D_Base(const SensorInfo2D::Ptr& info) : info_(info) {}
+    cuda::TextureVector<float> bearingsData_;
+
+    SensorModel2D_Base(const SensorInfo2D::Ptr& info) :
+        info_(info),
+        bearingsData_(info_->bearings())
+    {}
 
     public:
 
@@ -177,6 +183,27 @@ class SensorModel2D_Base
     unsigned int width()  const { return info_->width();  }
     unsigned int height() const { return info_->height(); }
     unsigned int size()   const { return this->width()*this->height(); }
+
+    const std::vector<float>& bearings() const { return info_->bearings(); }
+    const Linspace<float>&    ranges()   const { return info_->ranges();   }
+    PointSpreadFunction2D::ConstPtr point_spread_function() const {
+        return info_->point_spread_function();
+    }
+    Directivity::ConstPtr directivity() const { 
+        return info_->directivity();
+    }
+
+    cuda::TextureVectorView<float> bearings_view() const {
+        return bearingsData_.view();
+    }
+
+    template <typename T2>
+    void reduce_samples(const rtac::cuda::DeviceVector<T2>& samples)
+    {
+        rtac::cuda::DeviceVector<rtac::VectorView<const T2>> bins;
+        binner_.compute(bins, samples);
+        sparse_convolve_2d(*this, bins);
+    }
 
     virtual void reconfigure(const std::vector<float>& bearings,
                              const Linspace<float>& ranges) = 0;
@@ -207,15 +234,16 @@ class SensorModel2D_3 : public SensorModel2D_Base
     const cuda::DeviceVector<T>& data() const { return data_; }
 
     ImageView<T> data_view() { 
-        return ImageView<T>({this->width(), this->height()}, data_.data());
+        return ImageView<T>(this->width(), this->height(), data_.data());
     }
     ImageView<const T> data_view() const { 
-        return ImageView<const T>({this->width(), this->height()}, data_.data());
+        return ImageView<const T>(this->width(), this->height(), data_.data());
     }
 
     void reconfigure(const std::vector<float>& bearings, const Linspace<float>& ranges)
     {
         this->info_->reconfigure(bearings, ranges);
+        this->binner_.reconfigure(info_->ranges(), ranges.resolution());
         data_.resize(this->size());
     }
     void set_bearings(const std::vector<float>& bearings) {
@@ -224,7 +252,11 @@ class SensorModel2D_3 : public SensorModel2D_Base
     }
     void set_ranges(const Linspace<float>& ranges) {
         this->info_->set_ranges(ranges);
+        this->binner_.reconfigure(info_->ranges(), ranges.resolution());
         data_.resize(this->size());
+    }
+    void set_ranges(float maxRange, unsigned int count) {
+        this->set_ranges(Linspace<float>({info_->ranges().lower(), maxRange}, count));
     }
 };
 

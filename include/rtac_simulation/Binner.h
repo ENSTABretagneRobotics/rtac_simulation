@@ -4,6 +4,7 @@
 #include <limits>
 
 #include <rtac_base/types/Bounds.h>
+#include <rtac_base/types/Linspace.h>
 #include <rtac_base/containers/HostVector.h>
 #include <rtac_base/cuda/DeviceVector.h>
 
@@ -83,6 +84,9 @@ class Binner
 
     void reconfigure(unsigned int binCount, const Bounds<float>& bounds,
                      float margin = 0.0f);
+    void reconfigure(const Linspace<float>& bins, float margin = 0.0f) {
+        this->reconfigure(bins.size(), bins.bounds(), margin);
+    }
 
     unsigned int         bin_count() const { return binCount_; }
     const Bounds<float>& bounds()    const { return bounds_;   }
@@ -139,5 +143,12 @@ void Binner::compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& b
 
 } //namespace simulation
 } //namespace rtac
+
+inline std::ostream& operator<<(std::ostream& os, const rtac::simulation::Binner& binner)
+{
+    os << "Binner : " << binner.bounds() << ", " << binner.bin_count()
+       << " (margin : " << binner.margin() << ")";
+    return os;
+}
 
 #endif //_DEF_RTAC_SIMULATION_BINNER_H_

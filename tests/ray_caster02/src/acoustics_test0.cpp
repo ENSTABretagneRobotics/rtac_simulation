@@ -47,6 +47,8 @@ namespace plt = rtac::display;
 #include <rtac_simulation/helpers/PolarTargetRenderer.h>
 #include <rtac_simulation/RayCaster.h>
 #include <rtac_simulation/Binner.h>
+#include <rtac_simulation/factories/utilities.h>
+#include <rtac_simulation/factories/SensorInfoFactory.h>
 
 #include <rtac_optix/utils.h>
 #include <rtac_optix/Context.h>
@@ -149,6 +151,11 @@ int main()
         rtac::simulation::Directivity::from_sinc_parameters(130.0f, 20.0f));
     auto receiver = rtac::simulation::Receiver2<rtac::simulation::SimSample2D>::Create(emitter->directivity());
     auto oculusSensor = rtac::simulation::OculusSensor::Create();
+    auto finder = rtac::simulation::FileFinder::Get({std::string(RTAC_TEST_CONFIG)});
+    auto filename = finder->find_one(".*oculus_M1200d_1.yaml");
+    std::cout << "config file : " << filename << std::endl;
+    auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
+    auto oculusSensor2 = rtac::simulation::SensorModel2D_Complex::Create(sensorInfo);
     //rtac::simulation::Binner binner;
 
     DeviceVector<float3> optixPoints;
@@ -204,6 +211,7 @@ int main()
 
         //oculusReceiver->reconfigure(meta, pingData);
         oculusSensor->reconfigure(meta, pingData);
+        oculusSensor2->set_ranges(meta.fireMessage.range, meta.nRanges);
 
         emitter->pose()  = pose;
         receiver->pose() = pose;
@@ -215,14 +223,17 @@ int main()
         raycaster->trace(emitter, receiver, optixPoints);
         receiver->sort_received();
         oculusSensor->sensor()->reduce_samples(receiver->samples());
+        oculusSensor2->reduce_samples(receiver->samples());
 
         simRenderer->set_range(oculusSensor->sensor()->data().height_dim().bounds());
         simRenderer->set_bearings(oculusSensor->sensor()->data().width_dim().size(),
                                   oculusSensor->sensor()->data().width_dim().data());
-        auto tmp1 = abs(oculusSensor->sensor()->data().container());
+        //auto tmp1 = abs(oculusSensor->sensor()->data().container());
+        auto tmp1 = abs(oculusSensor2->data());
         simRenderer->set_data({oculusSensor->sensor()->data().width(),
                                oculusSensor->sensor()->data().height()},
                               plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
+                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
 
         //simRenderer->texture()->set_image({oculusSensor->sensor()->width(),
         //                                   oculusSensor->sensor()->height()},
