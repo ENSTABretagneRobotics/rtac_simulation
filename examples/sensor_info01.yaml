@@ -13,7 +13,8 @@ globals: &global-params
 directivity:
     globals: *global-params
     type:   rectangle
-    width:  100
+    width:  1.56 # directivity of a single hydrophone of the antenna
+    # width:  0.78 # directivity of a single hydrophone of the antenna
     height: 8
     unit:   mm # optional (supported m, cm, mm), defaults to m
     baffleMode: single-sided # optional (none, single-sided, cardioid), defaults to none.

@@ -91,6 +91,8 @@ class PSF2D_Real : public PointSpreadFunction2D
         return Ptr(new PSF2D_Real(bearingPSF, rangePSF));
     }
 
+    const cuda::Texture2D<float>& texture() const { return data_; }
+
     KernelView2D<float> kernel() const {
         KernelView2D<float> kernel;
         kernel.xScaling_ = float2{1.0f / this->bearing_span(), 0.5f};
@@ -132,6 +134,8 @@ class PSF2D_Complex : public PointSpreadFunction2D
         return Ptr(new PSF2D_Complex(bearingPSF, rangePSF));
     }
 
+    const cuda::Texture2D<float2>& texture() const { return data_; }
+
     KernelView2D<Complex<float>> kernel() const {
         KernelView2D<Complex<float>> kernel;
         kernel.xScaling_ = float2{1.0f / this->bearing_span(), 0.5f};
@@ -145,7 +149,12 @@ class PSF2D_Complex : public PointSpreadFunction2D
 
 PointSpreadFunction2D::Ptr make_point_spread_function(const PSFGenerator::Ptr& bearingPSF,
                                                       const PSFGenerator::Ptr& rangePSF);
- 
+
+PSF2D_Real::Ptr         real_cast(const PointSpreadFunction2D::Ptr& ptr);
+PSF2D_Real::ConstPtr    real_cast(const PointSpreadFunction2D::ConstPtr& ConstPtr);
+PSF2D_Complex::Ptr      complex_cast(const PointSpreadFunction2D::Ptr& ptr);
+PSF2D_Complex::ConstPtr complex_cast(const PointSpreadFunction2D::ConstPtr& ConstPtr);
+
 } //namespace simulation
 } //namespace rtac
 

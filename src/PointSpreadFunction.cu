@@ -129,6 +129,26 @@ PointSpreadFunction2D::Ptr make_point_spread_function(const PSFGenerator::Ptr& b
     }
 }
  
+PSF2D_Real::Ptr real_cast(const PointSpreadFunction2D::Ptr& ptr)
+{
+    return std::dynamic_pointer_cast<PSF2D_Real>(ptr);
+}
+
+PSF2D_Real::ConstPtr real_cast(const PointSpreadFunction2D::ConstPtr& ptr)
+{
+    return std::dynamic_pointer_cast<const PSF2D_Real>(ptr);
+}
+
+PSF2D_Complex::Ptr complex_cast(const PointSpreadFunction2D::Ptr& ptr)
+{
+    return std::dynamic_pointer_cast<PSF2D_Complex>(ptr);
+}
+
+PSF2D_Complex::ConstPtr complex_cast(const PointSpreadFunction2D::ConstPtr& ptr)
+{
+    return std::dynamic_pointer_cast<const PSF2D_Complex>(ptr);
+}
+
 
 } //namespace simulation
 } //namespace rtac
