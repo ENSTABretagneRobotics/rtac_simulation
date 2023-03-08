@@ -15,6 +15,8 @@ SensorInfo2D::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
 
     auto waveform = parse_waveform(config["waveform"]);
     std::cout << *waveform << std::endl;
+    auto beam = parse_beamsteering(config["beamsteering"]);
+    std::cout << *beam << std::endl;
 
     return SensorInfo2D::Create(bearings, ranges, psf, directivity);
 }
@@ -205,6 +207,41 @@ Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
     }
     else {
         throw ConfigError() << " : unsupported waveform type : '" << type << "'";
+    }
+}
+
+BeamDirectivity::Ptr SensorInfoFactory2D::parse_beamsteering(const YAML::Node& config)
+{
+    if(!config) {
+        throw ConfigError() << " : Invalid 'beamsteering' node.";
+    }
+
+    unsigned int oversampling = 8;
+    if(auto node = config["oversampling"]) {
+        oversampling = node.as<unsigned int>();
+    }
+
+    std::string type = config["type"].as<std::string>();
+    if(type == "sinc")
+    {
+        float span       = config["span"].as<float>();
+        float resolution = config["resolution"].as<float>();
+        float scaling = 1.0f;
+        if(auto unitNode = config["unit"]) 
+        {
+            std::string unit = unitNode.as<std::string>();
+            if(unit == "deg") {
+                scaling = M_PI / 180.0f;
+            }
+            else if(unit != "rad"){
+                std::cerr << "Invalid unit : '" << unit
+                          << "'. defaulting to 'rad'.";
+            }
+        }
+        return BeamDirectivity_Sinc::Create(scaling*span, scaling*resolution, oversampling);
+    }
+    else {
+        throw ConfigError() << " : unsupported beamsteering type : '" << type << "'";
     }
 }
 

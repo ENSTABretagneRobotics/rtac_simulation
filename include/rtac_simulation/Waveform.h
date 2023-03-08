@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <rtac_base/types/Complex.h>
+#include <rtac_base/signal_helpers.h>
 #include <rtac_base/containers/HostVector.h>
 #include <rtac_base/cuda/DeviceVector.h>
 

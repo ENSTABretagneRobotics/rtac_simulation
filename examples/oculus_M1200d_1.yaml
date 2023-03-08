@@ -60,3 +60,11 @@ waveform:
     duration-mode: adaptive # default adaptive (supported : adaptive, fixed)
     duration: 1.0 # ignored in adaptive mode
     oversampling: 8 # optional, defaults to 8 (important because of linear interpolation)
+
+beamsteering:
+    globals: *global-params
+    type: sinc
+    resolution: 0.6
+    span: 130.0
+    unit: deg # supported (deg, rad)
+
