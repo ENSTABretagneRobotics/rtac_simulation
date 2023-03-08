@@ -35,6 +35,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/reductions.hcu
     include/rtac_simulation/Target2D.h
 
+    include/rtac_simulation/Waveform.h
     include/rtac_simulation/Binner.h
     include/rtac_simulation/RayCaster.h
 

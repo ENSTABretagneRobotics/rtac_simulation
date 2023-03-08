@@ -36,6 +36,7 @@ if(NOT TARGET rtac_display)
 endif()
 
 list(APPEND test_files
+    src/waveform01.cpp
     src/psf_test01.cpp
     src/directivity01.cpp
     src/filefinder01.cpp
