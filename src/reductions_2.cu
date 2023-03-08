@@ -138,22 +138,28 @@ void sparse_convolve_2d(SensorModel2D_Base& out,
 
     auto& outTmp = dynamic_cast<SensorModel2D_Complex&>(out);
 
-    if(out.point_spread_function()->is_complex()) {
-        do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
-            outTmp.data_view(), 
-            out.bearings_view(),
-            out.ranges(),
-            bins.data(),
-            outTmp.point_spread_function()->complex_cast()->kernel());
-    }
-    else {
-        do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
-            outTmp.data_view(), 
-            out.bearings_view(),
-            out.ranges(),
-            bins.data(),
-            outTmp.point_spread_function()->real_cast()->kernel());
-    }
+    //if(out.point_spread_function()->is_complex()) {
+    //    do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+    //        outTmp.data_view(), 
+    //        out.bearings_view(),
+    //        out.ranges(),
+    //        bins.data(),
+    //        outTmp.point_spread_function()->complex_cast()->kernel());
+    //}
+    //else {
+    //    do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+    //        outTmp.data_view(), 
+    //        out.bearings_view(),
+    //        out.ranges(),
+    //        bins.data(),
+    //        outTmp.point_spread_function()->real_cast()->kernel());
+    //}
+    do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+        outTmp.data_view(), 
+        out.bearings_view(),
+        out.ranges(),
+        bins.data(),
+        outTmp.point_spread_function()->kernel());
 
     cudaDeviceSynchronize();
     CUDA_CHECK_LAST();

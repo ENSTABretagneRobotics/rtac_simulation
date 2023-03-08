@@ -88,7 +88,7 @@ class Waveform
     virtual Complex<float> operator[](unsigned int idx) const = 0;
 };
 
-Complex<float> WaveformIterator::operator*() const { return (*waveform_)[index_]; }
+inline Complex<float> WaveformIterator::operator*() const { return (*waveform_)[index_]; }
 
 class Waveform_Sine : public Waveform
 {

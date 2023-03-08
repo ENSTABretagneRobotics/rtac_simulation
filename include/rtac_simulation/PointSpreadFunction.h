@@ -8,10 +8,67 @@
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/Texture2D.h>
 
+#include <rtac_simulation/Waveform.h>
+#include <rtac_simulation/BeamDirectivity.h>
 #include <rtac_simulation/factories/PSFGenerator.h>
 #include <rtac_simulation/ReductionKernel.h>
 
 namespace rtac { namespace simulation {
+
+class PointSpreadFunction2D_2
+{
+    public:
+
+    using Ptr      = std::shared_ptr<PointSpreadFunction2D_2>;
+    using ConstPtr = std::shared_ptr<const PointSpreadFunction2D_2>;
+
+    protected:
+    
+    Waveform::Ptr           waveform_;
+    BeamDirectivity::Ptr    beamDirectivity_;
+    cuda::Texture2D<float2> data_;
+
+    PointSpreadFunction2D_2(const Waveform::Ptr& waveform,
+                            const BeamDirectivity::Ptr& beamDirectivity) :
+        waveform_(waveform),
+        beamDirectivity_(beamDirectivity)
+    {
+        this->generate_data();
+    }
+    void generate_data();
+
+    public:
+    
+    static Ptr Create(const Waveform::Ptr& waveform,
+                      const BeamDirectivity::Ptr& beamDirectivity)
+    {
+        return Ptr(new PointSpreadFunction2D_2(waveform, beamDirectivity));
+    }
+
+    float bearing_span() const { return beamDirectivity_->span(); }
+    float range_span(float scaling = 1.0f) const { return scaling*waveform_->duration(); }
+    unsigned int bearing_size() const { return beamDirectivity_->size(); }
+    unsigned int range_size()   const { return waveform_->size();        }
+    unsigned int width()        const { return this->bearing_size();     }
+    unsigned int height()       const { return this->range_size();       }
+
+    Waveform::ConstPtr        waveform()         const { return waveform_; }
+    BeamDirectivity::ConstPtr beam_directivity() const { return beamDirectivity_; }
+
+    void set_pulse_duration(float duration) {
+        waveform_->set_duration(duration);
+        this->generate_data();
+    }
+
+    KernelView2D<Complex<float>> kernel(float rangeScaling = 1.0f) const
+    {
+        KernelView2D<Complex<float>> kernel;
+        kernel.xScaling_ = float2{1.0f / this->bearing_span(), 0.5f};
+        kernel.yScaling_ = float2{1.0f / this->range_span(rangeScaling), 0.5f};
+        kernel.function_ = data_.texture();
+        return kernel;
+    }
+};
 
 class PSF2D_Real;
 class PSF2D_Complex;

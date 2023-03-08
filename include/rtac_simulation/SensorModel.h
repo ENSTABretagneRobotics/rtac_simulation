@@ -166,19 +166,19 @@ class SensorModel2D_Base
 
     protected:
 
-    SensorInfo2D::Ptr info_;
+    SensorInfo2D_2::Ptr info_;
     Binner            binner_;
 
     cuda::TextureVector<float> bearingsData_;
 
-    SensorModel2D_Base(const SensorInfo2D::Ptr& info) :
+    SensorModel2D_Base(const SensorInfo2D_2::Ptr& info) :
         info_(info),
         bearingsData_(info_->bearings())
     {}
 
     public:
 
-    SensorInfo2D::ConstPtr info() const { return info_; }
+    SensorInfo2D_2::ConstPtr info() const { return info_; }
 
     unsigned int width()  const { return info_->width();  }
     unsigned int height() const { return info_->height(); }
@@ -186,7 +186,7 @@ class SensorModel2D_Base
 
     const std::vector<float>& bearings() const { return info_->bearings(); }
     const Linspace<float>&    ranges()   const { return info_->ranges();   }
-    PointSpreadFunction2D::ConstPtr point_spread_function() const {
+    PointSpreadFunction2D_2::ConstPtr point_spread_function() const {
         return info_->point_spread_function();
     }
     Directivity::ConstPtr directivity() const { 
@@ -205,9 +205,9 @@ class SensorModel2D_Base
         sparse_convolve_2d(*this, bins);
     }
 
-    virtual void reconfigure(const std::vector<float>& bearings,
-                             const Linspace<float>& ranges) = 0;
-    virtual void set_bearings(const std::vector<float>& bearings) = 0;
+    //virtual void reconfigure(const std::vector<float>& bearings,
+    //                         const Linspace<float>& ranges) = 0;
+    //virtual void set_bearings(const std::vector<float>& bearings) = 0;
     virtual void set_ranges(const Linspace<float>& ranges) = 0;
     virtual bool is_complex() const = 0;
 };
@@ -224,7 +224,7 @@ class SensorModel2D_3 : public SensorModel2D_Base
 
     cuda::DeviceVector<T> data_;
 
-    SensorModel2D_3(const SensorInfo2D::Ptr& info) : 
+    SensorModel2D_3(const SensorInfo2D_2::Ptr& info) : 
         SensorModel2D_Base(info),
         data_(info->size())
     {}
@@ -240,16 +240,16 @@ class SensorModel2D_3 : public SensorModel2D_Base
         return ImageView<const T>(this->width(), this->height(), data_.data());
     }
 
-    void reconfigure(const std::vector<float>& bearings, const Linspace<float>& ranges)
-    {
-        this->info_->reconfigure(bearings, ranges);
-        this->binner_.reconfigure(info_->ranges(), ranges.resolution());
-        data_.resize(this->size());
-    }
-    void set_bearings(const std::vector<float>& bearings) {
-        this->info_->set_bearings(bearings);
-        data_.resize(this->size());
-    }
+    //void reconfigure(const std::vector<float>& bearings, const Linspace<float>& ranges)
+    //{
+    //    this->info_->reconfigure(bearings, ranges);
+    //    this->binner_.reconfigure(info_->ranges(), ranges.resolution());
+    //    data_.resize(this->size());
+    //}
+    //void set_bearings(const std::vector<float>& bearings) {
+    //    this->info_->set_bearings(bearings);
+    //    data_.resize(this->size());
+    //}
     void set_ranges(const Linspace<float>& ranges) {
         this->info_->set_ranges(ranges);
         this->binner_.reconfigure(info_->ranges(), ranges.resolution());
@@ -269,13 +269,13 @@ class SensorModel2D_Real : public SensorModel2D_3<float>
 
     protected:
 
-    SensorModel2D_Real(const SensorInfo2D::Ptr& info) : 
+    SensorModel2D_Real(const SensorInfo2D_2::Ptr& info) : 
         SensorModel2D_3<float>(info)
     {}
 
     public:
 
-    static Ptr Create(const SensorInfo2D::Ptr& info) {
+    static Ptr Create(const SensorInfo2D_2::Ptr& info) {
         return Ptr(new SensorModel2D_Real(info));
     }
     bool is_complex() const { return false; }
@@ -290,13 +290,13 @@ class SensorModel2D_Complex : public SensorModel2D_3<Complex<float>>
 
     protected:
 
-    SensorModel2D_Complex(const SensorInfo2D::Ptr& info) : 
+    SensorModel2D_Complex(const SensorInfo2D_2::Ptr& info) : 
         SensorModel2D_3<Complex<float>>(info)
     {}
 
     public:
 
-    static Ptr Create(const SensorInfo2D::Ptr& info) {
+    static Ptr Create(const SensorInfo2D_2::Ptr& info) {
         return Ptr(new SensorModel2D_Complex(info));
     }
     bool is_complex() const { return true; }

@@ -70,7 +70,7 @@ class BeamDirectivity
     virtual float operator[](unsigned int idx) const = 0;
 };
 
-float BeamDirectivityIterator::operator*() const { return (*beam_)[index_]; }
+inline float BeamDirectivityIterator::operator*() const { return (*beam_)[index_]; }
 
 class BeamDirectivity_Sinc : public BeamDirectivity
 {

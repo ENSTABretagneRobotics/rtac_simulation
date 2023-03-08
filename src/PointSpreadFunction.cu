@@ -4,6 +4,22 @@
 
 namespace rtac { namespace simulation {
 
+void PointSpreadFunction2D_2::generate_data()
+{
+    Image<Complex<float>> data(beamDirectivity_->size(), waveform_->size());
+
+    const auto& beam     = *beamDirectivity_;
+    const auto& waveform = *waveform_;
+
+    for(unsigned int h = 0; h < data.height(); h++) {
+        for(unsigned int w = 0; w < data.width(); w++) {
+            data(h,w) = waveform[h]*beam[w];
+        }
+    }
+
+    data_.set_image(data.width(), data.height(), (const float2*)data.data());
+}
+
 void PointSpreadFunction2D::set_pulse_length(float pulseLength)
 {
     auto ptr = std::dynamic_pointer_cast<RangePSF>(rangePSF_);

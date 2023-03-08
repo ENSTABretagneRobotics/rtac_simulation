@@ -19,6 +19,7 @@ namespace rtac { namespace simulation {
 struct SensorInfoFactory2D
 {
     static SensorInfo2D::Ptr Make(const YAML::Node& config);
+    static SensorInfo2D_2::Ptr Make2(const YAML::Node& config);
 
     static std::vector<float> parse_bearings(const YAML::Node& config);
     static Linspace<float>    parse_ranges(const YAML::Node& config);
