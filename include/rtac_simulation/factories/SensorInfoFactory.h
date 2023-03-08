@@ -8,6 +8,7 @@
 #include <rtac_base/types/Linspace.h>
 
 #include <rtac_simulation/Directivity.h>
+#include <rtac_simulation/Waveform.h>
 #include <rtac_simulation/PointSpreadFunction.h>
 #include <rtac_simulation/SensorInfo.h>
 #include <rtac_simulation/factories/utilities.h>
@@ -22,6 +23,7 @@ struct SensorInfoFactory2D
     static Linspace<float>    parse_ranges(const YAML::Node& config);
     static Directivity::Ptr   parse_directivity(const YAML::Node& config);
     static PointSpreadFunction2D::Ptr parse_psf(const YAML::Node& config);
+    static Waveform::Ptr parse_waveform(const YAML::Node& config);
 };
 
 } //namespace simulation

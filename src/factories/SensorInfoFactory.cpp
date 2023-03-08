@@ -13,6 +13,9 @@ SensorInfo2D::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
     auto directivity = parse_directivity(config["directivity"]);
     auto psf = parse_psf(config["point-spread-function"]);
 
+    auto waveform = parse_waveform(config["waveform"]);
+    std::cout << *waveform << std::endl;
+
     return SensorInfo2D::Create(bearings, ranges, psf, directivity);
 }
 
@@ -170,6 +173,39 @@ PointSpreadFunction2D::Ptr SensorInfoFactory2D::parse_psf(const YAML::Node& conf
     }
     
     return make_point_spread_function(bearingPSF, rangePSF);
+}
+
+Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
+{
+    if(!config) {
+        throw ConfigError() << " : Invalid 'waveform' node.";
+    }
+
+    unsigned int oversampling = 8;
+    if(auto node = config["oversampling"]) {
+        oversampling = node.as<unsigned int>();
+    }
+
+    std::string type = config["type"].as<std::string>();
+    if(type == "sine") {
+        float frequency = config["frequency"].as<float>();
+        if(auto durationMode = config["duration-mode"]) {
+            std::string mode = durationMode.as<std::string>();
+            if(mode == "fixed") {
+                return Waveform_Sine::Create(frequency,
+                                             config["duration"].as<float>(),
+                                             oversampling);
+            }
+            else if(mode != "adaptive") {
+                std::cerr << "Got invalid duration mode : '" << mode
+                          << "'. Falling back to 'adaptive'" << std::endl;
+            }
+        }
+        return Waveform_Sine::Create(frequency, 10 / frequency, oversampling);
+    }
+    else {
+        throw ConfigError() << " : unsupported waveform type : '" << type << "'";
+    }
 }
 
 } //namespace simulation
