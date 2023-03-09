@@ -32,9 +32,8 @@ SensorInfo2D_2::Ptr SensorInfoFactory2D::Make2(const YAML::Node& config)
     auto directivity = parse_directivity(config["directivity"]);
     auto waveform = parse_waveform(config["waveform"]);
     auto beam = parse_beamsteering(config["beamsteering"]);
-    auto psf = PointSpreadFunction2D_2::Create(waveform, beam);
 
-    return SensorInfo2D_2::Create(bearings, ranges, psf, directivity);
+    return SensorInfo2D_2::Create(bearings, ranges, waveform, beam, directivity);
 }
 
 Linspace<float> SensorInfoFactory2D::parse_ranges(const YAML::Node& config)

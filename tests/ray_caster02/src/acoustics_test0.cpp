@@ -157,7 +157,6 @@ int main()
     std::cout << "config file : " << filename << std::endl;
     //auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
     auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make2(YAML::LoadFile(filename));
-    auto oculusSensor2 = rtac::simulation::SensorModel2D_Complex::Create(sensorInfo);
     auto oculusSensor3 = rtac::simulation::SensorInstance::Create(sensorInfo);
     //rtac::simulation::Binner binner;
 
@@ -214,7 +213,6 @@ int main()
 
         //oculusReceiver->reconfigure(meta, pingData);
         oculusSensor->reconfigure(meta, pingData);
-        oculusSensor2->set_ranges(meta.fireMessage.range, meta.nRanges);
         oculusSensor3->set_ranges(meta.fireMessage.range, meta.nRanges);
 
         emitter->pose()  = pose;
@@ -227,7 +225,6 @@ int main()
         raycaster->trace(emitter, receiver, optixPoints);
         receiver->sort_received();
         oculusSensor->sensor()->reduce_samples(receiver->samples());
-        oculusSensor2->reduce_samples(receiver->samples());
         rtac::Image<rtac::Complex<float>,  rtac::cuda::DeviceVector> out;
         oculusSensor3->reduce_samples(out, receiver->samples());
 
@@ -235,7 +232,6 @@ int main()
         simRenderer->set_bearings(oculusSensor->sensor()->data().width_dim().size(),
                                   oculusSensor->sensor()->data().width_dim().data());
         //auto tmp1 = abs(oculusSensor->sensor()->data().container());
-        //auto tmp1 = abs(oculusSensor2->data());
         auto tmp1 = abs(out.container());
         simRenderer->set_data({oculusSensor->sensor()->data().width(),
                                oculusSensor->sensor()->data().height()},

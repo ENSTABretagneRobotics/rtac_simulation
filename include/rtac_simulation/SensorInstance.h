@@ -74,7 +74,6 @@ class SensorInstance
         cuda::DeviceVector<VectorView<const T>> bins;
         binner_.compute(bins, samples);
         this->do_reduce(out, bins);
-        //sparse_convolve_2d(out, *this, bins);
     }
 };
 

@@ -84,36 +84,41 @@ class SensorInfo2D_2
 
     protected:
 
-    std::vector<float>           bearings_;
-    Linspace<float>              ranges_;
-    PointSpreadFunction2D_2::Ptr psf_;
-    Directivity::Ptr             directivity_;
+    std::vector<float>   bearings_;
+    Linspace<float>      ranges_;
+    Waveform::Ptr        waveform_;
+    BeamDirectivity::Ptr beamDirectivity_;
+    Directivity::Ptr     directivity_;
     float soundCelerity_;
 
     cuda::TextureVector<float> bearingsDeviceData_;
 
     SensorInfo2D_2(const std::vector<float>& bearings,
                    const Linspace<float>&    ranges,
-                   const PointSpreadFunction2D_2::Ptr& psf,
+                   const Waveform::Ptr&        waveform,
+                   const BeamDirectivity::Ptr& beamDirectivity,
                    const Directivity::Ptr& directivity) :
         bearings_(bearings),
         ranges_(ranges),
-        psf_(psf),
+        waveform_(waveform),
+        beamDirectivity_(beamDirectivity),
         directivity_(directivity),
         soundCelerity_(1500.0f),
         bearingsDeviceData_(bearings)
     {
-        psf_->set_pulse_duration(2*ranges_.resolution() / soundCelerity_);
+        waveform_->set_duration(2*ranges_.resolution() / soundCelerity_);
     }
 
     public:
 
     static Ptr Create(const std::vector<float>& bearings,
                       const Linspace<float>&    ranges,
-                      const PointSpreadFunction2D_2::Ptr& psf,
+                      //const PointSpreadFunction2D_2::Ptr& psf,
+                      const Waveform::Ptr&        waveform,
+                      const BeamDirectivity::Ptr& beamDirectivity,
                       const Directivity::Ptr& directivity)
     {
-        return Ptr(new SensorInfo2D_2(bearings, ranges, psf, directivity));
+        return Ptr(new SensorInfo2D_2(bearings, ranges, waveform, beamDirectivity, directivity));
     }
 
     unsigned int width()  const { return bearings_.size(); }
@@ -122,23 +127,13 @@ class SensorInfo2D_2
 
     const std::vector<float>& bearings() const { return bearings_; }
     const Linspace<float>&    ranges()   const { return ranges_;   }
-    PointSpreadFunction2D_2::ConstPtr point_spread_function() const { return psf_; }
     Directivity::ConstPtr directivity() const { return directivity_; }
     cuda::TextureVectorView<float> bearings_view() const {
         return bearingsDeviceData_.view();
     }
 
-    Waveform::ConstPtr waveform() const { return psf_->waveform(); }
-    BeamDirectivity::ConstPtr beam_directivity() const { return psf_->beam_directivity(); }
-
-    void set_sound_celerity(float celerity) { soundCelerity_ = celerity; }
-    void set_ranges(const Linspace<float>& ranges) {
-        ranges_   = ranges;
-        psf_->set_pulse_duration(2*ranges_.resolution() / soundCelerity_);
-    }
-    void set_ranges(const Bounds<float>& bounds, unsigned int count) {
-        this->set_ranges(Linspace<float>(bounds, count));
-    }
+    Waveform::ConstPtr waveform() const { return waveform_; }
+    BeamDirectivity::ConstPtr beam_directivity() const { return beamDirectivity_; }
 };
 
 
