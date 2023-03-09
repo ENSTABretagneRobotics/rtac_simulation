@@ -229,7 +229,7 @@ int main()
         oculusSensor->sensor()->reduce_samples(receiver->samples());
         oculusSensor2->reduce_samples(receiver->samples());
         rtac::Image<rtac::Complex<float>,  rtac::cuda::DeviceVector> out;
-        oculusSensor3->reduce_samples(receiver->samples(), out);
+        oculusSensor3->reduce_samples(out, receiver->samples());
 
         simRenderer->set_range(oculusSensor->sensor()->data().height_dim().bounds());
         simRenderer->set_bearings(oculusSensor->sensor()->data().width_dim().size(),

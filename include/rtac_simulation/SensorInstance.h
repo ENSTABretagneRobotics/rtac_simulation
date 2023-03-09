@@ -12,8 +12,6 @@
 #include <rtac_simulation/Binner.h>
 #include <rtac_simulation/ReductionKernel.h>
 
-#include <rtac_simulation/reductions_2.h>
-
 namespace rtac { namespace simulation {
 
 class SensorInstance
@@ -38,6 +36,8 @@ class SensorInstance
                    float soundCelerity);
 
     void generate_psf_data();
+    void do_reduce(Image<Complex<float>, cuda::DeviceVector>& out,
+                   const cuda::DeviceVector<VectorView<const SimSample2D>>& bins) const;
 
     public:
 
@@ -68,12 +68,13 @@ class SensorInstance
     KernelView2D<Complex<float>> kernel() const;
 
     template <typename T>
-    void reduce_samples(const cuda::DeviceVector<T>& samples,
-                        Image<Complex<float>, cuda::DeviceVector>& out)
+    void reduce_samples(Image<Complex<float>, cuda::DeviceVector>& out,
+                        const cuda::DeviceVector<T>& samples)
     {
         cuda::DeviceVector<VectorView<const T>> bins;
         binner_.compute(bins, samples);
-        sparse_convolve_2d(out, *this, bins);
+        this->do_reduce(out, bins);
+        //sparse_convolve_2d(out, *this, bins);
     }
 };
 

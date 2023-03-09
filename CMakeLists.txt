@@ -61,7 +61,7 @@ add_library(rtac_simulation SHARED
     src/RangeBinner.cu
 
     src/Receiver.cu
-    src/SensorInstance.cpp
+    src/SensorInstance.cu
     src/Binner.cu
     src/RayCaster.cpp
 
