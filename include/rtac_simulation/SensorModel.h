@@ -166,8 +166,9 @@ class SensorModel2D_Base
 
     protected:
 
-    SensorInfo2D_2::Ptr info_;
-    Binner            binner_;
+    SensorInfo2D_2::Ptr     info_;
+    cuda::Texture2D<float2> psfData_;
+    Binner                  binner_;
 
     cuda::TextureVector<float> bearingsData_;
 

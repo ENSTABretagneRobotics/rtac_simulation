@@ -49,6 +49,7 @@ namespace plt = rtac::display;
 #include <rtac_simulation/Binner.h>
 #include <rtac_simulation/factories/utilities.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
+#include <rtac_simulation/SensorInstance.h>
 
 #include <rtac_optix/utils.h>
 #include <rtac_optix/Context.h>
@@ -157,6 +158,7 @@ int main()
     //auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
     auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make2(YAML::LoadFile(filename));
     auto oculusSensor2 = rtac::simulation::SensorModel2D_Complex::Create(sensorInfo);
+    auto oculusSensor3 = rtac::simulation::SensorInstance::Create(sensorInfo);
     //rtac::simulation::Binner binner;
 
     DeviceVector<float3> optixPoints;
@@ -213,6 +215,7 @@ int main()
         //oculusReceiver->reconfigure(meta, pingData);
         oculusSensor->reconfigure(meta, pingData);
         oculusSensor2->set_ranges(meta.fireMessage.range, meta.nRanges);
+        oculusSensor3->set_ranges(meta.fireMessage.range, meta.nRanges);
 
         emitter->pose()  = pose;
         receiver->pose() = pose;
@@ -225,12 +228,15 @@ int main()
         receiver->sort_received();
         oculusSensor->sensor()->reduce_samples(receiver->samples());
         oculusSensor2->reduce_samples(receiver->samples());
+        rtac::Image<rtac::Complex<float>,  rtac::cuda::DeviceVector> out;
+        oculusSensor3->reduce_samples(receiver->samples(), out);
 
         simRenderer->set_range(oculusSensor->sensor()->data().height_dim().bounds());
         simRenderer->set_bearings(oculusSensor->sensor()->data().width_dim().size(),
                                   oculusSensor->sensor()->data().width_dim().data());
         //auto tmp1 = abs(oculusSensor->sensor()->data().container());
-        auto tmp1 = abs(oculusSensor2->data());
+        //auto tmp1 = abs(oculusSensor2->data());
+        auto tmp1 = abs(out.container());
         simRenderer->set_data({oculusSensor->sensor()->data().width(),
                                oculusSensor->sensor()->data().height()},
                               plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);

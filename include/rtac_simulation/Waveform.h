@@ -86,6 +86,7 @@ class Waveform
     virtual float duration()    const = 0;
     virtual unsigned int size() const = 0;
     virtual Complex<float> operator[](unsigned int idx) const = 0;
+    virtual Waveform::Ptr copy() const = 0;
 };
 
 inline Complex<float> WaveformIterator::operator*() const { return (*waveform_)[index_]; }
@@ -126,6 +127,9 @@ class Waveform_Sine : public Waveform
     Complex<float> operator[](unsigned int idx) const {
         float phase = idx*(2.0*M_PI*frequency_ / this->sample_rate());
         return Complex<float>(std::cos(phase), std::sin(phase));
+    }
+    virtual Waveform_Sine::Ptr copy() const {
+        return Waveform_Sine::Create(frequency_, duration_, oversampling_);
     }
 };
 

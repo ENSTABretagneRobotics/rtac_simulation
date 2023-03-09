@@ -16,12 +16,16 @@ namespace rtac { namespace simulation {
 template <typename T, typename KT> class SensorModel2D;
 template <typename T>              class SensorModel2D_2;
 class SensorModel2D_Base;
+class SensorInstance;
 
 void sparse_convolve_2d(SensorModel2D<Complex<float>, float>& out,
                         const cuda::DeviceVector<VectorView<const SimSample2D>>& bins);
 void sparse_convolve_2d(SensorModel2D_2<Complex<float>>& out,
                         const cuda::DeviceVector<VectorView<const SimSample2D>>& bins);
 void sparse_convolve_2d(SensorModel2D_Base& out,
+                        const cuda::DeviceVector<VectorView<const SimSample2D>>& bins);
+void sparse_convolve_2d(Image<Complex<float>, cuda::DeviceVector>& out,
+                        const SensorInstance& sensor,
                         const cuda::DeviceVector<VectorView<const SimSample2D>>& bins);
 
 } //namespace simulation

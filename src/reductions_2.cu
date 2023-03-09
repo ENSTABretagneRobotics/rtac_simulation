@@ -3,6 +3,8 @@
 #include <rtac_base/types/Complex.h>
 #include <rtac_base/cuda/reductions.hcu>
 #include <rtac_simulation/SensorModel.h>
+#include <rtac_simulation/SensorInstance.h>
+
 
 namespace rtac { namespace simulation {
 
@@ -160,6 +162,29 @@ void sparse_convolve_2d(SensorModel2D_Base& out,
         out.ranges(),
         bins.data(),
         outTmp.point_spread_function()->kernel());
+
+    cudaDeviceSynchronize();
+    CUDA_CHECK_LAST();
+}
+
+void sparse_convolve_2d(Image<Complex<float>, cuda::DeviceVector>& out,
+                        const SensorInstance& sensor,
+                        const cuda::DeviceVector<VectorView<const SimSample2D>>& bins)
+{
+    if(sensor.height() != bins.size()) {
+        throw std::runtime_error("Inconsistent sizes");
+    }
+    out.resize({sensor.width(), sensor.height()});
+
+    static constexpr unsigned int BlockSize = 512;
+    uint3 grid{out.width(), out.height(), 1};
+
+    do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+        out.view(),
+        sensor.bearings_view(),
+        sensor.ranges(),
+        bins.data(),
+        sensor.kernel());
 
     cudaDeviceSynchronize();
     CUDA_CHECK_LAST();

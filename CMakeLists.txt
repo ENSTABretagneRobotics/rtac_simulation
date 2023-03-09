@@ -36,6 +36,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Target2D.h
 
     include/rtac_simulation/Waveform.h
+    include/rtac_simulation/SensorInstance.h
     include/rtac_simulation/Binner.h
     include/rtac_simulation/RayCaster.h
 
@@ -60,6 +61,7 @@ add_library(rtac_simulation SHARED
     src/RangeBinner.cu
 
     src/Receiver.cu
+    src/SensorInstance.cpp
     src/Binner.cu
     src/RayCaster.cpp
 
