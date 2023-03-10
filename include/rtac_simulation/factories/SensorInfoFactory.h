@@ -10,7 +10,6 @@
 #include <rtac_simulation/Directivity.h>
 #include <rtac_simulation/Waveform.h>
 #include <rtac_simulation/BeamDirectivity.h>
-#include <rtac_simulation/PointSpreadFunction.h>
 #include <rtac_simulation/SensorInfo.h>
 #include <rtac_simulation/factories/utilities.h>
 
@@ -18,13 +17,11 @@ namespace rtac { namespace simulation {
 
 struct SensorInfoFactory2D
 {
-    static SensorInfo2D::Ptr Make(const YAML::Node& config);
     static SensorInfo2D_2::Ptr Make2(const YAML::Node& config);
 
     static std::vector<float> parse_bearings(const YAML::Node& config);
     static Linspace<float>    parse_ranges(const YAML::Node& config);
     static Directivity::Ptr   parse_directivity(const YAML::Node& config);
-    static PointSpreadFunction2D::Ptr parse_psf(const YAML::Node& config);
     static Waveform::Ptr parse_waveform(const YAML::Node& config);
     static BeamDirectivity::Ptr parse_beamsteering(const YAML::Node& config);
 };

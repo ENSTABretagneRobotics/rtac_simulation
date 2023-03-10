@@ -3,7 +3,6 @@ find_package(rosbag REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(narval_oculus REQUIRED)
 find_package(oculus_sonar REQUIRED)
-find_package(rtac_display REQUIRED)
 list(APPEND rosbag_helpers_headers
     include/rtac_simulation/helpers/OculusRosbagIterator.h
 )
@@ -30,56 +29,24 @@ rtac_install_target(rosbag_helpers
     HEADER_FILES ${rosbag_helpers_headers}
 )
 
-
-if(NOT TARGET rtac_display)
-    find_package(rtac_display REQUIRED)
-endif()
-
 list(APPEND test_files
     src/waveform01.cpp
-    src/psf_test01.cpp
     src/directivity01.cpp
     src/filefinder01.cpp
     src/sensor_info_factory01.cpp
 )
-if(OPTIX_SUPPORT_ENABLED)
-    list(APPEND test_files
-        # src/algebra_test.cpp
-        # src/emitter_test.cu
-        # src/kernel_test.cu
-    )
-endif()
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
     set(target_name ${test_name}_${PROJECT_NAME})
     add_executable(${target_name} ${filename})
     target_link_libraries(${target_name}
         rtac_simulation
-        rtac_display
     )
     target_compile_definitions(${target_name} PRIVATE
                                RTAC_TEST_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/../examples")
 endforeach()
 
 
-
-# rtac_generate_asm(index_test_asm
-#     SOURCES src/algebra_test_indexes.cpp
-#     LINK_LIBRARIES rtac_simulation
-# )
-# rtac_generate_ptx(index_test_ptx
-#     SOURCES src/algebra_test_indexes.cu
-#     LINK_LIBRARIES rtac_simulation
-# )
-
-if(OPTIX_SUPPORT_ENABLED)
-    # add_subdirectory(oculus_replay)
-    # add_subdirectory(ray_caster01)
-    add_subdirectory(ray_caster02)
-    # add_subdirectory(gl_sim01)
-endif()
+add_subdirectory(ray_caster02)
 # add_subdirectory(gl_only01)
-
-add_subdirectory(factories)
-
 

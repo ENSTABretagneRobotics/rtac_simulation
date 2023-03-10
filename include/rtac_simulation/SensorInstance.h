@@ -59,6 +59,7 @@ class SensorInstance2D
 
     //const SensorInfo2D_2::ConstPtr& info() const { return info_; }
     const Linspace<float>& ranges() const { return ranges_; }
+    const std::vector<float>& bearings() const { return info_->bearings(); }
     cuda::TextureVectorView<float> bearings_view() const {
         return info_->bearings_view();
     }

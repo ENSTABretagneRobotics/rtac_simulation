@@ -23,15 +23,7 @@ int main()
     auto filename = finder->find_one(".*oculus_M1200d_1.yaml");
     std::cout << "config file : " << filename << std::endl;
 
-    auto sensorInfo = SensorInfoFactory2D::Make(YAML::LoadFile(filename));
-
-    auto psf = sensorInfo->point_spread_function();
-    Image<float2, DeviceVector> tmp(psf->width(), psf->height());
-    render_texture(complex_cast(psf)->texture(), tmp.view());
-    Display displayPsf;
-    auto renderer = displayPsf.create_renderer<ImageRenderer>(View::Create());
-    renderer->texture()->set_image({psf->width(), psf->height()},
-                                    GLVector<float2>(tmp.container()));
+    auto sensorInfo = SensorInfoFactory2D::Make2(YAML::LoadFile(filename));
 
     auto directivity = sensorInfo->directivity();
     Image<float, DeviceVector> tmp0(directivity->texture().width(), 
@@ -44,10 +36,8 @@ int main()
     renderer0->texture()->set_image({tmp0.width(), tmp0.height()},
                                     GLVector<float>(rescale(tmp0.container())));
 
-    while(!displayPsf.should_close() &&
-          !displayDir.should_close())
+    while(!displayDir.should_close())
     {
-        displayPsf.draw();
         displayDir.draw();
     }
 

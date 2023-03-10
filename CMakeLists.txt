@@ -11,15 +11,10 @@ if(NOT TARGET rtac_cuda)
     find_package(rtac_cuda REQUIRED)
 endif()
 
-find_package(yaml-cpp REQUIRED)
-
-if(NOT TARGET rtac_optix)
-    find_package(rtac_optix QUIET)
-endif()
-
 # These package are not mandatory. it only allows for easy setup in oculus
 # example.
-find_package(rtac_display QUIET) # Display utilities
+find_package(rtac_display REQUIRED) # Display utilities
+find_package(rtac_optix   REQUIRED)
 
 
 list(APPEND rtac_simulation_headers
@@ -49,16 +44,16 @@ list(APPEND rtac_simulation_headers
 
     include/rtac_simulation/helpers/receiver_factories.h
 
-    include/rtac_simulation/examples/blueprint_oculus.h
+    # include/rtac_simulation/examples/blueprint_oculus.h
 )
 
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/Emitter.cu
-    src/reductions_2.cu
-    src/ReductionKernel.cu
+    # src/reductions_2.cu
+    # src/ReductionKernel.cu
 
-    src/RangeBinner.cu
+    # src/RangeBinner.cu
 
     src/Receiver.cu
     src/SensorInstance.cu
@@ -68,13 +63,13 @@ add_library(rtac_simulation SHARED
     src/factories/utilities.cpp
     src/factories/SensorInfoFactory.cpp
 
-    src/PolarReceiver2D.cu
+    # src/PolarReceiver2D.cu
 
-    src/examples/blueprint_oculus.cu
+    # src/examples/blueprint_oculus.cu
 
-    src/factories/PSFGenerator.cpp
-    src/factories/PSFFactory.cpp
-    src/PointSpreadFunction.cu
+    # src/factories/PSFGenerator.cpp
+    # src/factories/PSFFactory.cpp
+    # src/PointSpreadFunction.cu
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -83,41 +78,22 @@ target_include_directories(rtac_simulation PUBLIC
 target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
+    rtac_optix
+    rtac_display
     yaml-cpp
 )
 target_compile_features(rtac_simulation PUBLIC cxx_std_17)
 target_compile_options(rtac_simulation PUBLIC
-    # $<BUILD_INTERFACE:-DRTAC_CONFIG_FILES_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/examples/\">
     -DRTAC_CONFIG_FILES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"
 )
-
-# if optix found adding optix dependent modules.
-if(rtac_optix_FOUND)
-    set(OPTIX_SUPPORT_ENABLED ON)
-    target_compile_definitions(rtac_simulation PUBLIC RTAC_WITH_OPTIX)
-    target_sources(rtac_simulation PRIVATE src/PolarRayCaster.cpp)
-    list(APPEND rtac_simulation_headers include/rtac_simulation/PolarRayCaster.h)
-    target_link_libraries(rtac_simulation PUBLIC rtac_optix)
-    target_add_ptx(rtac_simulation
-        CUDA_SOURCES src/PolarRayCaster.cu src/RayCaster.cu
-    )
-else()
-    message(WARNING "The rtac_optix library was not found on your system.\n"
-                    "\tRay tracing support is disabled.")
-endif()
+target_add_ptx(rtac_simulation
+    CUDA_SOURCES src/RayCaster.cu
+)
+# target_compile_definitions(rtac_simulation PUBLIC RTAC_WITH_OPTIX)
 
 find_package(narval_oculus REQUIRED)
 get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
 target_include_directories(rtac_simulation PUBLIC ${include_dir})
-
-if(TARGET rtac_display)
-    set(DISPLAY_SUPPORT_ENABLED ON)
-    list(APPEND rtac_simulation_headers
-        include/rtac_simulation/helpers/PolarTargetRenderer.h
-    )
-    target_sources(rtac_simulation PRIVATE src/helpers/PolarTargetRenderer.cu)
-    target_link_libraries(rtac_simulation PUBLIC rtac_display)
-endif()
 
 rtac_install_target(rtac_simulation
     HEADER_FILES ${rtac_simulation_headers}
