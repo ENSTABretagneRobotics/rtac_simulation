@@ -31,6 +31,9 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Binner.h
     include/rtac_simulation/RayCaster.h
 
+    include/rtac_simulation/Simulation.h
+    include/rtac_simulation/OptixSimulation.h
+
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/SensorInfoFactory.h
 )
@@ -42,6 +45,8 @@ add_library(rtac_simulation SHARED
     src/SensorInstance.cu
     src/Binner.cu
     src/RayCaster.cpp
+
+    src/OptixSimulation.cpp
 
     src/factories/utilities.cpp
     src/factories/SensorInfoFactory.cpp
