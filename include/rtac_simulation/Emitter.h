@@ -8,9 +8,33 @@
 #include <rtac_base/cuda/DeviceVector.h>
 #include <rtac_base/cuda/geometry.h>
 
-#include <rtac_simulation/Antenna.h>
+#include <rtac_simulation/Directivity.h>
 
 namespace rtac { namespace simulation {
+
+class EmitterBase
+{
+    public:
+
+    using Ptr      = std::shared_ptr<EmitterBase>;
+    using ConstPtr = std::shared_ptr<const EmitterBase>;
+
+    using Pose = rtac::Pose<float>;
+
+    protected:
+
+    Pose pose_;
+
+    EmitterBase(const Pose& pose) : pose_(pose) {}
+
+    public:
+
+    const Pose& pose() const { return pose_; }
+          Pose& pose()       { return pose_; }
+    
+    unsigned int size() const { return this->ray_count(); }
+    virtual unsigned int ray_count() const = 0;
+};
 
 struct EmitterView
 {
@@ -35,18 +59,18 @@ struct EmitterView
     #endif //RTAC_CUDACC
 };
 
-class Emitter : public Antenna
+class Emitter : public EmitterBase
 {
     public:
 
     using Ptr      = std::shared_ptr<Emitter>;
     using ConstPtr = std::shared_ptr<const Emitter>;
-
-    using Pose      = rtac::Pose<float>;
-    using DataShape = Antenna::DataShape;
+    
+    using Pose = EmitterBase::Pose;
 
     protected:
 
+    Directivity::ConstPtr              directivity_;
     cuda::DeviceVector<float3>         directions_;
     cuda::DeviceVector<Complex<float>> initialValues_;
 
@@ -71,13 +95,14 @@ class Emitter : public Antenna
                       float elevationAperture,
                       Directivity::ConstPtr directivity,
                       const Pose& pose = Pose());
-
-    std::size_t size() const { return directions_.size(); }
+    
+    const Directivity::ConstPtr& directivity() const { return directivity_; }
+    unsigned int ray_count() const { return directions_.size(); }
 
     EmitterView view() const {
         EmitterView res;
-        res.pose              = this->pose_;
-        res.size              = this->size();
+        res.pose              = this->pose();
+        res.size              = this->ray_count();
         res.initialDirections = this->directions_.data();
         res.initialValues     = this->initialValues_.data();
         return res;

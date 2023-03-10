@@ -8,8 +8,8 @@
 #include <rtac_base/cuda/geometry.h>
 #include <rtac_base/cuda/DeviceVector.h>
 
-#include <rtac_simulation/Antenna.h>
 #include <rtac_simulation/Sample.h>
+#include <rtac_simulation/Directivity.h>
 
 namespace rtac { namespace simulation {
 

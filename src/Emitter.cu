@@ -5,7 +5,8 @@ namespace rtac { namespace simulation {
 Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
                  Directivity::ConstPtr directivity,
                  const Pose& pose) :
-    Antenna(directivity, pose),
+    EmitterBase(pose),
+    directivity_(directivity),
     directions_(rayDirs),
     initialValues_(rayDirs.size())
 {
@@ -52,8 +53,8 @@ void Emitter::load_initial_values()
 }
 
 cuda::DeviceVector<float3> Emitter::generate_polar_directions(float resolution,
-                                                               float bearingAperture,
-                                                               float elevationAperture)
+                                                              float bearingAperture,
+                                                              float elevationAperture)
 {
     resolution        *= M_PI  / 180.0f;
     bearingAperture   *= M_PI  / 180.0f;
