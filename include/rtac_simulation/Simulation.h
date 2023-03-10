@@ -17,14 +17,14 @@ class Simulation1
 
     protected:
 
-    Simulation1(const Emitter::Ptr&, const SensorInstance2D::Ptr&) {}
+    Simulation1(const Emitter::Ptr&, const SensorInstance::Ptr&) {}
 
     public:
     
-    virtual const EmitterBase&      emitter() const = 0;
-    virtual       EmitterBase&      emitter() = 0;
-    virtual const SensorInstance2D& receiver() const = 0;
-    virtual       SensorInstance2D& receiver() = 0;
+    virtual const EmitterBase&    emitter() const = 0;
+    virtual       EmitterBase&    emitter() = 0;
+    virtual const SensorInstance& receiver() const = 0;
+    virtual       SensorInstance& receiver() = 0;
 };
 
 } //namespace simulation

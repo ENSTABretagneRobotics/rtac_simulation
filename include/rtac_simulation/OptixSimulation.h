@@ -18,26 +18,26 @@ class OptixSimulation1 : public Simulation1
 
     protected:
 
-    Emitter::Ptr          emitter_;
-    SensorInstance2D::Ptr receiver_;
+    Emitter::Ptr        emitter_;
+    SensorInstance::Ptr receiver_;
 
     RayCaster::Ptr rayCaster_;
 
     OptixSimulation1(const Emitter::Ptr& emitter,
-                     const SensorInstance2D::Ptr& receiver);
+                     const SensorInstance::Ptr& receiver);
 
     public:
 
     static Ptr Create(const Emitter::Ptr& emitter,
-                      const SensorInstance2D::Ptr& receiver)
+                      const SensorInstance::Ptr& receiver)
     {
         return Ptr(new OptixSimulation1(emitter, receiver));
     }
     
-    virtual const EmitterBase&      emitter()  const { return *emitter_; }
-    virtual       EmitterBase&      emitter()        { return *emitter_; }
-    virtual const SensorInstance2D& receiver() const { return *receiver_; }
-    virtual       SensorInstance2D& receiver()       { return *receiver_; }
+    virtual const EmitterBase&    emitter()  const { return *emitter_; }
+    virtual       EmitterBase&    emitter()        { return *emitter_; }
+    virtual const SensorInstance& receiver() const { return *receiver_; }
+    virtual       SensorInstance& receiver()       { return *receiver_; }
 
     const RayCaster& ray_caster() const { return *rayCaster_; }
           RayCaster& ray_caster()       { return *rayCaster_; }
