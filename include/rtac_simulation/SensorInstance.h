@@ -17,7 +17,46 @@
 
 namespace rtac { namespace simulation {
 
-class SensorInstance2D
+class SensorInstance
+{
+    public:
+
+    using Ptr      = std::shared_ptr<SensorInstance>;
+    using ConstPtr = std::shared_ptr<const SensorInstance>;
+    using Pose     = rtac::Pose<float>;
+
+    protected:
+
+    Linspace<float> ranges_;
+    Waveform::Ptr   waveform_;
+    Pose            pose_;
+    float           soundCelerity_;
+    Binner          binner_;
+
+    SensorInstance(const SensorInfo::ConstPtr& info,
+                   const Pose& pose,
+                   float soundCelerity);
+
+    virtual void generate_psf_data() = 0;
+
+    public:
+
+    virtual const SensorInfo& info() const = 0;
+
+    const Pose& pose() const { return pose_; }
+          Pose& pose()       { return pose_; }
+    const Linspace<float>& ranges() const { return ranges_; }
+    Waveform::ConstPtr waveform() const { return waveform_; }
+    float sound_celerity() const { return soundCelerity_; }
+    Directivity::ConstPtr directivity() const { return this->info().directivity(); }
+
+    void set_ranges(const Linspace<float>& ranges, float soundCelerity);
+    void set_ranges(const Linspace<float>& ranges);
+    void set_ranges(float maxRange, unsigned int rangeCount);
+};
+
+
+class SensorInstance2D : public SensorInstance
 {
     public:
 
@@ -32,15 +71,9 @@ class SensorInstance2D
 
     SensorInfo2D::ConstPtr info_;
 
-    Linspace<float> ranges_;
-    Waveform::Ptr   waveform_;
-    Pose            pose_;
-    float           soundCelerity_;
-
     cuda::DeviceVector<Sample> receivedSamples_;
     Bins bins_;
 
-    Binner binner_;
     cuda::Texture2D<float2> psfData_;
 
     SensorInstance2D(const SensorInfo2D::ConstPtr& info,
@@ -57,28 +90,19 @@ class SensorInstance2D
     unsigned int height() const { return ranges_.size(); }
     unsigned int size()   const { return this->width() * this->height(); }
 
-    //const SensorInfo2D::ConstPtr& info() const { return info_; }
-    const Linspace<float>& ranges() const { return ranges_; }
+    const SensorInfo2D& info() const { return *info_; }
     const std::vector<float>& bearings() const { return info_->bearings(); }
     cuda::TextureVectorView<float> bearings_view() const {
         return info_->bearings_view();
     }
 
     BeamDirectivity::ConstPtr beam_directivity() const { return info_->beam_directivity(); }
-    Waveform::ConstPtr waveform() const { return waveform_; }
-    float sound_celerity() const { return soundCelerity_; }
-    Directivity::ConstPtr directivity() const { return info_->directivity(); }
 
-    void set_ranges(const Linspace<float>& ranges, float soundCelerity);
-    void set_ranges(const Linspace<float>& ranges);
-    void set_ranges(float maxRange, unsigned int rangeCount);
     KernelView2D<Complex<float>> kernel() const;
 
     void set_sample_count(unsigned int count) { receivedSamples_.resize(count); }
     const cuda::DeviceVector<Sample>& samples() const { return receivedSamples_; }
           cuda::DeviceVector<Sample>& samples()       { return receivedSamples_; }
-    const Pose& pose() const { return pose_; }
-          Pose& pose()       { return pose_; }
 
     ReceiverView<Sample> receiver_view()
     {

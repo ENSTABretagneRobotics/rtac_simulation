@@ -5,16 +5,40 @@
 
 namespace rtac { namespace simulation {
 
-SensorInstance2D::SensorInstance2D(const SensorInfo2D::ConstPtr& info,
-                                   const Pose& pose,
-                                   float soundCelerity) :
-    info_(info),
-    ranges_(info_->ranges()),
-    waveform_(info_->waveform()->copy()),
+SensorInstance::SensorInstance(const SensorInfo::ConstPtr& info,
+                               const Pose& pose,
+                               float soundCelerity) :
+    ranges_(info->ranges()),
+    waveform_(info->waveform()->copy()),
     pose_(pose),
     soundCelerity_(soundCelerity)
 {}
 
+void SensorInstance::set_ranges(const Linspace<float>& ranges, float soundCelerity)
+{
+    soundCelerity_ = soundCelerity;
+    this->set_ranges(ranges);
+}
+
+void SensorInstance::set_ranges(const Linspace<float>& ranges)
+{
+    ranges_ = ranges;
+    binner_.reconfigure(ranges, ranges.resolution());
+    waveform_->set_duration(2*ranges.resolution() / soundCelerity_);
+    this->generate_psf_data();
+}
+
+void SensorInstance::set_ranges(float maxRange, unsigned int rangeCount)
+{
+    this->set_ranges(Linspace<float>(ranges_.lower(), maxRange, rangeCount));
+}
+
+SensorInstance2D::SensorInstance2D(const SensorInfo2D::ConstPtr& info,
+                                   const Pose& pose,
+                                   float soundCelerity) :
+    SensorInstance(info, pose, soundCelerity),
+    info_(info)
+{}
 
 void SensorInstance2D::generate_psf_data()
 {
@@ -29,25 +53,6 @@ void SensorInstance2D::generate_psf_data()
     }
 
     psfData_.set_image(data.width(), data.height(), (const float2*)data.data());
-}
-
-void SensorInstance2D::set_ranges(const Linspace<float>& ranges, float soundCelerity)
-{
-    soundCelerity_ = soundCelerity;
-    this->set_ranges(ranges);
-}
-
-void SensorInstance2D::set_ranges(const Linspace<float>& ranges)
-{
-    ranges_ = ranges;
-    binner_.reconfigure(ranges, ranges.resolution());
-    waveform_->set_duration(2*ranges.resolution() / soundCelerity_);
-    this->generate_psf_data();
-}
-
-void SensorInstance2D::set_ranges(float maxRange, unsigned int rangeCount)
-{
-    this->set_ranges(Linspace<float>(ranges_.lower(), maxRange, rangeCount));
 }
 
 KernelView2D<Complex<float>> SensorInstance2D::kernel() const
