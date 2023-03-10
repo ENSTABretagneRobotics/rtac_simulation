@@ -14,12 +14,12 @@
 
 namespace rtac { namespace simulation {
 
-class SensorInfo2D_2
+class SensorInfo2D
 {
     public:
 
-    using Ptr      = std::shared_ptr<SensorInfo2D_2>;
-    using ConstPtr = std::shared_ptr<const SensorInfo2D_2>;
+    using Ptr      = std::shared_ptr<SensorInfo2D>;
+    using ConstPtr = std::shared_ptr<const SensorInfo2D>;
 
     protected:
 
@@ -32,11 +32,11 @@ class SensorInfo2D_2
 
     cuda::TextureVector<float> bearingsDeviceData_;
 
-    SensorInfo2D_2(const std::vector<float>&   bearings,
-                   const Linspace<float>&      ranges,
-                   const Waveform::Ptr&        waveform,
-                   const BeamDirectivity::Ptr& beamDirectivity,
-                   const Directivity::Ptr& directivity) :
+    SensorInfo2D(const std::vector<float>&   bearings,
+                 const Linspace<float>&      ranges,
+                 const Waveform::Ptr&        waveform,
+                 const BeamDirectivity::Ptr& beamDirectivity,
+                 const Directivity::Ptr& directivity) :
         bearings_(bearings),
         ranges_(ranges),
         waveform_(waveform),
@@ -56,7 +56,7 @@ class SensorInfo2D_2
                       const BeamDirectivity::Ptr& beamDirectivity,
                       const Directivity::Ptr& directivity)
     {
-        return Ptr(new SensorInfo2D_2(bearings, ranges, waveform, beamDirectivity, directivity));
+        return Ptr(new SensorInfo2D(bearings, ranges, waveform, beamDirectivity, directivity));
     }
 
     unsigned int width()  const { return bearings_.size(); }

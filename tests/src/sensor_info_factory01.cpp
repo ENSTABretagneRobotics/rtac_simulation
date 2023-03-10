@@ -23,7 +23,7 @@ int main()
     auto filename = finder->find_one(".*oculus_M1200d_1.yaml");
     std::cout << "config file : " << filename << std::endl;
 
-    auto sensorInfo = SensorInfoFactory2D::Make2(YAML::LoadFile(filename));
+    auto sensorInfo = SensorInfoFactory2D::Make(YAML::LoadFile(filename));
 
     auto directivity = sensorInfo->directivity();
     Image<float, DeviceVector> tmp0(directivity->texture().width(), 

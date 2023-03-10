@@ -115,13 +115,13 @@ int main()
     raycaster->object_tree()->add_instance(dtmObject);
     raycaster->sbt()->add_object(dtmObject);
 
-    auto emitter = rtac::simulation::Emitter2::Create(0.1f, 140.0f, 100.0f, 
-    //auto emitter = rtac::simulation::Emitter2::Create(10.0f, 140.0f, 100.0f, 
+    auto emitter = rtac::simulation::Emitter::Create(0.1f, 140.0f, 100.0f, 
+    //auto emitter = rtac::simulation::Emitter::Create(10.0f, 140.0f, 100.0f, 
         rtac::simulation::Directivity::from_sinc_parameters(130.0f, 20.0f));
     auto finder = rtac::simulation::FileFinder::Get({std::string(RTAC_TEST_CONFIG)});
     auto filename = finder->find_one(".*oculus_M1200d_1.yaml");
     std::cout << "config file : " << filename << std::endl;
-    auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make2(YAML::LoadFile(filename));
+    auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
     auto oculusSensor3 = rtac::simulation::SensorInstance2D_Complex::Create(sensorInfo, rtac::Pose<float>());
 
     DeviceVector<float3> optixPoints;

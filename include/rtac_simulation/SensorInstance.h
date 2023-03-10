@@ -30,7 +30,7 @@ class SensorInstance2D
 
     protected:
 
-    SensorInfo2D_2::ConstPtr info_;
+    SensorInfo2D::ConstPtr info_;
 
     Linspace<float> ranges_;
     Waveform::Ptr   waveform_;
@@ -43,7 +43,7 @@ class SensorInstance2D
     Binner binner_;
     cuda::Texture2D<float2> psfData_;
 
-    SensorInstance2D(const SensorInfo2D_2::ConstPtr& info,
+    SensorInstance2D(const SensorInfo2D::ConstPtr& info,
                      const Pose& pose,
                      float soundCelerity);
 
@@ -57,7 +57,7 @@ class SensorInstance2D
     unsigned int height() const { return ranges_.size(); }
     unsigned int size()   const { return this->width() * this->height(); }
 
-    //const SensorInfo2D_2::ConstPtr& info() const { return info_; }
+    //const SensorInfo2D::ConstPtr& info() const { return info_; }
     const Linspace<float>& ranges() const { return ranges_; }
     const std::vector<float>& bearings() const { return info_->bearings(); }
     cuda::TextureVectorView<float> bearings_view() const {
@@ -80,9 +80,9 @@ class SensorInstance2D
     const Pose& pose() const { return pose_; }
           Pose& pose()       { return pose_; }
 
-    ReceiverView2<Sample> receiver_view()
+    ReceiverView<Sample> receiver_view()
     {
-        ReceiverView2<Sample> res;
+        ReceiverView<Sample> res;
         res.pose        = pose_;
         res.directivity = this->directivity()->view();
         res.size        = receivedSamples_.size(); // replace this with VectorView ?
@@ -114,7 +114,7 @@ class SensorInstance2D_Complex : public SensorInstance2D
 
     Image<Complex<float>, cuda::DeviceVector> sensorOutput_;
 
-    SensorInstance2D_Complex(const SensorInfo2D_2::ConstPtr& info,
+    SensorInstance2D_Complex(const SensorInfo2D::ConstPtr& info,
                              const Pose& pose,
                              float soundCelerity) :
         SensorInstance2D(info, pose, soundCelerity)
@@ -122,7 +122,7 @@ class SensorInstance2D_Complex : public SensorInstance2D
 
     public:
 
-    static Ptr Create(const SensorInfo2D_2::ConstPtr& info,
+    static Ptr Create(const SensorInfo2D::ConstPtr& info,
                       const Pose& pose,
                       float soundCelerity = 1500.0)
     {

@@ -14,7 +14,7 @@
 namespace rtac { namespace simulation {
 
 template <typename T>
-struct ReceiverView2
+struct ReceiverView
 {
     using SampleType = T;
     using Pose = rtac::Pose<float>;

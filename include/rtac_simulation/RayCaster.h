@@ -32,11 +32,11 @@ class RayCaster
     using SonarMissMaterial = optix::Material<SonarRay, void>;
 
     struct Params {
-        OptixTraversableHandle     objectTree;
-        EmitterView2               emitter;
-        ReceiverView2<SimSample2D> receiver;
+        OptixTraversableHandle    objectTree;
+        EmitterView               emitter;
+        ReceiverView<SimSample2D> receiver;
         //const float3*              directions;
-        float3*                    outputPoints;
+        float3*                   outputPoints;
     };
 
     protected:
@@ -61,7 +61,7 @@ class RayCaster
     optix::ShaderBindingTable::Ptr sbt() { return sbt_; }
     optix::GroupInstance::Ptr object_tree() { return objectTree_; }
 
-    void trace(Emitter2::Ptr               emitter,
+    void trace(Emitter::Ptr                emitter,
                SensorInstance2D::Ptr       receiver,
                cuda::DeviceVector<float3>& outputPoints);
 };

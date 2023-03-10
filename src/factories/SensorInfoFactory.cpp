@@ -2,7 +2,7 @@
 
 namespace rtac { namespace simulation {
 
-SensorInfo2D_2::Ptr SensorInfoFactory2D::Make2(const YAML::Node& config)
+SensorInfo2D::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
 {
     auto samplingNode = config["sampling"];
     if(!samplingNode) {
@@ -14,7 +14,7 @@ SensorInfo2D_2::Ptr SensorInfoFactory2D::Make2(const YAML::Node& config)
     auto waveform = parse_waveform(config["waveform"]);
     auto beam = parse_beamsteering(config["beamsteering"]);
 
-    return SensorInfo2D_2::Create(bearings, ranges, waveform, beam, directivity);
+    return SensorInfo2D::Create(bearings, ranges, waveform, beam, directivity);
 }
 
 Linspace<float> SensorInfoFactory2D::parse_ranges(const YAML::Node& config)

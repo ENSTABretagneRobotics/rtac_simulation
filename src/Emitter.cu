@@ -2,9 +2,9 @@
 
 namespace rtac { namespace simulation {
 
-Emitter2::Emitter2(const cuda::DeviceVector<float3>& rayDirs,
-                   Directivity::ConstPtr directivity,
-                   const Pose& pose) :
+Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
+                 Directivity::ConstPtr directivity,
+                 const Pose& pose) :
     Antenna(directivity, pose),
     directions_(rayDirs),
     initialValues_(rayDirs.size())
@@ -12,22 +12,22 @@ Emitter2::Emitter2(const cuda::DeviceVector<float3>& rayDirs,
     this->load_initial_values();
 }
 
-Emitter2::Ptr Emitter2::Create(const cuda::DeviceVector<float3>& rayDirs,
-                               Directivity::ConstPtr directivity,
-                               const Pose& pose)
+Emitter::Ptr Emitter::Create(const cuda::DeviceVector<float3>& rayDirs,
+                             Directivity::ConstPtr directivity,
+                             const Pose& pose)
 {
-    return Ptr(new Emitter2(rayDirs, directivity, pose));
+    return Ptr(new Emitter(rayDirs, directivity, pose));
 }
 
-Emitter2::Ptr Emitter2::Create(float resolution,
-                               float bearingAperture,
-                               float elevationAperture,
-                               Directivity::ConstPtr directivity,
-                               const Pose& pose)
+Emitter::Ptr Emitter::Create(float resolution,
+                             float bearingAperture,
+                             float elevationAperture,
+                             Directivity::ConstPtr directivity,
+                             const Pose& pose)
 {
-    return Create(Emitter<float>::generate_polar_directions(resolution,
-                                                            bearingAperture,
-                                                            elevationAperture),
+    return Create(generate_polar_directions(resolution,
+                                            bearingAperture,
+                                            elevationAperture),
                   directivity, pose); 
 }
 
@@ -42,7 +42,7 @@ __global__ void load_emitter_initial_values(unsigned int size,
     }
 }
 
-void Emitter2::load_initial_values()
+void Emitter::load_initial_values()
 {
     load_emitter_initial_values<<<this->size() / 256 + 1, 256>>>(
         this->size(), initialValues_.data(), directions_.data(),
@@ -50,6 +50,32 @@ void Emitter2::load_initial_values()
     cudaDeviceSynchronize();
     CUDA_CHECK_LAST();
 }
+
+cuda::DeviceVector<float3> Emitter::generate_polar_directions(float resolution,
+                                                               float bearingAperture,
+                                                               float elevationAperture)
+{
+    resolution        *= M_PI  / 180.0f;
+    bearingAperture   *= M_PI  / 180.0f;
+    elevationAperture *= M_PI  / 180.0f;
+
+    //unsigned int idx = 0;
+    unsigned int H   = (int)(elevationAperture / resolution) + 1;
+    
+    std::vector<float3> data;
+    for(int h = 0; h < H; h++) {
+        float phi = elevationAperture * (((float)h) / (H - 1) - 0.5f);
+        int W = (int)(abs(std::cos(phi)) * bearingAperture   / resolution) + 1;
+        for(int w = 0; w < W; w++) {
+            float theta = bearingAperture * (((float)w) / (W - 1) - 0.5f);
+            data.push_back(float3{std::cos(theta)*std::cos(phi),
+                                  std::sin(theta)*std::cos(phi),
+                                  std::sin(phi)});
+        }
+    }
+    return cuda::DeviceVector<float3>(data);
+}
+
 
 } //namespace simulation
 } //namespace rtac

@@ -26,7 +26,7 @@ RayCaster::RayCaster() :
     sbt_->add_miss_record(SonarMissMaterial::Create(missProgram_));
 }
 
-void RayCaster::trace(Emitter2::Ptr               emitter,
+void RayCaster::trace(Emitter::Ptr               emitter,
                       SensorInstance2D::Ptr       receiver,
                       cuda::DeviceVector<float3>& outputPoints)
 {

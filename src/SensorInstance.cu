@@ -5,7 +5,7 @@
 
 namespace rtac { namespace simulation {
 
-SensorInstance2D::SensorInstance2D(const SensorInfo2D_2::ConstPtr& info,
+SensorInstance2D::SensorInstance2D(const SensorInfo2D::ConstPtr& info,
                                    const Pose& pose,
                                    float soundCelerity) :
     info_(info),
