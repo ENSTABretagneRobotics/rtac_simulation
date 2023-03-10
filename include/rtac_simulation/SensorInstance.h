@@ -25,6 +25,9 @@ class SensorInstance2D
     using ConstPtr = std::shared_ptr<const SensorInstance2D>;
     using Pose     = rtac::Pose<float>;
 
+    using Sample = SimSample2D;
+    using Bins   = rtac::cuda::DeviceVector<VectorView<const Sample>>;
+
     protected:
 
     SensorInfo2D_2::ConstPtr info_;
@@ -33,6 +36,9 @@ class SensorInstance2D
     Waveform::Ptr   waveform_;
     Pose            pose_;
     float           soundCelerity_;
+
+    cuda::DeviceVector<Sample> receivedSamples_;
+    Bins bins_;
 
     Binner binner_;
     cuda::Texture2D<float2> psfData_;
@@ -67,17 +73,33 @@ class SensorInstance2D
     void set_ranges(float maxRange, unsigned int rangeCount);
     KernelView2D<Complex<float>> kernel() const;
 
+    void set_sample_count(unsigned int count) { receivedSamples_.resize(count); }
+    const cuda::DeviceVector<Sample>& samples() const { return receivedSamples_; }
+          cuda::DeviceVector<Sample>& samples()       { return receivedSamples_; }
+    const Pose& pose() const { return pose_; }
+          Pose& pose()       { return pose_; }
+
+    ReceiverView2<Sample> receiver_view()
+    {
+        ReceiverView2<Sample> res;
+        res.pose        = pose_;
+        res.directivity = this->directivity()->view();
+        res.size        = receivedSamples_.size(); // replace this with VectorView ?
+        res.samples     = receivedSamples_.data();
+
+        return res;
+    }
+
+    template <typename T>
+    void reduce_samples(Image<T, cuda::DeviceVector>& out)
+    {
+        sort(receivedSamples_);
+        binner_.compute(bins_, receivedSamples_);
+        this->do_reduce(out, bins_);
+    }
+
     virtual bool is_complex() const = 0;
     virtual void compute_output() = 0;
-
-    template <typename Tout, typename SampleT>
-    void reduce_samples(Image<Tout, cuda::DeviceVector>& out,
-                        cuda::DeviceVector<VectorView<const SampleT>>& bins,
-                        const cuda::DeviceVector<SampleT>& samples)
-    {
-        binner_.compute(bins, samples);
-        this->do_reduce(out, bins);
-    }
 };
 
 class SensorInstance2D_Complex : public SensorInstance2D
@@ -87,15 +109,9 @@ class SensorInstance2D_Complex : public SensorInstance2D
     using Ptr      = std::shared_ptr<SensorInstance2D_Complex>;
     using ConstPtr = std::shared_ptr<const SensorInstance2D_Complex>;
 
-    using Sample = SimSample2D;
-    using Bins   = rtac::cuda::DeviceVector<VectorView<const Sample>>;
-
     protected:
 
-    cuda::DeviceVector<Sample> samples_;
     Image<Complex<float>, cuda::DeviceVector> sensorOutput_;
-
-    Bins bins_;
 
     SensorInstance2D_Complex(const SensorInfo2D_2::ConstPtr& info,
                              const Pose& pose,
@@ -116,28 +132,10 @@ class SensorInstance2D_Complex : public SensorInstance2D
 
     const Image<Complex<float>, cuda::DeviceVector>& output() const { return sensorOutput_; }
 
-    void set_sample_count(unsigned int count) { samples_.resize(count); }
-    const cuda::DeviceVector<Sample>& samples() const { return samples_; }
-          cuda::DeviceVector<Sample>& samples()       { return samples_; }
-    
-    const Pose& pose() const { return pose_; }
-          Pose& pose()       { return pose_; }
-
-    ReceiverView2<Sample> receiver_view()
-    {
-        ReceiverView2<Sample> res;
-        res.pose        = pose_;
-        res.directivity = this->directivity()->view();
-        res.size        = samples_.size(); // replace this with VectorView ?
-        res.samples     = samples_.data();
-
-        return res;
-    }
     void compute_output()
     {
         sensorOutput_.resize({this->width(), this->height()});
-        sort(samples_);
-        this->reduce_samples(sensorOutput_, bins_, samples_);
+        this->reduce_samples(sensorOutput_);
     }
 };
 

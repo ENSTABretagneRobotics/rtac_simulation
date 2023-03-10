@@ -16,6 +16,7 @@
 #include <rtac_simulation/Sample.h>
 #include <rtac_simulation/Emitter.h>
 #include <rtac_simulation/Receiver.h>
+#include <rtac_simulation/SensorInstance.h>
 
 namespace rtac { namespace simulation {
 
@@ -64,6 +65,10 @@ class RayCaster
                Receiver2<SimSample2D>::Ptr       receiver,
                //const cuda::DeviceVector<float3>& directions,
                cuda::DeviceVector<float3>&       outputPoints);
+
+    void trace(Emitter2::Ptr               emitter,
+               SensorInstance2D::Ptr       receiver,
+               cuda::DeviceVector<float3>& outputPoints);
 };
 
 } //namespace simulation

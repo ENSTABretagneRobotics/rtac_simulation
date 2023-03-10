@@ -51,6 +51,30 @@ void RayCaster::trace(Emitter2::Ptr                     emitter,
     CUDA_CHECK_LAST();
 }
 
+void RayCaster::trace(Emitter2::Ptr               emitter,
+                      SensorInstance2D::Ptr       receiver,
+                      cuda::DeviceVector<float3>& outputPoints)
+{
+    cuda::DeviceObject<Params> params;
+
+    outputPoints.resize(emitter->size());
+    receiver->set_sample_count(emitter->size());
+
+    params.objectTree   = *objectTree_;
+    params.emitter      = emitter->view();
+    params.receiver     = receiver->receiver_view();
+    params.outputPoints = outputPoints.data();
+
+    params.update_device();
+
+    OPTIX_CHECK( optixLaunch(*pipeline_, 0,
+                             (CUdeviceptr)params.device_ptr(), sizeof(Params),
+                             sbt_->sbt(),
+                             emitter->size(), 1, 1) );
+    cudaDeviceSynchronize();
+    CUDA_CHECK_LAST();
+}
+
 } //namespace simulation
 } //namespace rtac
 

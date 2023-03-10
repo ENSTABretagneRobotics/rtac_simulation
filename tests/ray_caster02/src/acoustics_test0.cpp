@@ -226,9 +226,9 @@ int main()
         raycaster->trace(emitter, receiver, optixPoints);
         receiver->sort_received();
         oculusSensor->sensor()->reduce_samples(receiver->samples());
-        //rtac::Image<rtac::Complex<float>,  rtac::cuda::DeviceVector> out;
-        //oculusSensor3->reduce_samples(out, receiver->samples());
-        oculusSensor3->samples() = receiver->samples();
+
+        oculusSensor3->pose() = pose;
+        raycaster->trace(emitter, oculusSensor3, optixPoints);
         oculusSensor3->compute_output();
 
         simRenderer->set_range(oculusSensor->sensor()->data().height_dim().bounds());
