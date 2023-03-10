@@ -5,7 +5,7 @@
 
 #include <rtac_optix/Material.h>
 
-#include <rtac_simulation/PolarRayCaster.h>
+#include <rtac_simulation/RayCaster.h>
 
 namespace rtac { namespace simulation {
 
@@ -21,7 +21,7 @@ struct PhaseData
     }
 };
 
-using SonarMaterial = rtac::optix::Material<PolarRayCaster::SonarRay, PhaseData>;
+using SonarMaterial = rtac::optix::Material<RayCaster::SonarRay, PhaseData>;
 
 } //namespace simulation
 } //namespace rtac

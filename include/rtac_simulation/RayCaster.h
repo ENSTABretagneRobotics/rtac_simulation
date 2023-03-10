@@ -61,11 +61,6 @@ class RayCaster
     optix::ShaderBindingTable::Ptr sbt() { return sbt_; }
     optix::GroupInstance::Ptr object_tree() { return objectTree_; }
 
-    void trace(Emitter2::Ptr                     emitter,
-               Receiver2<SimSample2D>::Ptr       receiver,
-               //const cuda::DeviceVector<float3>& directions,
-               cuda::DeviceVector<float3>&       outputPoints);
-
     void trace(Emitter2::Ptr               emitter,
                SensorInstance2D::Ptr       receiver,
                cuda::DeviceVector<float3>& outputPoints);

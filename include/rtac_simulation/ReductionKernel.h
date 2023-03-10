@@ -58,53 +58,6 @@ struct KernelView2D<Complex<float>>
 };
 
 
-template <typename T>
-class Kernel2D
-{
-    public:
-
-    using Ptr      = std::shared_ptr<Kernel2D<T>>;
-    using ConstPtr = std::shared_ptr<const Kernel2D<T>>;
-
-    using DeviceImage = rtac::Image<T, cuda::DeviceVector>;
-
-    protected:
-
-    float xSpan_;
-    float ySpan_;
-    cuda::Texture2D<T> function_;
-
-    public:
-
-    template <template<typename>class VectorT>
-    Kernel2D(float xSpan, float ySpan,
-             const rtac::Image<T,VectorT>& data) :
-        xSpan_(xSpan), ySpan_(ySpan)
-    {
-        function_.set_filter_mode(cuda::Texture2D<T>::FilterLinear, false);
-        function_.set_wrap_mode(cuda::Texture2D<T>::WrapBorder, true);
-        function_.set_image(data.width(), data.height(), data.container());
-    }
-
-    const cuda::Texture2D<T>& texture() const { return function_; }
-    float x_span() const { return xSpan_; }
-    float y_span() const { return ySpan_; }
-
-    unsigned int width()  const { return function_.width();  }
-    unsigned int height() const { return function_.height(); }
-    unsigned int size()   const { return function_.size();   }
-
-    KernelView2D<T> view() const  {
-        KernelView2D<T> res;
-        res.xScaling_ = float2{1.0f / xSpan_, 0.5f};
-        res.yScaling_ = float2{1.0f / ySpan_, 0.5f};
-        res.function_ = function_.texture();
-        return res;
-    }
-};
-
-Image<float,cuda::DeviceVector> render_kernel(const Kernel2D<float>& kernel);
-
 } //namespace simulation
 } //namespace rtac
 

@@ -22,11 +22,11 @@ extern "C" __global__ void __closesthit__oculus_sonar_phased()
     
     float a = dot(travel,hitN) / travelSquared;
 
-    auto payload = PolarRayCaster::SonarRay::from_registers();
+    auto payload = RayCaster::SonarRay::from_registers();
     payload.datum    *= rtac::Complex<float>{a*cos(phase), a*sin(phase)};
     payload.position  = hitP;
 
-    PolarRayCaster::SonarRay::set_payload(payload);
+    RayCaster::SonarRay::set_payload(payload);
 }
 
 

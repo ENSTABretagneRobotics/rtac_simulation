@@ -26,31 +26,6 @@ RayCaster::RayCaster() :
     sbt_->add_miss_record(SonarMissMaterial::Create(missProgram_));
 }
 
-void RayCaster::trace(Emitter2::Ptr                     emitter,
-                      Receiver2<SimSample2D>::Ptr       receiver,
-                      //const cuda::DeviceVector<float3>& directions,
-                      cuda::DeviceVector<float3>&       outputPoints)
-{
-    cuda::DeviceObject<Params> params;
-
-    outputPoints.resize(emitter->size());
-
-    params.objectTree   = *objectTree_;
-    params.emitter      = emitter->view();
-    params.receiver     = receiver->view();
-    //params.directions   = directions.data();
-    params.outputPoints = outputPoints.data();
-
-    params.update_device();
-
-    OPTIX_CHECK( optixLaunch(*pipeline_, 0,
-                             (CUdeviceptr)params.device_ptr(), sizeof(Params),
-                             sbt_->sbt(),
-                             emitter->size(), 1, 1) );
-    cudaDeviceSynchronize();
-    CUDA_CHECK_LAST();
-}
-
 void RayCaster::trace(Emitter2::Ptr               emitter,
                       SensorInstance2D::Ptr       receiver,
                       cuda::DeviceVector<float3>& outputPoints)

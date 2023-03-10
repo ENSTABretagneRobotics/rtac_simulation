@@ -18,17 +18,13 @@ find_package(rtac_optix   REQUIRED)
 
 
 list(APPEND rtac_simulation_headers
-    include/rtac_simulation/utils.hcu
-    include/rtac_simulation/RangeBinner.h
     include/rtac_simulation/Directivity.h
-    include/rtac_simulation/Antenna.h
     include/rtac_simulation/SensorInfo.h
     include/rtac_simulation/Receiver.h
+    include/rtac_simulation/Antenna.h
     include/rtac_simulation/Emitter.h
+
     include/rtac_simulation/Sample.h
-    include/rtac_simulation/ConvolutionKernel.h
-    include/rtac_simulation/reductions.hcu
-    include/rtac_simulation/Target2D.h
 
     include/rtac_simulation/Waveform.h
     include/rtac_simulation/SensorInstance.h
@@ -37,24 +33,11 @@ list(APPEND rtac_simulation_headers
 
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/SensorInfoFactory.h
-
-    include/rtac_simulation/PolarKernel2D.h
-    include/rtac_simulation/PolarTarget2D.h
-    include/rtac_simulation/PolarReceiver2D.h
-
-    include/rtac_simulation/helpers/receiver_factories.h
-
-    # include/rtac_simulation/examples/blueprint_oculus.h
 )
 
 add_library(rtac_simulation SHARED
     src/Directivity.cpp
     src/Emitter.cu
-    # src/reductions_2.cu
-    # src/ReductionKernel.cu
-
-    # src/RangeBinner.cu
-
     src/Receiver.cu
     src/SensorInstance.cu
     src/Binner.cu
@@ -62,14 +45,6 @@ add_library(rtac_simulation SHARED
 
     src/factories/utilities.cpp
     src/factories/SensorInfoFactory.cpp
-
-    # src/PolarReceiver2D.cu
-
-    # src/examples/blueprint_oculus.cu
-
-    # src/factories/PSFGenerator.cpp
-    # src/factories/PSFFactory.cpp
-    # src/PointSpreadFunction.cu
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
