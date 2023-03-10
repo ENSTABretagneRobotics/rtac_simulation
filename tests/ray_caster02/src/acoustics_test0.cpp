@@ -157,7 +157,8 @@ int main()
     std::cout << "config file : " << filename << std::endl;
     //auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
     auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make2(YAML::LoadFile(filename));
-    auto oculusSensor3 = rtac::simulation::SensorInstance::Create(sensorInfo);
+    //auto oculusSensor3 = rtac::simulation::SensorInstance2D::Create(sensorInfo, rtac::Pose<float>());
+    auto oculusSensor3 = rtac::simulation::SensorInstance2D_Complex::Create(sensorInfo, rtac::Pose<float>());
     //rtac::simulation::Binner binner;
 
     DeviceVector<float3> optixPoints;
@@ -225,14 +226,16 @@ int main()
         raycaster->trace(emitter, receiver, optixPoints);
         receiver->sort_received();
         oculusSensor->sensor()->reduce_samples(receiver->samples());
-        rtac::Image<rtac::Complex<float>,  rtac::cuda::DeviceVector> out;
-        oculusSensor3->reduce_samples(out, receiver->samples());
+        //rtac::Image<rtac::Complex<float>,  rtac::cuda::DeviceVector> out;
+        //oculusSensor3->reduce_samples(out, receiver->samples());
+        oculusSensor3->samples() = receiver->samples();
+        oculusSensor3->compute_output();
 
         simRenderer->set_range(oculusSensor->sensor()->data().height_dim().bounds());
         simRenderer->set_bearings(oculusSensor->sensor()->data().width_dim().size(),
                                   oculusSensor->sensor()->data().width_dim().data());
         //auto tmp1 = abs(oculusSensor->sensor()->data().container());
-        auto tmp1 = abs(out.container());
+        auto tmp1 = abs(oculusSensor3->output().container());
         simRenderer->set_data({oculusSensor->sensor()->data().width(),
                                oculusSensor->sensor()->data().height()},
                               plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);

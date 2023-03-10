@@ -5,16 +5,18 @@
 
 namespace rtac { namespace simulation {
 
-SensorInstance::SensorInstance(const SensorInfo2D_2::ConstPtr& info,
-                               float soundCelerity) :
+SensorInstance2D::SensorInstance2D(const SensorInfo2D_2::ConstPtr& info,
+                                   const Pose& pose,
+                                   float soundCelerity) :
     info_(info),
     ranges_(info_->ranges()),
     waveform_(info_->waveform()->copy()),
+    pose_(pose),
     soundCelerity_(soundCelerity)
 {}
 
 
-void SensorInstance::generate_psf_data()
+void SensorInstance2D::generate_psf_data()
 {
     const auto& waveform = *waveform_;
     const auto& beam     = *info_->beam_directivity();
@@ -29,13 +31,13 @@ void SensorInstance::generate_psf_data()
     psfData_.set_image(data.width(), data.height(), (const float2*)data.data());
 }
 
-void SensorInstance::set_ranges(const Linspace<float>& ranges, float soundCelerity)
+void SensorInstance2D::set_ranges(const Linspace<float>& ranges, float soundCelerity)
 {
     soundCelerity_ = soundCelerity;
     this->set_ranges(ranges);
 }
 
-void SensorInstance::set_ranges(const Linspace<float>& ranges)
+void SensorInstance2D::set_ranges(const Linspace<float>& ranges)
 {
     ranges_ = ranges;
     binner_.reconfigure(ranges, ranges.resolution());
@@ -43,12 +45,12 @@ void SensorInstance::set_ranges(const Linspace<float>& ranges)
     this->generate_psf_data();
 }
 
-void SensorInstance::set_ranges(float maxRange, unsigned int rangeCount)
+void SensorInstance2D::set_ranges(float maxRange, unsigned int rangeCount)
 {
     this->set_ranges(Linspace<float>(ranges_.lower(), maxRange, rangeCount));
 }
 
-KernelView2D<Complex<float>> SensorInstance::kernel() const
+KernelView2D<Complex<float>> SensorInstance2D::kernel() const
 {
     KernelView2D<Complex<float>> kernel;
     kernel.xScaling_ = float2{1.0f / this->beam_directivity()->span(), 0.5f};
@@ -98,8 +100,8 @@ __global__ void do_sparse_convolve_2d_f(ImageView<Complex<float>> out,
     }
 }
 
-void SensorInstance::do_reduce(Image<Complex<float>, cuda::DeviceVector>& out,
-                               const cuda::DeviceVector<VectorView<const SimSample2D>>& bins) const
+void SensorInstance2D::do_reduce(Image<Complex<float>, cuda::DeviceVector>& out,
+    const cuda::DeviceVector<VectorView<const SimSample2D>>& bins) const
 {
     out.resize({this->width(), this->height()});
 
