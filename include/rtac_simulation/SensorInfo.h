@@ -14,7 +14,39 @@
 
 namespace rtac { namespace simulation {
 
-class SensorInfo2D
+class SensorInfo
+{
+    public:
+
+    using Ptr      = std::shared_ptr<SensorInfo>;
+    using ConstPtr = std::shared_ptr<const SensorInfo>;
+
+    protected:
+
+    Linspace<float>  ranges_;
+    Waveform::Ptr    waveform_;
+    Directivity::Ptr directivity_;
+    float soundCelerity_;
+
+    SensorInfo(const Linspace<float>&  ranges,
+               const Waveform::Ptr&    waveform,
+               const Directivity::Ptr& directivity) :
+        ranges_(ranges),
+        waveform_(waveform),
+        directivity_(directivity),
+        soundCelerity_(1500.0f)
+    {
+        waveform_->set_duration(2*ranges_.resolution() / soundCelerity_);
+    }
+
+    public:
+
+    const Linspace<float>& ranges()      const { return ranges_;      }
+    Directivity::ConstPtr  directivity() const { return directivity_; }
+    Waveform::ConstPtr     waveform()    const { return waveform_;    }
+};
+
+class SensorInfo2D : public SensorInfo
 {
     public:
 
@@ -24,11 +56,7 @@ class SensorInfo2D
     protected:
 
     std::vector<float>   bearings_;
-    Linspace<float>      ranges_;
-    Waveform::Ptr        waveform_;
     BeamDirectivity::Ptr beamDirectivity_;
-    Directivity::Ptr     directivity_;
-    float soundCelerity_;
 
     cuda::TextureVector<float> bearingsDeviceData_;
 
@@ -37,16 +65,11 @@ class SensorInfo2D
                  const Waveform::Ptr&        waveform,
                  const BeamDirectivity::Ptr& beamDirectivity,
                  const Directivity::Ptr& directivity) :
+        SensorInfo(ranges, waveform, directivity),
         bearings_(bearings),
-        ranges_(ranges),
-        waveform_(waveform),
         beamDirectivity_(beamDirectivity),
-        directivity_(directivity),
-        soundCelerity_(1500.0f),
         bearingsDeviceData_(bearings)
-    {
-        waveform_->set_duration(2*ranges_.resolution() / soundCelerity_);
-    }
+    {}
 
     public:
 
@@ -64,13 +87,10 @@ class SensorInfo2D
     unsigned int size()   const { return this->width()*this->height(); }
 
     const std::vector<float>& bearings() const { return bearings_; }
-    const Linspace<float>&    ranges()   const { return ranges_;   }
-    Directivity::ConstPtr directivity() const { return directivity_; }
     cuda::TextureVectorView<float> bearings_view() const {
         return bearingsDeviceData_.view();
     }
 
-    Waveform::ConstPtr waveform() const { return waveform_; }
     BeamDirectivity::ConstPtr beam_directivity() const { return beamDirectivity_; }
 };
 
