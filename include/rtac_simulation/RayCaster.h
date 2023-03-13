@@ -20,7 +20,7 @@
 
 namespace rtac { namespace simulation {
 
-class RayCaster
+class RayCaster : public std::enable_shared_from_this<RayCaster>
 {
     public:
 
@@ -54,6 +54,9 @@ class RayCaster
     public:
 
     static Ptr Create() { return Ptr(new RayCaster()); }
+
+    Ptr      ptr()       { return this->shared_from_this(); }
+    ConstPtr ptr() const { return this->shared_from_this(); }
 
     optix::Context::Ptr  context()  const { return context_;  }
     optix::Pipeline::Ptr pipeline() const { return pipeline_; }

@@ -13,6 +13,7 @@ namespace rtac { namespace simulation {
 struct EmitterFactory
 {
     static EmitterBase::Ptr Make(const YAML::Node& config);
+    static EmitterBase::Ptr Make(const std::string& configPath);
 };
 
 } //namespace simulation

@@ -40,5 +40,10 @@ EmitterBase::Ptr EmitterFactory::Make(const YAML::Node& config)
     return nullptr;
 }
 
+EmitterBase::Ptr EmitterFactory::Make(const std::string& configPath)
+{
+    return EmitterFactory::Make(YAML::LoadFile(configPath));
+}
+
 } //namespace simulation
 } //namespace rtac

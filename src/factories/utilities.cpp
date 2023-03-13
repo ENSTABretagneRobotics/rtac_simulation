@@ -16,6 +16,7 @@ namespace rtac { namespace simulation {
 
 namespace fs = std::experimental::filesystem;
 
+const char* const FileFinder::NotFound = rtac::files::NotFound;
 FileFinder::Ptr FileFinder::GlobalInstance = nullptr;
 
 FileFinder::FileFinder(const std::vector<std::string>& searchPaths,
@@ -38,6 +39,11 @@ FileFinder::Ptr FileFinder::Get(const std::vector<std::string>& searchPaths,
         #endif
     }
     return GlobalInstance;
+}
+
+std::string FileFinder::FindOne(const std::string& filename)
+{
+    return FileFinder::Get()->find_one(filename);
 }
 
 void FileFinder::load_rtac_config_paths(const std::string& envVar)

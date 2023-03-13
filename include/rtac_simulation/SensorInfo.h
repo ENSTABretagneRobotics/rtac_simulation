@@ -41,6 +41,8 @@ class SensorInfo
 
     public:
 
+    virtual ~SensorInfo() = default; // to be polymorphic
+
     const Linspace<float>& ranges()      const { return ranges_;      }
     Directivity::ConstPtr  directivity() const { return directivity_; }
     Waveform::ConstPtr     waveform()    const { return waveform_;    }

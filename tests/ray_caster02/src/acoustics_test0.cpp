@@ -46,6 +46,7 @@ namespace plt = rtac::display;
 
 #include <rtac_simulation/RayCaster.h>
 #include <rtac_simulation/SensorInstance.h>
+#include <rtac_simulation/OptixSimulation.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
 
@@ -93,7 +94,11 @@ int main()
     auto ptxFiles = ray_caster02_rtac_simulation::get_ptx_files();
     optix_init();
 
-    auto raycaster = rtac::simulation::RayCaster::Create();
+    auto simulation = rtac::simulation::OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
+                                                                 "oculus_M1200d_1_receiver.yaml");
+    auto oculusSensor3 = std::dynamic_pointer_cast<rtac::simulation::SensorInstance2D_Complex>(simulation->receiver().ptr());
+    auto raycaster = simulation->ray_caster().ptr();
+
     auto context   = raycaster->context();
     raycaster->pipeline()->add_module("oculus_sonar", ptxFiles["src/oculus_sim.cu"]);
     auto hitSonar = raycaster->pipeline()->add_hit_programs();
@@ -115,13 +120,6 @@ int main()
 
     raycaster->object_tree()->add_instance(dtmObject);
     raycaster->sbt()->add_object(dtmObject);
-
-    auto filename = rtac::simulation::FileFinder::Get()->find_one(".*oculus_M1200d_1_receiver.yaml");
-    std::cout << "config file : " << filename << std::endl;
-    auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
-    auto oculusSensor3 = rtac::simulation::SensorInstance2D_Complex::Create(sensorInfo, rtac::Pose<float>());
-    auto emitterFilename = rtac::simulation::FileFinder::Get()->find_one(".*oculus_M1200d_1_emitter.yaml");
-    auto emitter = std::dynamic_pointer_cast<rtac::simulation::Emitter>(rtac::simulation::EmitterFactory::Make(YAML::LoadFile(emitterFilename)));
 
     DeviceVector<float3> optixPoints;
 
@@ -162,12 +160,10 @@ int main()
         auto pingData = oculusDatum.ping_data();
         auto pose     = oculusDatum.pose();
 
-        oculusSensor3->set_ranges(meta.fireMessage.range, meta.nRanges);
-
-        emitter->pose()       = pose;
-        oculusSensor3->pose() = pose;
-        raycaster->trace(emitter, oculusSensor3, optixPoints);
-        oculusSensor3->compute_output();
+        simulation->emitter().pose()  = pose;
+        simulation->receiver().pose() = pose;
+        simulation->receiver().set_ranges(meta.fireMessage.range, meta.nRanges);
+        simulation->run();
 
         simRenderer->set_range(oculusSensor3->ranges().bounds());
         simRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());

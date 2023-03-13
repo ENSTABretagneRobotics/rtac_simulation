@@ -2,7 +2,64 @@
 
 namespace rtac { namespace simulation {
 
-SensorInfo2D::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
+SensorInstance::Ptr SensorFactory::Make(const YAML::Node& config)
+{
+    auto sensorType = config["type"];
+    if(!sensorType) {
+        throw ConfigError() << " : sensor config has no type.";
+    }
+    
+    SensorInfo::Ptr info;
+    std::string type = sensorType.as<std::string>();
+    if(type == "front-scan") {
+        info = SensorInfoFactory2D::Make_FrontScanInfo(config);
+    }
+    else {
+        throw ConfigError() << " :  unsupported sensor type '" << type << "'";
+    }
+
+    std::string outputMode = "complex";
+    if(auto node = config["output-node"]) {
+        outputMode = node.as<std::string>();
+    }
+    if(outputMode == "complex") {
+        return SensorInstance2D_Complex::Create(info);
+    }
+    else if(outputMode == "real") {
+        throw ConfigError() << " : real sensor output mode not supported yet.";
+    }
+    else {
+        throw ConfigError() << " : unsupported output mode (" << outputMode << ")";
+    }
+}
+
+SensorInstance::Ptr SensorFactory::Make(const std::string& configPath)
+{
+    return SensorFactory::Make(YAML::LoadFile(configPath));
+}
+
+SensorInfo::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
+{
+    auto sensorType = config["type"];
+    if(!sensorType) {
+        throw ConfigError() << " : sensor config has no type.";
+    }
+    
+    std::string type = sensorType.as<std::string>();
+    if(type == "front-scan") {
+        return Make_FrontScanInfo(config);
+    }
+    else {
+        throw ConfigError() << " :  unsupported sensor type '" << type << "'";
+    }
+}
+
+SensorInfo::Ptr SensorInfoFactory2D::Make(const std::string& configPath)
+{
+    return SensorInfoFactory2D::Make(YAML::LoadFile(configPath));
+}
+
+SensorInfo2D::Ptr SensorInfoFactory2D::Make_FrontScanInfo(const YAML::Node& config)
 {
     auto samplingNode = config["sampling"];
     if(!samplingNode) {

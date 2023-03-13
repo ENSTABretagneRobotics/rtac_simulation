@@ -17,7 +17,7 @@
 
 namespace rtac { namespace simulation {
 
-class SensorInstance
+class SensorInstance : public std::enable_shared_from_this<SensorInstance>
 {
     public:
 
@@ -41,7 +41,8 @@ class SensorInstance
 
     public:
 
-    virtual const SensorInfo& info() const = 0;
+    Ptr      ptr()       { return this->shared_from_this(); }
+    ConstPtr ptr() const { return this->shared_from_this(); }
 
     const Pose& pose() const { return pose_; }
           Pose& pose()       { return pose_; }
@@ -53,6 +54,10 @@ class SensorInstance
     void set_ranges(const Linspace<float>& ranges, float soundCelerity);
     void set_ranges(const Linspace<float>& ranges);
     void set_ranges(float maxRange, unsigned int rangeCount);
+
+    virtual const SensorInfo& info() const = 0;
+    virtual bool is_complex() const = 0;
+    virtual void compute_output() = 0;
 };
 
 
@@ -122,9 +127,6 @@ class SensorInstance2D : public SensorInstance
         binner_.compute(bins_, receivedSamples_);
         this->do_reduce(out, bins_);
     }
-
-    virtual bool is_complex() const = 0;
-    virtual void compute_output() = 0;
 };
 
 class SensorInstance2D_Complex : public SensorInstance2D
@@ -147,10 +149,22 @@ class SensorInstance2D_Complex : public SensorInstance2D
     public:
 
     static Ptr Create(const SensorInfo2D::ConstPtr& info,
-                      const Pose& pose,
+                      const Pose& pose = Pose(),
                       float soundCelerity = 1500.0)
     {
         return Ptr(new SensorInstance2D_Complex(info, pose, soundCelerity));
+    }
+
+    static Ptr Create(const SensorInfo::ConstPtr& info,
+                      const Pose& pose = Pose(),
+                      float soundCelerity = 1500.0)
+    {
+        auto info2d = std::dynamic_pointer_cast<const SensorInfo2D>(info);
+        if(!info2d) {
+            throw std::runtime_error(
+                "A SensorInstance2D must be created with a SensorInfo2D instance");
+        }
+        return Ptr(new SensorInstance2D_Complex(info2d, pose, soundCelerity));
     }
 
     bool is_complex() const { return true; }

@@ -33,11 +33,12 @@ class OptixSimulation1 : public Simulation1
 
     public:
 
+    static Ptr Create(const EmitterBase::Ptr& emitter,
+                      const SensorInstance::Ptr& receiver);
     static Ptr Create(const Emitter::Ptr& emitter,
-                      const SensorInstance::Ptr& receiver)
-    {
-        return Ptr(new OptixSimulation1(emitter, receiver));
-    }
+                      const SensorInstance::Ptr& receiver);
+    static Ptr Create(const std::string& emitterFilename,
+                      const std::string& receiverFilename);
     
     virtual const EmitterBase&    emitter()  const { return *emitter_; }
     virtual       EmitterBase&    emitter()        { return *emitter_; }

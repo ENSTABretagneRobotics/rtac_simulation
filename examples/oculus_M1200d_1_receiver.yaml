@@ -3,7 +3,7 @@
 
 ---
 name: oculus_m1200_1_receiver
-type: front_scan
+type: front-scan
 
 globals: &global-params
     frequency:      1.2e6

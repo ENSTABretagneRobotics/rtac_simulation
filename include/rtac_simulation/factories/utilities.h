@@ -25,6 +25,8 @@ class FileFinder
     using Ptr      = std::shared_ptr<FileFinder>;
     using ConstPtr = std::shared_ptr<const FileFinder>;
 
+    static const char* const NotFound;
+
     protected:
 
     static Ptr GlobalInstance;
@@ -38,6 +40,7 @@ class FileFinder
 
     static Ptr Get(const std::vector<std::string>& searchPaths = {},
                    const std::string& envVar = "RTAC_CONFIG_PATH");
+    static std::string FindOne(const std::string& filename);
 
     const std::vector<std::string>& search_paths() const { return searchPaths_; }
 
