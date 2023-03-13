@@ -25,6 +25,7 @@ class Simulation1
     virtual       EmitterBase&    emitter() = 0;
     virtual const SensorInstance& receiver() const = 0;
     virtual       SensorInstance& receiver() = 0;
+    virtual void run() = 0;
 };
 
 } //namespace simulation

@@ -63,6 +63,12 @@ class RayCaster
 
     void trace(Emitter::Ptr                emitter,
                SensorInstance2D::Ptr       receiver,
+               cuda::DeviceVector<float3>& outputPoints)
+    {
+        this->trace(*emitter, *receiver, outputPoints);
+    }
+    void trace(const Emitter&    emitter,
+               SensorInstance2D& receiver,
                cuda::DeviceVector<float3>& outputPoints);
 };
 
