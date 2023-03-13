@@ -29,7 +29,13 @@ FileFinder::Ptr FileFinder::Get(const std::vector<std::string>& searchPaths,
                                 const std::string& envVar)
 {
     if(!GlobalInstance) {
-        GlobalInstance = Ptr(new FileFinder(searchPaths, envVar));
+        #ifdef RTAC_TEST_CONFIG_PATH
+            std::vector<std::string> sPaths(searchPaths);
+            sPaths.push_back(std::string(RTAC_TEST_CONFIG_PATH));
+            GlobalInstance = Ptr(new FileFinder(sPaths, envVar));
+        #else
+            GlobalInstance = Ptr(new FileFinder(searchPaths, envVar));
+        #endif
     }
     return GlobalInstance;
 }

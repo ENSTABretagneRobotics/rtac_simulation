@@ -5,6 +5,7 @@
 
 #include <rtac_simulation/Emitter.h>
 #include <rtac_simulation/SensorInstance.h>
+#include <rtac_simulation/factories/utilities.h>
 
 namespace rtac { namespace simulation {
 
@@ -19,8 +20,11 @@ class Simulation1
 
     Simulation1(const Emitter::Ptr&, const SensorInstance::Ptr&) {}
 
+    virtual Emitter::Ptr&        emitter_ptr()  = 0;
+    virtual SensorInstance::Ptr& receiver_ptr() = 0;
+
     public:
-    
+
     virtual const EmitterBase&    emitter() const = 0;
     virtual       EmitterBase&    emitter() = 0;
     virtual const SensorInstance& receiver() const = 0;
