@@ -5,7 +5,11 @@
 #include <vector>
 #include <iostream>
 
+#include <yaml-cpp/yaml.h>
+
 #include <rtac_base/Exception.h>
+
+#include <rtac_simulation/Directivity.h>
 
 namespace rtac { namespace simulation {
 
@@ -45,6 +49,10 @@ class FileFinder
 };
 
 std::vector<float> parse_bearings_from_csv(const std::string& filename);
+Directivity::Ptr   parse_directivity(const YAML::Node& config);
+
+float parse_distance_unit(const YAML::Node& config);
+float parse_angle_unit(const YAML::Node& config);
 
 } //namespace simulation
 } //namespace rtac

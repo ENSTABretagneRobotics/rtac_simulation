@@ -21,7 +21,6 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Directivity.h
     include/rtac_simulation/SensorInfo.h
     include/rtac_simulation/Receiver.h
-    include/rtac_simulation/Antenna.h
     include/rtac_simulation/Emitter.h
 
     include/rtac_simulation/Sample.h
@@ -35,6 +34,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/OptixSimulation.h
 
     include/rtac_simulation/factories/utilities.h
+    include/rtac_simulation/factories/EmitterFactory.h
     include/rtac_simulation/factories/SensorInfoFactory.h
 )
 
@@ -49,6 +49,7 @@ add_library(rtac_simulation SHARED
     src/OptixSimulation.cpp
 
     src/factories/utilities.cpp
+    src/factories/EmitterFactory.cpp
     src/factories/SensorInfoFactory.cpp
 )
 target_include_directories(rtac_simulation PUBLIC

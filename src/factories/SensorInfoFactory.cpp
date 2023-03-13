@@ -74,46 +74,6 @@ std::vector<float> SensorInfoFactory2D::parse_bearings(const YAML::Node& config)
     }
 }
 
-Directivity::Ptr SensorInfoFactory2D::parse_directivity(const YAML::Node& config)
-{
-    if(!config) {
-        throw ConfigError() << " : Invalid directivity node.";
-    }
-
-    std::string baffleMode = "";
-    if(auto bMode = config["baffleMode"]) {
-        baffleMode = bMode.as<std::string>();
-    }
-
-    float scaling = 1.0f;
-    if(auto unitNode = config["unit"]) {
-        std::string unit = unitNode.as<std::string>();
-        if(unit == "mm")
-            scaling = 0.001;
-        else if(unit == "cm")
-            scaling = 0.01;
-        else if(unit != "m") {
-            std::cerr << "Invalid length unit '" << unit
-                      << "'. Defautling to meters." << std::endl;
-        }
-    }
-
-    float wavelength = config["globals"]["sound-celerity"].as<float>()
-                     / config["globals"]["frequency"].as<float>();
-
-    std::string type = config["type"].as<std::string>();
-    if(type == "rectangle") {
-        return Directivity::rectangle_antenna(scaling*config["width"].as<float>(),
-                                              scaling*config["height"].as<float>(),
-                                              wavelength, baffleMode);
-    }
-    else {
-        std::ostringstream oss;
-        oss << "Unsupported bearing config type : " << type;
-        throw std::runtime_error(oss.str());
-    }
-}
-
 Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
 {
     if(!config) {

@@ -96,6 +96,11 @@ Directivity::Ptr Directivity::rectangle_antenna(float width, float height, float
     return Directivity::Create(data);
 }
 
+Directivity::Ptr Directivity::make_uniform(float amplitude, unsigned int oversampling)
+{
+    return Directivity::Create(Image<float>({oversampling, oversampling},
+                                            HostVector<float>(1, 1.0f)));
+}
 
 } //namespace simulation
 } //namespace rtac

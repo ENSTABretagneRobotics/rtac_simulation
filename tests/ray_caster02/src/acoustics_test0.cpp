@@ -45,8 +45,9 @@ using namespace rtac::cuda;
 namespace plt = rtac::display;
 
 #include <rtac_simulation/RayCaster.h>
-#include <rtac_simulation/factories/SensorInfoFactory.h>
 #include <rtac_simulation/SensorInstance.h>
+#include <rtac_simulation/factories/EmitterFactory.h>
+#include <rtac_simulation/factories/SensorInfoFactory.h>
 
 #include <rtac_optix/utils.h>
 #include <rtac_optix/Context.h>
@@ -115,13 +116,12 @@ int main()
     raycaster->object_tree()->add_instance(dtmObject);
     raycaster->sbt()->add_object(dtmObject);
 
-    auto emitter = rtac::simulation::Emitter::Create(0.1f, 140.0f, 100.0f, 
-    //auto emitter = rtac::simulation::Emitter::Create(10.0f, 140.0f, 100.0f, 
-        rtac::simulation::Directivity::from_sinc_parameters(130.0f, 20.0f));
     auto filename = rtac::simulation::FileFinder::Get()->find_one(".*oculus_M1200d_1_receiver.yaml");
     std::cout << "config file : " << filename << std::endl;
     auto sensorInfo = rtac::simulation::SensorInfoFactory2D::Make(YAML::LoadFile(filename));
     auto oculusSensor3 = rtac::simulation::SensorInstance2D_Complex::Create(sensorInfo, rtac::Pose<float>());
+    auto emitterFilename = rtac::simulation::FileFinder::Get()->find_one(".*oculus_M1200d_1_emitter.yaml");
+    auto emitter = std::dynamic_pointer_cast<rtac::simulation::Emitter>(rtac::simulation::EmitterFactory::Make(YAML::LoadFile(emitterFilename)));
 
     DeviceVector<float3> optixPoints;
 

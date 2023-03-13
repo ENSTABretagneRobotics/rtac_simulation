@@ -146,6 +146,92 @@ std::vector<float> parse_bearings_from_csv(const std::string& filename)
     return res;
 }
 
+Directivity::Ptr parse_directivity(const YAML::Node& config)
+{
+    if(!config) {
+        throw ConfigError() << " : Invalid directivity node.";
+    }
+
+    float scaling = parse_distance_unit(config["unit"]);
+
+
+    std::string type = config["type"].as<std::string>();
+    if(type == "rectangle")
+    {
+        std::string baffleMode = "";
+        if(auto bMode = config["baffleMode"]) {
+            baffleMode = bMode.as<std::string>();
+        }
+        float wavelength = config["globals"]["sound-celerity"].as<float>()
+                         / config["globals"]["frequency"].as<float>();
+        return Directivity::rectangle_antenna(scaling*config["width"].as<float>(),
+                                              scaling*config["height"].as<float>(),
+                                              wavelength, baffleMode);
+    }
+    else if(type == "uniform")
+    {
+        float amplitude = 1.0;
+        if(auto ampNode = config["amplitude"]) {
+            amplitude = ampNode.as<float>();
+        }
+        return Directivity::make_uniform(amplitude);
+    }
+    else
+    {
+        std::ostringstream oss;
+        oss << "Unsupported bearing config type : " << type;
+        throw std::runtime_error(oss.str());
+    }
+    // should never reach here
+    return nullptr;
+}
+
+/**
+ * Parse a distance scaling from a 'unit' yaml node.
+ * 
+ * This returns a scaling value to convert in meters distance value read in the
+ * configuration file in meters. (in RTAC all scalars are in SI units, but
+ * parameters and display values may be in other units).
+ *
+ * Currently supported distance units are mm,cm,m.
+ */
+float parse_distance_unit(const YAML::Node& config)
+{
+    if(!config)
+        return 1.0f;
+    auto unit = config.as<std::string>();
+    if(unit == "cm")
+        return 0.01;
+    else if(unit == "mm")
+        return 0.001;
+    else if(unit != "m") {
+        throw ConfigError() << " : unsupported distance unit : '" << unit << "'";
+    }
+    return 1.0f;
+}
+
+/**
+ * Parse an angle scaling from a 'unit' yaml node.
+ * 
+ * This returns a scaling value to convert values read in the configuration
+ * file in radians (in RTAC all scalars are in SI units, but parameters and
+ * display values may be in other units).
+ *
+ * Currently supported distance units are deg,rad.
+ */
+float parse_angle_unit(const YAML::Node& config)
+{
+    if(!config)
+        return 1.0f;
+    auto unit = config.as<std::string>();
+    if(unit == "deg")
+        return M_PI / 180.0f;
+    else if(unit != "rad") {
+        throw ConfigError() << " : unsupported angle unit : '" << unit << "'";
+    }
+    return 1.0f;
+}
+
 } //namespace simulation
 } //namespace rtac
 
