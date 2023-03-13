@@ -3,9 +3,12 @@
 
 #include <memory>
 
+
+#include <rtac_base/cuda/DeviceMesh.h>
+#include <rtac_optix/ObjectInstance.h>
+
 #include <rtac_simulation/Simulation.h>
 #include <rtac_simulation/RayCaster.h>
-
 
 namespace rtac { namespace simulation {
 
@@ -47,6 +50,8 @@ class OptixSimulation1 : public Simulation1
 
     const RayCaster& ray_caster() const { return *rayCaster_; }
           RayCaster& ray_caster()       { return *rayCaster_; }
+
+    optix::ObjectInstance::Ptr add_object(const cuda::DeviceMesh<>::Ptr& mesh);
     
     void run();
 };

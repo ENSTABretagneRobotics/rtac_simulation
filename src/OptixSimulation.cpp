@@ -48,6 +48,11 @@ OptixSimulation1::Ptr OptixSimulation1::Create(const std::string& emitterFilenam
                   SensorFactory::Make(receiverPath));
 }
 
+optix::ObjectInstance::Ptr OptixSimulation1::add_object(const cuda::DeviceMesh<>::Ptr& mesh)
+{
+    return rayCaster_->add_object(mesh);
+}
+
 void OptixSimulation1::run()
 {
     if(auto receiverPtr = std::dynamic_pointer_cast<SensorInstance2D>(receiver_)) {

@@ -97,29 +97,7 @@ int main()
     auto simulation = rtac::simulation::OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
                                                                  "oculus_M1200d_1_receiver.yaml");
     auto oculusSensor3 = std::dynamic_pointer_cast<rtac::simulation::SensorInstance2D_Complex>(simulation->receiver().ptr());
-    auto raycaster = simulation->ray_caster().ptr();
-
-    auto context   = raycaster->context();
-    raycaster->pipeline()->add_module("oculus_sonar", ptxFiles["src/oculus_sim.cu"]);
-    auto hitSonar = raycaster->pipeline()->add_hit_programs();
-    
-    DeviceVector<float> dtmPhases;
-    ObjectInstance::Ptr dtmObject; {
-        auto geom = MeshGeometry::Create(context, DeviceMesh<>::Create(*mesh));
-        geom->material_hit_setup({OPTIX_GEOMETRY_FLAG_NONE});
-        geom->enable_vertex_access();
-        dtmPhases = dtm_phases(geom);
-
-        dtmObject = ObjectInstance::Create(geom);
-
-        hitSonar->set_closesthit({"__closesthit__oculus_sonar_phased",
-                                  raycaster->pipeline()->module("oculus_sonar")});
-        dtmObject->add_material(rtac::simulation::SonarMaterial::Create(
-            hitSonar, rtac::simulation::PhaseData({dtmPhases.size(), dtmPhases.data()})));
-    }
-
-    raycaster->object_tree()->add_instance(dtmObject);
-    raycaster->sbt()->add_object(dtmObject);
+    simulation->add_object(DeviceMesh<>::Create(*mesh));
 
     DeviceVector<float3> optixPoints;
 
@@ -170,7 +148,8 @@ int main()
         auto tmp1 = abs(oculusSensor3->output().container());
         simRenderer->set_data({oculusSensor3->width(),
                                oculusSensor3->height()},
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
+                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
+                              plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
 
         optixRenderer->points().copy_from_cuda(optixPoints.size(),

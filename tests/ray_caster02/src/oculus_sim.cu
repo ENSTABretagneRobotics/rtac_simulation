@@ -15,12 +15,13 @@ extern "C" __global__ void __closesthit__oculus_sonar_phased()
     rtac::optix::helpers::get_triangle_hit_data(hitP, hitN);
 
     float3 travel = optixTransformPointFromWorldToObjectSpace(optixGetWorldRayOrigin()) - hitP;
-    float travelSquared = dot(travel, travel); // replace this with tmax
-    float phase = sqrtf(travelSquared) * wavelengthFactor    // phasing due to travel
+    float d = optixGetRayTmax();
+    float phase = d * wavelengthFactor                       // phasing due to travel
                 + reflectionShift                            // phasing due to reflection
                 + phaseData->data[optixGetPrimitiveIndex()]; // phasing random terrain contribution
     
-    float a = dot(travel,hitN) / travelSquared;
+    float a = dot(travel,hitN) / (d*d*d); // dividing by d*d and one more for
+                                          // travel normalization.
 
     auto payload = RayCaster::SonarRay::from_registers();
     payload.datum    *= rtac::Complex<float>{a*cos(phase), a*sin(phase)};

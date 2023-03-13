@@ -22,6 +22,12 @@ RayCaster::RayCaster() :
     missProgram_ = pipeline_->add_miss_program("__miss__polar_ray_caster",
                                                "RayCaster");
 
+    defaultHitProgram_ = pipeline_->add_hit_programs();
+    defaultHitProgram_->set_closesthit({"__closesthit__ray_caster_default_hit",
+                                        pipeline_->module("RayCaster")});
+    defaultMaterial_ = DefaultMaterial::Create(defaultHitProgram_);
+
+    
     sbt_->set_raygen_record(optix::ShaderBinding<void>::Create(raygenProgram_));
     sbt_->add_miss_record(SonarMissMaterial::Create(missProgram_));
 }
@@ -48,6 +54,21 @@ void RayCaster::trace(const Emitter&    emitter,
                              emitter.size(), 1, 1) );
     cudaDeviceSynchronize();
     CUDA_CHECK_LAST();
+}
+
+optix::ObjectInstance::Ptr  RayCaster::add_object(const cuda::DeviceMesh<>::ConstPtr& mesh)
+{
+    auto geom = optix::MeshGeometry::Create(context_, mesh);
+    geom->material_hit_setup({OPTIX_GEOMETRY_FLAG_NONE});
+    geom->enable_vertex_access();
+
+    auto object = optix::ObjectInstance::Create(geom);
+    object->add_material(defaultMaterial_);
+
+    objectTree_->add_instance(object);
+    sbt_->add_object(object);
+
+    return object;
 }
 
 } //namespace simulation

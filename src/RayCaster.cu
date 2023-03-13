@@ -2,6 +2,7 @@
 
 #include <rtac_base/types/PODWrapper.h>
 #include <rtac_base/cuda/geometry.h>
+#include <rtac_optix/helpers/maths.h>
 
 using namespace rtac::simulation;
 
@@ -53,6 +54,27 @@ __global__ void __miss__polar_ray_caster()
     res.position.z = params->emitter.pose.z();
     RayCaster::SonarRay::set_payload(res);
     //RayCaster::SonarRay::set_payload(Sample3D<float>::Zero());
+}
+
+__global__ void __closesthit__ray_caster_default_hit()
+{
+    static constexpr const float wavelengthFactor = 4.0f*M_PI / (1500.0f / 1.2e6f);
+    static constexpr const float reflectionShift  = 0.5f*M_PI;
+
+    float3 hitP, hitN;
+    rtac::optix::helpers::get_triangle_hit_data(hitP, hitN);
+    float3 travel = optixTransformPointFromWorldToObjectSpace(optixGetWorldRayOrigin()) - hitP;
+    float d = optixGetRayTmax(); // travel distance
+
+    float phase = d * wavelengthFactor + reflectionShift;
+    float a = dot(travel,hitN) / (d*d*d);
+    //float a = dot(travel,hitN) / d;
+
+    auto payload = RayCaster::SonarRay::from_registers();
+    payload.datum    *= rtac::Complex<float>{a*cos(phase), a*sin(phase)};
+    payload.position  = hitP;
+
+    RayCaster::SonarRay::set_payload(payload);
 }
 
 };
