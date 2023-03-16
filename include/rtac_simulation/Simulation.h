@@ -18,10 +18,10 @@ class Simulation1
 
     protected:
 
-    Simulation1(const Emitter::Ptr&, const SensorInstance::Ptr&) {}
+    Simulation1(const EmitterBase::Ptr&, const SensorInstance::Ptr&) {}
 
-    virtual Emitter::Ptr&        emitter_ptr()  = 0;
-    virtual SensorInstance::Ptr& receiver_ptr() = 0;
+    //virtual EmitterBase::Ptr    emitter_ptr()  = 0;
+    //virtual SensorInstance::Ptr receiver_ptr() = 0;
 
     public:
 

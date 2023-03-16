@@ -31,8 +31,8 @@ class OptixSimulation1 : public Simulation1
     OptixSimulation1(const Emitter::Ptr& emitter,
                      const SensorInstance::Ptr& receiver);
 
-    Emitter::Ptr&        emitter_ptr()  { return emitter_;  }
-    SensorInstance::Ptr& receiver_ptr() { return receiver_; }
+    //Emitter::Ptr        emitter_ptr()  { return emitter_;  }
+    //SensorInstance::Ptr receiver_ptr() { return receiver_; }
 
     public:
 
