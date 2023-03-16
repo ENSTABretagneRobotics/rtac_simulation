@@ -1,0 +1,18 @@
+# Example configuration file to generate an Emitter type for a Blueprint
+# Oculus M1200d FLS in 1.2MHz mode (simplified for now
+
+---
+name: oculus_m1200_1_emitter
+type: emitter_gl
+
+directivity:
+    type: uniform
+    amplitude: 1 # optional (default is 1)
+
+ray-config:
+    type: polar
+    resolution: 0.1
+    bearing-aperture: 140
+    elevation-aperture: 100
+    unit: deg # supported (deg, rad, defaults to deg)
+

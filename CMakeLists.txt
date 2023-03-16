@@ -33,6 +33,8 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Simulation.h
     include/rtac_simulation/OptixSimulation.h
 
+    include/rtac_simulation/EmitterGL.h
+
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/EmitterFactory.h
     include/rtac_simulation/factories/SensorInfoFactory.h
@@ -47,6 +49,8 @@ add_library(rtac_simulation SHARED
     src/RayCaster.cpp
 
     src/OptixSimulation.cpp
+
+    src/EmitterGL.cpp
 
     src/factories/utilities.cpp
     src/factories/EmitterFactory.cpp

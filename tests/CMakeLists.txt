@@ -34,6 +34,7 @@ list(APPEND test_files
     src/directivity01.cpp
     src/filefinder01.cpp
     src/sensor_info_factory01.cpp
+    src/glsim_factory.cpp
 )
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
@@ -48,5 +49,6 @@ endforeach()
 
 
 add_subdirectory(ray_caster02)
+# add_subdirectory(gl_sim01)
 # add_subdirectory(gl_only01)
 

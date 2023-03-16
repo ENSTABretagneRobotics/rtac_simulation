@@ -36,9 +36,9 @@ class OptixSimulation1 : public Simulation1
 
     public:
 
-    static Ptr Create(const EmitterBase::Ptr& emitter,
-                      const SensorInstance::Ptr& receiver);
     static Ptr Create(const Emitter::Ptr& emitter,
+                      const SensorInstance::Ptr& receiver);
+    static Ptr Create(const EmitterBase::Ptr& emitter,
                       const SensorInstance::Ptr& receiver);
     static Ptr Create(const std::string& emitterFilename,
                       const std::string& receiverFilename);

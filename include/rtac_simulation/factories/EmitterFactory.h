@@ -14,6 +14,9 @@ struct EmitterFactory
 {
     static EmitterBase::Ptr Make(const YAML::Node& config);
     static EmitterBase::Ptr Make(const std::string& configPath);
+
+    static EmitterBase::Ptr MakeEmitterOptix(const YAML::Node& config);
+    static EmitterBase::Ptr MakeEmitterGL(const YAML::Node& config);
 };
 
 } //namespace simulation

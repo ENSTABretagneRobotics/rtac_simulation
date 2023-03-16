@@ -113,4 +113,13 @@ class Emitter : public EmitterBase
 } //namespace simulation
 } //namespace rtac
 
+inline std::ostream& operator<<(std::ostream& os, const rtac::simulation::EmitterBase& emitter)
+{
+    os << "EmitterBase :"
+       << "\n- pose : " << emitter.pose()
+       << "\n- ray_count : " << emitter.ray_count();
+    return os;
+}
+
+
 #endif //_DEF_RTAC_SIMULATION_EMITTER_H_
