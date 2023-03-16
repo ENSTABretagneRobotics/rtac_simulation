@@ -49,24 +49,7 @@ namespace plt = rtac::display;
 #include <rtac_simulation/OptixSimulation.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
-
-#include <rtac_optix/utils.h>
-#include <rtac_optix/Context.h>
-#include <rtac_optix/Pipeline.h>
-#include <rtac_optix/MeshGeometry.h>
-#include <rtac_optix/ObjectInstance.h>
-#include <rtac_optix/GroupInstance.h>
-#include <rtac_optix/ShaderBindingTable.h>
-#include <rtac_optix/ShaderBinding.h>
-using namespace rtac::optix;
-
-#include <ray_caster02_rtac_simulation/ptx_files.h>
-
-#include "oculus_sim.h"
-//using namespace rtac::simulation;
-
-MeshGeometry::Ptr geometry_from_mesh(const Context::Ptr& ctx, const Mesh& mesh);
-DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh);
+using namespace rtac::simulation;
 
 int main()
 {
@@ -79,7 +62,7 @@ int main()
 
     auto Roculus = rtac::Pose<float>::from_rotation_matrix(
         Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
-    rtac::simulation::OculusRosbagIterator bag(bagPath, 
+    OculusRosbagIterator bag(bagPath, 
                                                "/oculus_sonar/ping",
                                                "/matisse_pose",
                                                Roculus);
@@ -91,12 +74,9 @@ int main()
     cout << "Number of points : " << mesh->points().size() << endl;
     cout << "Number of faces  : " << mesh->faces().size() << endl;
 
-    auto ptxFiles = ray_caster02_rtac_simulation::get_ptx_files();
-    optix_init();
-
-    auto simulation = rtac::simulation::OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
-                                                                 "oculus_M1200d_1_receiver.yaml");
-    auto oculusSensor3 = std::dynamic_pointer_cast<rtac::simulation::SensorInstance2D_Complex>(simulation->receiver().ptr());
+    auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
+                                               "oculus_M1200d_1_receiver.yaml");
+    auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 
     DeviceVector<float3> optixPoints;
@@ -203,16 +183,16 @@ int main()
     return 0;
 }
 
-#include <random>
-DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh)
-{
-    std::vector<float> phases(mesh->primitive_count());
-    
-    std::mt19937 randGenerator((std::random_device())());
-    std::uniform_real_distribution<float> distribution(-M_PI, M_PI);
-    for(auto& v : phases) {
-        v = distribution(randGenerator);
-    }
-
-    return DeviceVector<float>(phases);
-}
+//#include <random>
+//DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh)
+//{
+//    std::vector<float> phases(mesh->primitive_count());
+//    
+//    std::mt19937 randGenerator((std::random_device())());
+//    std::uniform_real_distribution<float> distribution(-M_PI, M_PI);
+//    for(auto& v : phases) {
+//        v = distribution(randGenerator);
+//    }
+//
+//    return DeviceVector<float>(phases);
+//}
