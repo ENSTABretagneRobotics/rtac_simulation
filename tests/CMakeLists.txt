@@ -49,6 +49,6 @@ endforeach()
 
 
 add_subdirectory(ray_caster02)
-# add_subdirectory(gl_sim01)
+add_subdirectory(gl_sim01)
 # add_subdirectory(gl_only01)
 

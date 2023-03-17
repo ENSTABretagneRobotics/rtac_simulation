@@ -37,6 +37,8 @@ class SimulationGL : public Simulation1
     SimulationGL(const EmitterGL::Ptr& emitter,
                  const SensorInstance::Ptr& receiver);
 
+    void fill_receiver();
+
     //EmitterGL::Ptr&      emitter_ptr()  { return emitter_;  }
     //SensorInstance::Ptr& receiver_ptr() { return receiver_; }
 
@@ -49,13 +51,20 @@ class SimulationGL : public Simulation1
     static Ptr Create(const std::string& emitterFilename,
                       const std::string& receiverFilename);
 
-    display::GLContext::Ptr context()       { return drawSurface_->context(); }
-    display::GLContext::Ptr context() const { return drawSurface_->context(); }
+    display::GLFWContext::Ptr context()       { return drawSurface_->context(); }
+    display::GLFWContext::Ptr context() const { return drawSurface_->context(); }
+
+    const RayCasterGL::Ptr& ray_caster()       { return rayCaster_; }
+    RayCasterGL::ConstPtr   ray_caster() const { return rayCaster_; }
+
+    const display::GLVector<SimSample2D>& caster_output() const { return casterOutput_; }
 
     const EmitterGL&      emitter()  const { return *emitter_;  }
           EmitterGL&      emitter()        { return *emitter_;  }
     const SensorInstance& receiver() const { return *receiver_; }
           SensorInstance& receiver()       { return *receiver_; }
+    const SensorInstance::Ptr& receiver_ptr()       { return receiver_; }
+    SensorInstance::ConstPtr   receiver_ptr() const { return receiver_; }
 
     void run();
 };

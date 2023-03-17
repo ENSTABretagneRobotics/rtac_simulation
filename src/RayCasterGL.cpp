@@ -53,8 +53,8 @@ void main()
     a /= cos(bearing);
     a /= cos(elevation);
     
-    outColor = vec4(0.1*a*cos(phase),
-                    0.1*a*sin(phase),
+    outColor = vec4(a*cos(phase),
+                    a*sin(phase),
                     range,
                     bearing);
 }
@@ -68,6 +68,29 @@ RayCasterGL::RayCasterGL(const display::GLContext::Ptr& context) :
 RayCasterGL::Ptr RayCasterGL::Create(const display::GLContext::Ptr& context)
 {
     return Ptr(new RayCasterGL(context));
+}
+
+void RayCasterGL::draw2(const display::View::ConstPtr&) const
+{
+    float points[] = {-1,-1, 0, 1,
+                       1,-1, 0, 1,
+                       1, 1, 0, 1,
+                      -1,-1, 0, 1,
+                       1, 1, 0, 1,
+                      -1, 1, 0, 1};
+
+    glUseProgram(this->renderProgram_);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, points);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glDisableVertexAttribArray(0);
+
+    GL_CHECK_LAST();
 }
 
 void RayCasterGL::draw(const display::View::ConstPtr& view) const

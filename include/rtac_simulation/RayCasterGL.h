@@ -18,10 +18,12 @@ class RayCasterGL : rtac::display::Renderer
 
     static const std::string vertexShader;
     static const std::string fragmentShader;
+    static const std::string vertexShader2;
+    static const std::string fragmentShader2;
 
     protected:
 
-    display::GLMesh::ConstPtr mesh_;
+    display::GLMesh::Ptr mesh_;
 
     RayCasterGL(const display::GLContext::Ptr& context);
 
@@ -29,13 +31,14 @@ class RayCasterGL : rtac::display::Renderer
 
     static Ptr Create(const display::GLContext::Ptr& context);
 
-    display::GLMesh::ConstPtr  mesh() const { return mesh_; }
-    display::GLMesh::ConstPtr& mesh()       { return mesh_; }
+    display::GLMesh::ConstPtr   mesh() const { return mesh_; }
+    const display::GLMesh::Ptr& mesh()       { return mesh_; }
 
     template <class MeshT>
     void set_mesh(const MeshT& mesh);
 
     virtual void draw(const display::View::ConstPtr& view) const;
+    virtual void draw2(const display::View::ConstPtr& view) const;
 };
 
 template <class MeshT>
@@ -43,7 +46,15 @@ void RayCasterGL::set_mesh(const MeshT& mesh)
 {
     if(!mesh_)
         mesh_ = display::GLMesh::Create();
-    mesh_ = mesh;    
+    
+    mesh_->points().set_data(mesh.points().size(),
+       (const display::GLMesh::Point*)mesh.points().data());
+    mesh_->faces().set_data(mesh.faces().size(),
+       (const display::GLMesh::Face*)mesh.faces().data());
+    mesh_->normals().set_data(mesh.normals().size(),
+       (const display::GLMesh::Normal*)mesh.normals().data());
+    mesh_->uvs().set_data(mesh.uvs().size(),
+       (const display::GLMesh::UV*)mesh.uvs().data());
 }
 
 } //namespace simulation

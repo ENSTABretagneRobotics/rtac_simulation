@@ -24,7 +24,7 @@ SimulationGL::SimulationGL(const EmitterGL::Ptr& emitter,
     renderTarget_ = dsp::GLRenderBuffer::Create(drawSurface_->window_shape(), GL_RGBA32F);
     depthBuffer_  = dsp::GLRenderBuffer::Create(drawSurface_->window_shape(), GL_DEPTH24_STENCIL8);
 
-    frameBuffer_->bind();
+    frameBuffer_->bind(GL_FRAMEBUFFER);
     renderTarget_->bind();
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                               GL_RENDERBUFFER, renderTarget_->gl_id());
@@ -43,6 +43,8 @@ SimulationGL::SimulationGL(const EmitterGL::Ptr& emitter,
     receiver->set_sample_count(emitter->ray_count());
 
     GL_CHECK_LAST();
+    // for eventual next windows
+    GLFW_CHECK( glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE) );
 }
 
 SimulationGL::Ptr SimulationGL::Create(const EmitterGL::Ptr& emitter,
@@ -82,6 +84,7 @@ void SimulationGL::run()
     drawSurface_->grab_context();
 
     // render with OpenGL
+    GL_CHECK_LAST();
     frameBuffer_->bind(GL_FRAMEBUFFER);
     GL_CHECK_LAST();
     glClearColor(0,0,0,0);
@@ -94,10 +97,51 @@ void SimulationGL::run()
     frameBuffer_->bind(GL_READ_FRAMEBUFFER);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     casterOutput_.bind(GL_PIXEL_PACK_BUFFER);
-    glReadPixels(0, 0, emitter_->width(), emitter_->height(), GL_RGBA, GL_FLOAT, nullptr);
+    glReadPixels(0, 0, emitter_->width(), emitter_->height(), GL_RGBA, GL_FLOAT, 0);
     GL_CHECK_LAST();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+    this->fill_receiver();
+    receiver_->compute_output();
+}
+
+__global__ void do_fill_receiver(ReceiverView<SimSample2D> receiver,
+                                 ImageView<SimSample2D> samples)
+{
+    auto h = blockIdx.y;
+    auto w = blockDim.x*blockIdx.x + threadIdx.x;
+    auto sampleIdx = samples.width()*h + w;
+    if(w < samples.width()) {
+        receiver.samples[sampleIdx] = samples(h,w);
+    }
+}
+
+void SimulationGL::fill_receiver()
+{
+    //static constexpr unsigned int BlockSize = 256;
+    //uint3 grid{emitter_->width() / BlockSize + 1, emitter_->height(), 1};
+
+    //auto receiverPtr = std::dynamic_pointer_cast<SensorInstance2D>(receiver_);
+    //if(!receiverPtr) {
+    //    throw std::runtime_error("Only SensorInstance2D implemented in SimulationGL for now");
+    //}
+    //auto samplesPtr  = casterOutput_.map_cuda();
+    //do_fill_receiver<<<grid, BlockSize>>>(receiverPtr->receiver_view(),
+    //    ImageView<SimSample2D>(emitter_->width(), emitter_->height(), samplesPtr));
+    //cudaDeviceSynchronize();
+    //CUDA_CHECK_LAST();
+
+    auto receiverPtr = std::dynamic_pointer_cast<SensorInstance2D>(receiver_);
+    if(!receiverPtr) {
+        throw std::runtime_error("Only SensorInstance2D implemented in SimulationGL for now");
+    }
+
+    auto samplesPtr  = casterOutput_.map_cuda();
+    cudaMemcpy(receiverPtr->samples().data(), samplesPtr, 
+               receiverPtr->samples().size()*sizeof(SimSample2D),
+               cudaMemcpyDeviceToDevice);
+    CUDA_CHECK_LAST();
 }
 
 } //namespace simulation

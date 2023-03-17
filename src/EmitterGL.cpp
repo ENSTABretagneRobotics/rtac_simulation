@@ -5,6 +5,8 @@ namespace rtac { namespace simulation {
 EmitterGL::EmitterGL(const Shape& outputSize, float fovy, const Pose& pose) :
     EmitterBase(pose),
     outputShape_(outputSize),
+    toGLFrame_(rtac::Pose<float>::from_rotation_matrix(                      
+        Eigen::AngleAxisf(-0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix())),
     view_(display::PinholeView::Create(fovy, pose))
 {}
 
@@ -21,13 +23,17 @@ EmitterGL::Ptr EmitterGL::Create(float resolution,
 
 display::PinholeView::Ptr EmitterGL::view()
 {
-    view_->set_pose(this->pose());
+    auto oculusToGL = rtac::Pose<float>::from_rotation_matrix(                      
+        Eigen::AngleAxisf(-0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
+    view_->set_pose(this->pose() * oculusToGL);
     return view_;
 }
 
 display::PinholeView::ConstPtr EmitterGL::view() const
 {
-    view_->set_pose(this->pose());
+    auto oculusToGL = rtac::Pose<float>::from_rotation_matrix(                      
+        Eigen::AngleAxisf(-0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
+    view_->set_pose(this->pose() * oculusToGL);
     return view_;
 }
 
@@ -44,3 +50,5 @@ std::ostream& operator<<(std::ostream& os, const rtac::simulation::EmitterGL& em
        << "\n horizontal aperture : " << (emitter.view()->fovy()*emitter.width()) / emitter.height();
     return os;
 }
+
+

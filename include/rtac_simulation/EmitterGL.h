@@ -17,10 +17,12 @@ class EmitterGL : public EmitterBase
     using ConstPtr = std::shared_ptr<const EmitterGL>;
 
     using Shape = display::PinholeView::Shape;
+    using Pose  = rtac::Pose<float>;
 
     protected:
     
     Shape outputShape_;
+    Pose  toGLFrame_;
 
     display::PinholeView::Ptr view_;
 

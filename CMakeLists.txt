@@ -54,7 +54,7 @@ add_library(rtac_simulation SHARED
 
     src/EmitterGL.cpp
     src/RayCasterGL.cpp
-    src/SimulationGL.cpp
+    src/SimulationGL.cu
 
     src/factories/utilities.cpp
     src/factories/EmitterFactory.cpp
