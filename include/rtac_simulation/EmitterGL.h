@@ -34,8 +34,8 @@ class EmitterGL : public EmitterBase
                       float elevationAperture,
                       const Pose& pose = Pose());
 
-          display::PinholeView& view()       { return *view_; }
-    const display::PinholeView& view() const { return *view_; }
+    display::PinholeView::Ptr      view();
+    display::PinholeView::ConstPtr view() const;
 
     const Shape& output_shape() const { return outputShape_;        }
     unsigned int ray_count()    const { return outputShape_.area(); }

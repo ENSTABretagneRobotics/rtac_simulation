@@ -37,6 +37,11 @@ SimulationGL::SimulationGL(const EmitterGL::Ptr& emitter,
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    rayCaster_ = RayCasterGL::Create(drawSurface_->context());
+
+    casterOutput_.resize(emitter->ray_count());
+    receiver->set_sample_count(emitter->ray_count());
+
     GL_CHECK_LAST();
 }
 
@@ -72,6 +77,28 @@ SimulationGL::Ptr SimulationGL::Create(const std::string& emitterFilename,
                   SensorFactory::Make(receiverPath));
 }
 
+void SimulationGL::run()
+{
+    drawSurface_->grab_context();
+
+    // render with OpenGL
+    frameBuffer_->bind(GL_FRAMEBUFFER);
+    GL_CHECK_LAST();
+    glClearColor(0,0,0,0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    rayCaster_->draw(emitter_->view());
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    GL_CHECK_LAST();
+
+    //copy framebuffer content to CUDA accessible memory (OpenGL Buffer object)
+    frameBuffer_->bind(GL_READ_FRAMEBUFFER);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    casterOutput_.bind(GL_PIXEL_PACK_BUFFER);
+    glReadPixels(0, 0, emitter_->width(), emitter_->height(), GL_RGBA, GL_FLOAT, nullptr);
+    GL_CHECK_LAST();
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+}
 
 } //namespace simulation
 } //namespace rtac

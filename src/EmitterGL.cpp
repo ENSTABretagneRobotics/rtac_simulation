@@ -19,6 +19,18 @@ EmitterGL::Ptr EmitterGL::Create(float resolution,
     return Ptr(new EmitterGL({width, height}, elevationAperture, pose));
 }
 
+display::PinholeView::Ptr EmitterGL::view()
+{
+    view_->set_pose(this->pose());
+    return view_;
+}
+
+display::PinholeView::ConstPtr EmitterGL::view() const
+{
+    view_->set_pose(this->pose());
+    return view_;
+}
+
 } //namespace simulation
 } //namespace rtac
 
@@ -28,7 +40,7 @@ std::ostream& operator<<(std::ostream& os, const rtac::simulation::EmitterGL& em
        << "\n- pose : " << emitter.pose()
        << "\n- shape : " << emitter.width() << 'x' << emitter.height()
        << " (" << emitter.ray_count() << " rays)"
-       << "\n vertical aperture : " << emitter.view().fovy()
-       << "\n horizontal aperture : " << (emitter.view().fovy()*emitter.width()) / emitter.height();
+       << "\n vertical aperture : " << emitter.view()->fovy()
+       << "\n horizontal aperture : " << (emitter.view()->fovy()*emitter.width()) / emitter.height();
     return os;
 }

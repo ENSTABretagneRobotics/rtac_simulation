@@ -56,6 +56,7 @@ class SensorInstance : public std::enable_shared_from_this<SensorInstance>
     void set_ranges(float maxRange, unsigned int rangeCount);
 
     virtual const SensorInfo& info() const = 0;
+    virtual void set_sample_count(unsigned int count) = 0;
     virtual bool is_complex() const = 0;
     virtual void compute_output() = 0;
 };
