@@ -22,7 +22,6 @@ target_link_libraries(rosbag_helpers PUBLIC
     ${rosbag_LIBRARIES}
     ${nav_msgs_LIBRARIES}
     ${oculus_sonar_LIBRARIES}
-    rtac_display
 )
 
 rtac_install_target(rosbag_helpers
@@ -34,8 +33,10 @@ list(APPEND test_files
     src/directivity01.cpp
     src/filefinder01.cpp
     src/sensor_info_factory01.cpp
-    src/glsim_factory.cpp
 )
+if(${WITH_OPENGL})
+    list(APPEND test_files src/glsim_factory.cpp)
+endif()
 foreach(filename ${test_files})
     get_filename_component(test_name ${filename} NAME_WE)
     set(target_name ${test_name}_${PROJECT_NAME})
@@ -47,8 +48,11 @@ foreach(filename ${test_files})
     #                            RTAC_TEST_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/../examples")
 endforeach()
 
-
-add_subdirectory(ray_caster02)
-add_subdirectory(gl_sim01)
-# add_subdirectory(gl_only01)
+if(${WITH_OPENGL})
+    if(${WITH_OPTIX})
+        add_subdirectory(ray_caster02)
+        add_subdirectory(gl_sim01)
+    endif()
+    # add_subdirectory(gl_only01)
+endif()
 

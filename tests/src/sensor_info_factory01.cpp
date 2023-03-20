@@ -9,9 +9,11 @@ using namespace rtac;
 #include <rtac_base/cuda/vector_utils.h>
 using namespace rtac::cuda;
 
-#include <rtac_display/Display.h>
-#include <rtac_display/renderers/ImageRenderer.h>
-using namespace rtac::display;
+#ifdef RTAC_SIMULATION_OPENGL_ENABLED
+    #include <rtac_display/Display.h>
+    #include <rtac_display/renderers/ImageRenderer.h>
+    using namespace rtac::display;
+#endif //RTAC_SIMULATION_OPENGL_ENABLED
 
 #include <rtac_simulation/factories/utilities.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
@@ -29,6 +31,8 @@ int main()
     Image<float, DeviceVector> tmp0(directivity->texture().width(), 
                                     directivity->texture().height());
     render_texture(directivity->texture(), tmp0.view());
+
+    #ifdef RTAC_SIMULATION_OPENGL_ENABLED
     Display displayDir;
     auto renderer0 = displayDir.create_renderer<ImageRenderer>(View::Create());
     renderer0->enable_colormap();
@@ -40,6 +44,7 @@ int main()
     {
         displayDir.draw();
     }
+    #endif //RTAC_SIMULATION_OPENGL_ENABLED
 
     return 0;
 }

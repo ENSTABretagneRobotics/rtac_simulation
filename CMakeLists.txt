@@ -13,9 +13,23 @@ endif()
 
 # These package are not mandatory. it only allows for easy setup in oculus
 # example.
-find_package(rtac_display REQUIRED) # Display utilities
-find_package(rtac_optix   REQUIRED)
+find_package(rtac_display QUIET) # Display utilities
+find_package(rtac_optix   QUIET)
 
+if(NOT TARGET rtac_optix)
+    message(WARNING "Warning : could not find the rtac_optix library. "
+                    "Ray-tracing enabled components are disabled")
+endif()
+
+if(NOT TARGET rtac_display)
+    message(WARNING "Warning : could not find the rtac_display library. "
+        "Rasterization enabled components and graphical display are disabled")
+endif()
+
+if(NOT TARGET rtac_display AND NOT TARGET rtac_optix)
+    message(FATAL_ERROR "Neither rtac_optix nor rtac_display libraries were found."
+        " No simulation may run without one or/and the other.")
+endif()
 
 list(APPEND rtac_simulation_headers
     include/rtac_simulation/Directivity.h
@@ -27,15 +41,8 @@ list(APPEND rtac_simulation_headers
 
     include/rtac_simulation/Waveform.h
     include/rtac_simulation/SensorInstance.h
-    include/rtac_simulation/Binner.h
-    include/rtac_simulation/RayCaster.h
-
     include/rtac_simulation/Simulation.h
-    include/rtac_simulation/OptixSimulation.h
-
-    include/rtac_simulation/EmitterGL.h
-    include/rtac_simulation/RayCasterGL.h
-    include/rtac_simulation/SimulationGL.h
+    include/rtac_simulation/Binner.h
 
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/EmitterFactory.h
@@ -48,13 +55,6 @@ add_library(rtac_simulation SHARED
     src/Receiver.cu
     src/SensorInstance.cu
     src/Binner.cu
-    src/RayCaster.cpp
-
-    src/OptixSimulation.cpp
-
-    src/EmitterGL.cpp
-    src/RayCasterGL.cpp
-    src/SimulationGL.cu
 
     src/factories/utilities.cpp
     src/factories/EmitterFactory.cpp
@@ -67,19 +67,55 @@ target_include_directories(rtac_simulation PUBLIC
 target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
-    rtac_optix
-    rtac_display
     yaml-cpp
 )
 target_compile_options(rtac_simulation PUBLIC
-    # -DRTAC_CONFIG_FILES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"
     -DRTAC_TEST_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"
 )
-target_add_ptx(rtac_simulation
-    CUDA_SOURCES src/RayCaster.cu
-)
-# target_compile_definitions(rtac_simulation PUBLIC RTAC_WITH_OPTIX)
 
+if(TARGET rtac_optix)
+    list(APPEND rtac_simulation_headers
+        include/rtac_simulation/RayCaster.h
+        include/rtac_simulation/OptixSimulation.h
+    )
+    target_sources(rtac_simulation PRIVATE
+        src/RayCaster.cpp
+        src/OptixSimulation.cpp
+    )
+    target_link_libraries(rtac_simulation PUBLIC
+        rtac_optix
+    )
+    target_add_ptx(rtac_simulation
+        CUDA_SOURCES src/RayCaster.cu
+    )
+    target_compile_definitions(rtac_simulation PUBLIC
+        RTAC_SIMULATION_OPTIX_ENABLED
+    )
+    set(WITH_OPTIX ON)
+endif()
+
+if(TARGET rtac_display)
+    list(APPEND rtac_simulation_headers
+        include/rtac_simulation/EmitterGL.h
+        include/rtac_simulation/RayCasterGL.h
+        include/rtac_simulation/SimulationGL.h
+    )
+    target_sources(rtac_simulation PRIVATE
+        src/EmitterGL.cpp
+        src/RayCasterGL.cpp
+        src/SimulationGL.cu
+    )
+    target_link_libraries(rtac_simulation PUBLIC
+        rtac_display
+    )
+    target_compile_definitions(rtac_simulation PUBLIC
+        RTAC_SIMULATION_DISPLAY_ENABLED
+        RTAC_SIMULATION_OPENGL_ENABLED
+    )
+    set(WITH_OPENGL ON)
+endif()
+
+# TODO remove this
 find_package(narval_oculus REQUIRED)
 get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
 target_include_directories(rtac_simulation PUBLIC ${include_dir})

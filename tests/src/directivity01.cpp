@@ -5,9 +5,11 @@ using namespace std;
 #include <rtac_base/cuda/vector_utils.h>
 using namespace rtac::cuda;
 
-#include <rtac_display/Display.h>
-#include <rtac_display/renderers/ImageRenderer.h>
-using namespace rtac::display;
+#ifdef RTAC_SIMULATION_OPENGL_ENABLED
+    #include <rtac_display/Display.h>
+    #include <rtac_display/renderers/ImageRenderer.h>
+    using namespace rtac::display;
+#endif //RTAC_SIMULATION_OPENGL_ENABLED
 
 #include <rtac_simulation/Directivity.h>
 using namespace rtac::simulation;
@@ -19,6 +21,7 @@ int main()
     //auto directivity = Directivity::from_sinc_parameters(130.0f, 20.0f);
     auto rendered = render_texture(directivity->texture());
 
+    #ifdef RTAC_SIMULATION_OPENGL_ENABLED
     Display display;
     auto renderer = display.create_renderer<ImageRenderer>(View::Create());
     renderer->enable_colormap();
@@ -30,6 +33,7 @@ int main()
     while(!display.should_close()) {
         display.draw();
     }
+    #endif //RTAC_SIMULATION_OPENGL_ENABLED
 
     return 0;
 }

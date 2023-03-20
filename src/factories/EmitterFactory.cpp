@@ -1,6 +1,8 @@
 #include <rtac_simulation/factories/EmitterFactory.h>
 
-#include <rtac_simulation/EmitterGL.h>
+#ifdef RTAC_SIMULATION_OPENGL_ENABLED
+    #include <rtac_simulation/EmitterGL.h>
+#endif //RTAC_SIMULATION_OPENGL_ENABLED
 
 namespace rtac { namespace simulation {
 
@@ -63,6 +65,10 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterOptix(const YAML::Node& config)
 
 EmitterBase::Ptr EmitterFactory::MakeEmitterGL(const YAML::Node& config)
 {
+    #ifndef RTAC_SIMULATION_OPENGL_ENABLED
+    throw ConfigError() << " : rtac_simulation was not compiled with the rtac_display library."
+        << "\nCannot use an OpenGL based simulation (got an emitter_gl emitter type)";
+    #else
     if(!config) {
         throw ConfigError() << " : Invalid emitter node.";
     }
@@ -90,6 +96,7 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterGL(const YAML::Node& config)
 
     // should never happen
     return nullptr;
+    #endif //RTAC_SIMULATION_OPENGL_ENABLED
 }
 
 
