@@ -71,7 +71,6 @@ target_link_libraries(rtac_simulation PUBLIC
     rtac_display
     yaml-cpp
 )
-target_compile_features(rtac_simulation PUBLIC cxx_std_17)
 target_compile_options(rtac_simulation PUBLIC
     # -DRTAC_CONFIG_FILES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"
     -DRTAC_TEST_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"
