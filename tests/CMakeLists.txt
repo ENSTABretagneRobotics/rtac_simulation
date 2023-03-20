@@ -53,6 +53,6 @@ if(${WITH_OPENGL})
         add_subdirectory(ray_caster02)
         add_subdirectory(gl_sim01)
     endif()
-    # add_subdirectory(gl_only01)
+    add_subdirectory(gl_only01)
 endif()
 

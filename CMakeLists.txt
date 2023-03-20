@@ -18,12 +18,12 @@ find_package(rtac_optix   QUIET)
 
 if(NOT TARGET rtac_optix)
     message(WARNING "Warning : could not find the rtac_optix library. "
-                    "Ray-tracing enabled components are disabled")
+                    "Ray-tracing components are disabled")
 endif()
 
 if(NOT TARGET rtac_display)
     message(WARNING "Warning : could not find the rtac_display library. "
-        "Rasterization enabled components and graphical display are disabled")
+        "Rasterization components and graphical display are disabled")
 endif()
 
 if(NOT TARGET rtac_display AND NOT TARGET rtac_optix)
