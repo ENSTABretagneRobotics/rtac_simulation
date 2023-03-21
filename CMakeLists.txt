@@ -1,20 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
-project(rtac_simulation VERSION 0.1 LANGUAGES CUDA CXX)
+project(rtac_simulation VERSION 0.2 LANGUAGES CUDA CXX)
 
 option(BUILD_TESTS "Build unit tests" ON)
 
 if(NOT TARGET rtac_base)
-    find_package(rtac_base REQUIRED)
+    find_package(rtac_base 0.2 REQUIRED)
 endif()
 
 if(NOT TARGET rtac_cuda)
-    find_package(rtac_cuda REQUIRED)
+    find_package(rtac_cuda 0.2 REQUIRED)
 endif()
 
 # These package are not mandatory. it only allows for easy setup in oculus
 # example.
-find_package(rtac_display QUIET) # Display utilities
-find_package(rtac_optix   QUIET)
+find_package(rtac_display 0.2 QUIET) # Display utilities
+find_package(rtac_optix   0.2 QUIET)
 
 if(NOT TARGET rtac_optix)
     message(WARNING "Warning : could not find the rtac_optix library. "
