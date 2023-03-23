@@ -17,7 +17,10 @@ EmitterBase::Ptr EmitterFactory::Make(const YAML::Node& config)
     }
     auto type = typeNode.as<std::string>();
 
-    if(type == "emitter_optix") {
+    if(type == "file") {
+        return Make(FileFinder::Get()->find_one(config["path"].as<std::string>()));
+    }
+    else if(type == "emitter_optix") {
         return MakeEmitterOptix(config);
     }
     else if(type == "emitter_gl") {

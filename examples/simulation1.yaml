@@ -1,0 +1,20 @@
+# Example of a full configuration file for a simulation.
+# Output mode is display only.
+
+---
+simulation-type: basic # only mode for now (one emitter, one receiver, one material).
+api: optix
+
+propagation:
+    mode: ray-casting # only supported mode for now (implies constant celerity)
+    sound-celerity: 1500
+
+emitter:
+    type: file
+    path: oculus_M1200d_1_emitter.yaml
+
+receiver:
+    type: file
+    path: oculus_M1200d_1_receiver.yaml
+
+

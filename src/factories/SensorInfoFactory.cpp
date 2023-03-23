@@ -11,7 +11,10 @@ SensorInstance::Ptr SensorFactory::Make(const YAML::Node& config)
     
     SensorInfo::Ptr info;
     std::string type = sensorType.as<std::string>();
-    if(type == "front-scan") {
+    if(type == "file") {
+        return Make(FileFinder::Get()->find_one(config["path"].as<std::string>()));
+    }
+    else if(type == "front-scan") {
         info = SensorInfoFactory2D::Make_FrontScanInfo(config);
     }
     else {

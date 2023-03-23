@@ -47,6 +47,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/EmitterFactory.h
     include/rtac_simulation/factories/SensorInfoFactory.h
+    include/rtac_simulation/factories/SimulationFactory.h
 )
 
 add_library(rtac_simulation SHARED
@@ -59,6 +60,7 @@ add_library(rtac_simulation SHARED
     src/factories/utilities.cpp
     src/factories/EmitterFactory.cpp
     src/factories/SensorInfoFactory.cpp
+    src/factories/SimulationFactory.cpp
 )
 target_include_directories(rtac_simulation PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

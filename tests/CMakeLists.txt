@@ -33,6 +33,7 @@ list(APPEND test_files
     src/directivity01.cpp
     src/filefinder01.cpp
     src/sensor_info_factory01.cpp
+    src/simulation_factory01.cpp
 )
 if(${WITH_OPENGL})
     list(APPEND test_files src/glsim_factory.cpp)
