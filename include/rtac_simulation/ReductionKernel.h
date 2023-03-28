@@ -40,6 +40,21 @@ struct KernelView2D
     #endif //RTAC_CUDACC
 };
 
+
+template <>
+struct KernelView1D<Complex<float>>
+{
+    float2              scaling_;
+    cudaTextureObject_t function_;
+
+    #ifdef RTAC_CUDACC
+    __device__ Complex<float> operator()(float x) const {
+        return make_complex(tex1D<float2>(function_, fmaf(scaling_.x, x, scaling_.y)));
+    }
+    #endif //RTAC_CUDACC
+};
+
+
 template <>
 struct KernelView2D<Complex<float>>
 {

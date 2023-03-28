@@ -1,5 +1,7 @@
 #include <rtac_simulation/factories/SensorInfoFactory.h>
 
+#include <rtac_simulation/SensorInstance1D.h>
+
 namespace rtac { namespace simulation {
 
 SensorInstance::Ptr SensorFactory::Make(const YAML::Node& config)
@@ -8,31 +10,43 @@ SensorInstance::Ptr SensorFactory::Make(const YAML::Node& config)
     if(!sensorType) {
         throw ConfigError() << " : sensor config has no type.";
     }
-    
-    SensorInfo::Ptr info;
     std::string type = sensorType.as<std::string>();
     if(type == "file") {
         return Make(FileFinder::Get()->find_one(config["path"].as<std::string>()));
     }
-    else if(type == "front-scan") {
-        info = SensorInfoFactory2D::Make_FrontScanInfo(config);
-    }
-    else {
-        throw ConfigError() << " :  unsupported sensor type '" << type << "'";
-    }
-
+    
     std::string outputMode = "complex";
     if(auto node = config["output-node"]) {
         outputMode = node.as<std::string>();
     }
-    if(outputMode == "complex") {
-        return SensorInstance2D_Complex::Create(info);
+
+    SensorInfo::Ptr info;
+    if(type == "front-scan") {
+        info = SensorInfoFactory::Make_FrontScanInfo(config);
+        if(outputMode == "complex") {
+            return SensorInstance2D_Complex::Create(info);
+        }
+        else if(outputMode == "real") {
+            throw ConfigError() << " : real sensor output mode not supported yet.";
+        }
+        else {
+            throw ConfigError() << " : unsupported output mode (" << outputMode << ")";
+        }
     }
-    else if(outputMode == "real") {
-        throw ConfigError() << " : real sensor output mode not supported yet.";
+    else if(type == "single-beam") {
+        info = SensorInfoFactory::Make_SingleBeamInfo(config);
+        if(outputMode == "complex") {
+            return SensorInstance1D_Complex::Create(info);
+        }
+        else if(outputMode == "real") {
+            throw ConfigError() << " : real sensor output mode not supported yet.";
+        }
+        else {
+            throw ConfigError() << " : unsupported output mode (" << outputMode << ")";
+        }
     }
     else {
-        throw ConfigError() << " : unsupported output mode (" << outputMode << ")";
+        throw ConfigError() << " :  unsupported sensor type '" << type << "'";
     }
 }
 
@@ -41,7 +55,7 @@ SensorInstance::Ptr SensorFactory::Make(const std::string& configPath)
     return SensorFactory::Make(YAML::LoadFile(configPath));
 }
 
-SensorInfo::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
+SensorInfo::Ptr SensorInfoFactory::Make(const YAML::Node& config)
 {
     auto sensorType = config["type"];
     if(!sensorType) {
@@ -52,17 +66,20 @@ SensorInfo::Ptr SensorInfoFactory2D::Make(const YAML::Node& config)
     if(type == "front-scan") {
         return Make_FrontScanInfo(config);
     }
+    else if(type == "single-beam") {
+        return Make_SingleBeamInfo(config);
+    }
     else {
         throw ConfigError() << " :  unsupported sensor type '" << type << "'";
     }
 }
 
-SensorInfo::Ptr SensorInfoFactory2D::Make(const std::string& configPath)
+SensorInfo::Ptr SensorInfoFactory::Make(const std::string& configPath)
 {
-    return SensorInfoFactory2D::Make(YAML::LoadFile(configPath));
+    return SensorInfoFactory::Make(YAML::LoadFile(configPath));
 }
 
-SensorInfo2D::Ptr SensorInfoFactory2D::Make_FrontScanInfo(const YAML::Node& config)
+SensorInfo2D::Ptr SensorInfoFactory::Make_FrontScanInfo(const YAML::Node& config)
 {
     auto samplingNode = config["sampling"];
     if(!samplingNode) {
@@ -77,7 +94,20 @@ SensorInfo2D::Ptr SensorInfoFactory2D::Make_FrontScanInfo(const YAML::Node& conf
     return SensorInfo2D::Create(bearings, ranges, waveform, beam, directivity);
 }
 
-Linspace<float> SensorInfoFactory2D::parse_ranges(const YAML::Node& config)
+SensorInfo::Ptr SensorInfoFactory::Make_SingleBeamInfo(const YAML::Node& config)
+{
+    auto samplingNode = config["sampling"];
+    if(!samplingNode) {
+        throw ConfigError() << " : No 'sampling' node";
+    }
+    Linspace<float>  ranges = parse_ranges(samplingNode["ranges"]);
+    auto directivity = parse_directivity(config["directivity"]);
+    auto waveform    = parse_waveform(config["waveform"]);
+
+    return SensorInfo::Create(ranges, waveform, directivity);
+}
+
+Linspace<float> SensorInfoFactory::parse_ranges(const YAML::Node& config)
 {
     if(!config) {
         throw ConfigError() << " : Invalid ranges node.";
@@ -117,7 +147,7 @@ Linspace<float> SensorInfoFactory2D::parse_ranges(const YAML::Node& config)
 }
 
 
-std::vector<float> SensorInfoFactory2D::parse_bearings(const YAML::Node& config)
+std::vector<float> SensorInfoFactory::parse_bearings(const YAML::Node& config)
 {
     if(!config) {
         throw ConfigError() << " : Invalid bearings node.";
@@ -134,7 +164,7 @@ std::vector<float> SensorInfoFactory2D::parse_bearings(const YAML::Node& config)
     }
 }
 
-Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
+Waveform::Ptr SensorInfoFactory::parse_waveform(const YAML::Node& config)
 {
     if(!config) {
         throw ConfigError() << " : Invalid 'waveform' node.";
@@ -168,7 +198,7 @@ Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
     }
 }
 
-BeamDirectivity::Ptr SensorInfoFactory2D::parse_beamsteering(const YAML::Node& config)
+BeamDirectivity::Ptr SensorInfoFactory::parse_beamsteering(const YAML::Node& config)
 {
     if(!config) {
         throw ConfigError() << " : Invalid 'beamsteering' node.";

@@ -23,9 +23,12 @@ int main()
 {
     auto finder = FileFinder::Get();
     auto filename = finder->find_one(".*oculus_M1200d_1_receiver.yaml");
-    std::cout << "config file : " << filename << std::endl;
+    std::cout << "config file oculus : " << filename << std::endl;
+    auto sensorInfo = SensorInfoFactory::Make(YAML::LoadFile(filename));
 
-    auto sensorInfo = SensorInfoFactory2D::Make(YAML::LoadFile(filename));
+    auto filename2 = finder->find_one("EA400_200KHz_receiver.yaml");
+    std::cout << "config file ea400 : " << filename2 << std::endl;
+    auto sensorInfo2 = SensorInfoFactory::Make(YAML::LoadFile(filename2));
 
     auto directivity = sensorInfo->directivity();
     Image<float, DeviceVector> tmp0(directivity->texture().width(), 

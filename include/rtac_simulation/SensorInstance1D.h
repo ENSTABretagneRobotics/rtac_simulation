@@ -63,7 +63,7 @@ class SensorInstance1D : public SensorInstance
     {
         sort(receivedSamples_);
         binner_.compute(bins_, receivedSamples_);
-        //this->do_reduce(out, bins_);
+        this->do_reduce(out, bins_);
     }
 };
 
