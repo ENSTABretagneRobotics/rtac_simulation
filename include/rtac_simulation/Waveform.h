@@ -72,12 +72,14 @@ class Waveform
 
     protected:
 
-    Waveform() = default;
+    bool fixed_;
+    Waveform(bool fixed) : fixed_(fixed) {}
 
     public:
 
     WaveformIterator begin() const { return WaveformIterator(this, 0);            }
     WaveformIterator end()   const { return WaveformIterator(this, this->size()); }
+    bool fixed() const { return fixed_; }
 
     /**
      * This method should trigger a reconfiguration of the Waveform
@@ -104,7 +106,9 @@ class Waveform_Sine : public Waveform
     float duration_;
     unsigned int oversampling_;
 
-    Waveform_Sine(float frequency, float duration, unsigned int oversampling) :
+    Waveform_Sine(float frequency, float duration, bool fixed,
+                  unsigned int oversampling) :
+        Waveform(fixed),
         frequency_(frequency),
         duration_(duration),
         oversampling_(oversampling)
@@ -113,9 +117,9 @@ class Waveform_Sine : public Waveform
     public:
 
     static Ptr Create(float frequency, float duration,
-                      unsigned int oversampling = 8)
+                      bool fixed, unsigned int oversampling = 8)
     {
-        return Ptr(new Waveform_Sine(frequency, duration, oversampling));
+        return Ptr(new Waveform_Sine(frequency, duration, fixed, oversampling));
     }
 
     void set_duration(float duration) { duration_ = duration; }

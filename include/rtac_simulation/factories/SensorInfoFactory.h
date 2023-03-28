@@ -29,9 +29,9 @@ struct SensorInfoFactory2D
 
     static SensorInfo2D::Ptr Make_FrontScanInfo(const YAML::Node& config);
 
-    static std::vector<float> parse_bearings(const YAML::Node& config);
-    static Linspace<float>    parse_ranges(const YAML::Node& config);
-    static Waveform::Ptr parse_waveform(const YAML::Node& config);
+    static std::vector<float>   parse_bearings(const YAML::Node& config);
+    static Linspace<float>      parse_ranges(const YAML::Node& config);
+    static Waveform::Ptr        parse_waveform(const YAML::Node& config);
     static BeamDirectivity::Ptr parse_beamsteering(const YAML::Node& config);
 };
 

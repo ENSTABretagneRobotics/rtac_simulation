@@ -153,6 +153,7 @@ Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
             if(mode == "fixed") {
                 return Waveform_Sine::Create(frequency,
                                              config["duration"].as<float>(),
+                                             true,
                                              oversampling);
             }
             else if(mode != "adaptive") {
@@ -160,7 +161,7 @@ Waveform::Ptr SensorInfoFactory2D::parse_waveform(const YAML::Node& config)
                           << "'. Falling back to 'adaptive'" << std::endl;
             }
         }
-        return Waveform_Sine::Create(frequency, 10 / frequency, oversampling);
+        return Waveform_Sine::Create(frequency, 10 / frequency, false, oversampling);
     }
     else {
         throw ConfigError() << " : unsupported waveform type : '" << type << "'";
