@@ -23,8 +23,8 @@ void SensorInstance::set_ranges(const Linspace<float>& ranges, float soundCeleri
 void SensorInstance::set_ranges(const Linspace<float>& ranges)
 {
     ranges_ = ranges;
-    binner_.reconfigure(ranges, ranges.resolution());
-    waveform_->set_duration(2*ranges.resolution() / soundCelerity_);
+    waveform_->set_duration(ranges.resolution() / soundCelerity_);
+    binner_.reconfigure(ranges, soundCelerity_ * waveform_->duration());
     this->generate_psf_data();
 }
 
