@@ -28,6 +28,6 @@ waveform:
     type: sine
     frequency: 200.0e3
     duration-mode: fixed # default adaptive (supported : adaptive, fixed)
-    duration: 50.0e-6
-    oversampling: 8 # optional, defaults to 8 (important because of linear interpolation)
+    duration: 50.0e-6    # ignored in adaptive mode (will be set by receiver)
+    oversampling: 8      # optional, defaults to 8 (important because of linear interpolation)
 

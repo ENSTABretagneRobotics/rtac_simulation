@@ -41,6 +41,8 @@ list(APPEND rtac_simulation_headers
 
     include/rtac_simulation/Waveform.h
     include/rtac_simulation/SensorInstance.h
+    include/rtac_simulation/SensorInstance1D.h
+    include/rtac_simulation/SensorInstance2D.h
     include/rtac_simulation/Simulation.h
     include/rtac_simulation/Binner.h
 
@@ -55,6 +57,8 @@ add_library(rtac_simulation SHARED
     src/Emitter.cu
     src/Receiver.cu
     src/SensorInstance.cu
+    src/SensorInstance1D.cu
+    src/SensorInstance2D.cu
     src/Binner.cu
 
     src/factories/utilities.cpp

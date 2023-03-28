@@ -43,6 +43,13 @@ class SensorInfo
 
     virtual ~SensorInfo() = default; // to be polymorphic
 
+    static Ptr Create(const Linspace<float>&  ranges,
+                      const Waveform::Ptr&    waveform,
+                      const Directivity::Ptr& directivity)
+    {
+        return Ptr(new SensorInfo(ranges, waveform, directivity));
+    }
+
     const Linspace<float>& ranges()      const { return ranges_;      }
     Directivity::ConstPtr  directivity() const { return directivity_; }
     Waveform::ConstPtr     waveform()    const { return waveform_;    }

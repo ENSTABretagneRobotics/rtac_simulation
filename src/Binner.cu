@@ -82,7 +82,7 @@ void Binner::make_segments()
 template <typename T>
 __global__ void do_make_bins(VectorView<const T>* bins,
                              VectorView<const uint2> binIndexes,
-                             const SimSample2D* samples,
+                             const T* samples,
                              int binOverlap)
 {
     int tid = blockDim.x*blockIdx.x + threadIdx.x;
@@ -94,15 +94,29 @@ __global__ void do_make_bins(VectorView<const T>* bins,
         for(; iend > istart && binIndexes[iend].y   == binIndexes[iend].x;   iend--);
 
         if(istart >= iend) {
-            bins[tid] = VectorView<const SimSample2D>(0, nullptr);
+            bins[tid] = VectorView<const T>(0, nullptr);
         }
         else {
-            bins[tid] = VectorView<const SimSample2D>(binIndexes[iend].y - binIndexes[istart].x,
-                                                      samples + binIndexes[istart].x);
+            bins[tid] = VectorView<const T>(binIndexes[iend].y - binIndexes[istart].x,
+                                            samples + binIndexes[istart].x);
         }
         //bins[tid] = VectorView<const SimSample2D>(binIndexes[tid].y - binIndexes[tid].x,
         //                                          samples + binIndexes[tid].x);
     }
+}
+
+void Binner::make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample1D>>& bins,
+                       const rtac::cuda::DeviceVector<SimSample1D>& samples)
+{
+    bins.resize(this->bin_count());
+    float resolution = bounds_.length() / (this->bin_count() - 1);
+    int binOverlap = margin_ / resolution;
+
+    static constexpr unsigned int BlockSize = 256;
+    do_make_bins<<<(this->bin_count() - 1) / BlockSize + 1, BlockSize>>>(
+        bins.begin(), binIndexes_.const_view(), samples.begin(), binOverlap);
+    cudaDeviceSynchronize();
+    CUDA_CHECK_LAST();
 }
 
 void Binner::make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample2D>>& bins,

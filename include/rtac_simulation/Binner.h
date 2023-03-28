@@ -66,12 +66,12 @@ class Binner
     void compute_keys(const rtac::cuda::DeviceVector<SimSample3D>& samples);
     void make_segments();
 
-    //void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample1D>>& bins,
-    //               const rtac::cuda::DeviceVector<SimSample1D>& samples) {}
+    void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample1D>>& bins,
+                   const rtac::cuda::DeviceVector<SimSample1D>& samples);
     void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample2D>>& bins,
                    const rtac::cuda::DeviceVector<SimSample2D>& samples);
     //void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample3D>>& bins,
-    //               const rtac::cuda::DeviceVector<SimSample3D>& samples) {}
+    //               const rtac::cuda::DeviceVector<SimSample3D>& samples);
     template <typename T>
     void compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& bins,
                       const rtac::cuda::DeviceVector<T>& samples);
