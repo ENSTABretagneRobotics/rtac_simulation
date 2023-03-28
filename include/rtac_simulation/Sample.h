@@ -10,6 +10,61 @@
 
 namespace rtac { namespace simulation {
 
+//struct RayPayload
+//{
+//    Complex<float> value_;
+//    float          frequency_; // this here ?
+//    float          travel_;
+//
+//    RTAC_HOSTDEVICE RayPayload() = default;
+//    RTAC_HOSTDEVICE RayPayload& operator=(const RayPayload&) = default;
+//
+//    RTAC_HOSTDEVICE RayPayload(const Complex<float>& value, 
+//                               float frequency,
+//                               float travel = 0.0f) :
+//        value_(value), frequency_(frequency), travel_(travel)
+//    {}
+//
+//    RTAC_HOSTDEVICE const Complex<float>& value() const { return value_; }
+//    RTAC_HOSTDEVICE       Complex<float>& value()       { return value_; }
+//
+//    RTAC_HOSTDEVICE const float& frequency() const { return frequency_;    }
+//    RTAC_HOSTDEVICE       float& frequency()       { return frequency_;    }
+//
+//    RTAC_HOSTDEVICE const float& travel() const { return travel_;    }
+//    RTAC_HOSTDEVICE       float& travel()       { return travel_;    }
+//
+//    RTAC_HOSTDEVICE static RayPayload Null()
+//    {
+//        return RayPayload(Complex<float>(0.0f, 0.0f), 0.0f, -1.0f);
+//    }
+//};
+
+struct RayPayload
+{
+    Complex<float> value_;
+    float          travel_;
+
+    RTAC_HOSTDEVICE RayPayload() = default;
+    RTAC_HOSTDEVICE RayPayload& operator=(const RayPayload&) = default;
+
+    RTAC_HOSTDEVICE RayPayload(const Complex<float>& value, 
+                               float travel = 0.0f) :
+        value_(value), travel_(travel)
+    {}
+
+    RTAC_HOSTDEVICE const Complex<float>& value() const { return value_; }
+    RTAC_HOSTDEVICE       Complex<float>& value()       { return value_; }
+
+    RTAC_HOSTDEVICE const float& travel() const { return travel_;    }
+    RTAC_HOSTDEVICE       float& travel()       { return travel_;    }
+
+    RTAC_HOSTDEVICE static RayPayload Null()
+    {
+        return RayPayload(Complex<float>(0.0f, 0.0f), -1.0f);
+    }
+};
+
 template <class Derived>
 struct Sample1D
 {

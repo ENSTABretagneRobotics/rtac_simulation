@@ -18,65 +18,77 @@ __constant__ rtac::PODWrapper<RayCaster::Params> params;
 __global__ void __raygen__polar_ray_caster()
 {
     auto idx   = optixGetLaunchIndex().x;
-    //float3 dir = params->directions[idx];
 
     RayCaster::SonarRay ray;
-    ray.datum = params->emitter.sample_value(idx);
+    ray.value()  = params->emitter.sample_value(idx);
+    ray.travel() = 0.0f;
 
-    ray.trace(params->objectTree,
-              params->emitter.ray_origin(idx),
-              params->emitter.ray_direction(idx));
+    auto origin = params->emitter.ray_origin(idx);
+    auto dir    = params->emitter.ray_direction(idx);
+    ray.trace(params->objectTree, origin, dir);
 
-    auto delta  = ray.position - params->emitter.pose.translation();
-    auto range  = length(delta);
-
-    if(range > 30.0f || range < 1.0e-4f) {
+    //auto distance = ray.travel() * params->soundCelerity;
+    auto distance = ray.travel();
+    if(distance < 1.0e-4f) {
         params->outputPoints[idx] = float3({0.0f,0.0f,0.0f});
         params->receiver.set_null_sample(idx);
     }
     else {
-        //params->outputPoints[idx] = params->receiver.pose.to_local_frame(ray.position);
+        float phase = (4.0*M_PI*params->emitter.frequency / params->soundCelerity) * distance;
+        ray.value() *= rtac::Complex<float>(cos(phase), sin(phase))
+                     / (distance*distance);
+
+        params->receiver.set_sample(idx, ray.value(), distance, -dir);
+
         const auto& pose = params->receiver.pose;
         params->outputPoints[idx] = pose.rotation_matrix().transpose()
-                                  * (ray.position - pose.translation());
-
-        ray.datum /= range*range; // replace this with full complex multiplication.
-        params->receiver.set_sample(idx, ray.datum, range, -delta / range);
-        //params->receiver.set_sample(idx, 1.0f, range, -delta / range);
+                                  * (distance * dir);
     }
 }
 
 __global__ void __miss__polar_ray_caster()
 {
-    auto res = Sample3D<float>::Zero();
-    res.position.x = params->emitter.pose.x();
-    res.position.y = params->emitter.pose.y();
-    res.position.z = params->emitter.pose.z();
-    RayCaster::SonarRay::set_payload(res);
-    //RayCaster::SonarRay::set_payload(Sample3D<float>::Zero());
+    RayCaster::SonarRay::set_payload(RayPayload::Null());
 }
+
+//__global__ void __closesthit__ray_caster_default_hit()
+//{
+//    static constexpr const float wavelengthFactor = 4.0f*M_PI / (1500.0f / 1.2e6f);
+//    static constexpr const float reflectionShift  = 0.5f*M_PI;
+//
+//    float3 hitP, hitN;
+//    rtac::optix::helpers::get_triangle_hit_data(hitP, hitN);
+//    float3 travel = optixTransformPointFromWorldToObjectSpace(optixGetWorldRayOrigin()) - hitP;
+//    float d = optixGetRayTmax(); // travel distance
+//
+//    float phase = d * wavelengthFactor + reflectionShift;
+//    float a = dot(travel,hitN) / (d*d*d);
+//    //float a = dot(travel,hitN) / d;
+//
+//    auto payload = RayCaster::SonarRay::from_registers();
+//    payload.datum    *= rtac::Complex<float>{a*cos(phase), a*sin(phase)};
+//    payload.position  = hitP;
+//
+//    RayCaster::SonarRay::set_payload(payload);
+//}
 
 __global__ void __closesthit__ray_caster_default_hit()
 {
-    static constexpr const float wavelengthFactor = 4.0f*M_PI / (1500.0f / 1.2e6f);
-    static constexpr const float reflectionShift  = 0.5f*M_PI;
-
     float3 hitP, hitN;
     rtac::optix::helpers::get_triangle_hit_data(hitP, hitN);
     float3 travel = optixTransformPointFromWorldToObjectSpace(optixGetWorldRayOrigin()) - hitP;
     float d = optixGetRayTmax(); // travel distance
 
-    float phase = d * wavelengthFactor + reflectionShift;
-    float a = dot(travel,hitN) / (d*d*d);
+    float a = dot(travel,hitN) / (d*d*d); 
     //float a = dot(travel,hitN) / d;
 
     auto payload = RayCaster::SonarRay::from_registers();
-    payload.datum    *= rtac::Complex<float>{a*cos(phase), a*sin(phase)};
-    payload.position  = hitP;
+    payload.value()  *= rtac::Complex<float>(0.0f, a);
+    //payload.travel() += d / params->soundCelerity;
+    payload.travel() += d;
 
     RayCaster::SonarRay::set_payload(payload);
 }
-
 };
 
 

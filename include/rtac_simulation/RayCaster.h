@@ -30,7 +30,8 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
     using Ptr      = std::shared_ptr<RayCaster>;
     using ConstPtr = std::shared_ptr<const RayCaster>;
 
-    using Raytypes = optix::RaytypeFactory<Sample3D<float>>;
+    //using Raytypes = optix::RaytypeFactory<Sample3D<float>>;
+    using Raytypes = optix::RaytypeFactory<RayPayload>;
     using SonarRay = Raytypes::Raytype<0>;
     using SonarMissMaterial = optix::Material<SonarRay, void>;
     using DefaultMaterial   = optix::Material<SonarRay, void>;
