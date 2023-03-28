@@ -1,0 +1,33 @@
+# Example configuration file to generate a SensorInfo2D type for a Blueprint
+# Oculus M1200d FLS in 1.2MHz mode.
+
+---
+name: EA400_200KHz_receiver
+type: single-beam
+
+globals: &global-params
+    frequency:      1.2e6
+    sound-celerity: 1500 # should be a global simulation parameter ?
+    range-min:      0.1
+
+directivity:
+    globals: *global-params
+    type:  uniform # supported (uniform, rectangle), defaults to uniform
+    amplitude: 1.0
+    baffleMode: single-sided # optional (none, single-sided, cardioid), defaults to none.
+
+sampling:
+    globals: *global-params
+    ranges: # default value, can be overriden during simulation
+        globals: *global-params
+        size: 512
+        range-max: 50.0
+        unit: m # optional (supported m, cm, mm), defaults to m
+
+waveform:
+    type: sine
+    frequency: 200.0e3
+    duration-mode: fixed # default adaptive (supported : adaptive, fixed)
+    duration: 50.0e-6
+    oversampling: 8 # optional, defaults to 8 (important because of linear interpolation)
+
