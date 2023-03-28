@@ -23,14 +23,18 @@ class EmitterBase
 
     protected:
 
-    Pose pose_;
+    float frequency_;
+    Pose  pose_;
 
-    EmitterBase(const Pose& pose) : pose_(pose) {}
+    EmitterBase(float frequency, const Pose& pose) :
+         frequency_(frequency), pose_(pose)
+    {}
 
     public:
 
     const Pose& pose() const { return pose_; }
           Pose& pose()       { return pose_; }
+    float frequency()  const { return frequency_; }
     
     unsigned int size() const { return this->ray_count(); }
     virtual unsigned int ray_count() const = 0;
@@ -42,6 +46,7 @@ struct EmitterView
 
     Pose                  pose;
     std::size_t           size;
+    float                 frequency;
     const float3*         initialDirections;
     const Complex<float>* initialValues;
 
@@ -76,6 +81,7 @@ class Emitter : public EmitterBase
 
     Emitter(const cuda::DeviceVector<float3>& rayDirs,
             Directivity::ConstPtr directivity,
+            float frequency,
             const Pose& pose = Pose());
 
     void load_initial_values();
@@ -88,12 +94,14 @@ class Emitter : public EmitterBase
 
     static Ptr Create(const cuda::DeviceVector<float3>& rayDirs,
                       Directivity::ConstPtr directivity,
+                      float frequency,
                       const Pose& pose = Pose());
 
     static Ptr Create(float resolution,
                       float bearingAperture,
                       float elevationAperture,
                       Directivity::ConstPtr directivity,
+                      float frequency,
                       const Pose& pose = Pose());
     
     const Directivity::ConstPtr& directivity() const { return directivity_; }
@@ -103,6 +111,7 @@ class Emitter : public EmitterBase
         EmitterView res;
         res.pose              = this->pose();
         res.size              = this->ray_count();
+        res.frequency         = this->frequency();
         res.initialDirections = this->directions_.data();
         res.initialValues     = this->initialValues_.data();
         return res;

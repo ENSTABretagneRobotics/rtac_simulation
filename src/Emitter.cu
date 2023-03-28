@@ -4,8 +4,8 @@ namespace rtac { namespace simulation {
 
 Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
                  Directivity::ConstPtr directivity,
-                 const Pose& pose) :
-    EmitterBase(pose),
+                 float frequency, const Pose& pose) :
+    EmitterBase(frequency, pose),
     directivity_(directivity),
     directions_(rayDirs),
     initialValues_(rayDirs.size())
@@ -15,21 +15,21 @@ Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
 
 Emitter::Ptr Emitter::Create(const cuda::DeviceVector<float3>& rayDirs,
                              Directivity::ConstPtr directivity,
-                             const Pose& pose)
+                             float frequency, const Pose& pose)
 {
-    return Ptr(new Emitter(rayDirs, directivity, pose));
+    return Ptr(new Emitter(rayDirs, directivity, frequency, pose));
 }
 
 Emitter::Ptr Emitter::Create(float resolution,
                              float bearingAperture,
                              float elevationAperture,
                              Directivity::ConstPtr directivity,
-                             const Pose& pose)
+                             float frequency, const Pose& pose)
 {
     return Create(generate_polar_directions(resolution,
                                             bearingAperture,
                                             elevationAperture),
-                  directivity, pose); 
+                  directivity, frequency, pose); 
 }
 
 __global__ void load_emitter_initial_values(unsigned int size,

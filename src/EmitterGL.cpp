@@ -2,8 +2,9 @@
 
 namespace rtac { namespace simulation {
 
-EmitterGL::EmitterGL(const Shape& outputSize, float fovy, const Pose& pose) :
-    EmitterBase(pose),
+EmitterGL::EmitterGL(const Shape& outputSize, float fovy, 
+                     float frequency, const Pose& pose) :
+    EmitterBase(frequency, pose),
     outputShape_(outputSize),
     toGLFrame_(rtac::Pose<float>::from_rotation_matrix(                      
         Eigen::AngleAxisf(-0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix())),
@@ -13,12 +14,12 @@ EmitterGL::EmitterGL(const Shape& outputSize, float fovy, const Pose& pose) :
 EmitterGL::Ptr EmitterGL::Create(float resolution,
                                  float bearingAperture,
                                  float elevationAperture,
-                                 const Pose& pose)
+                                 float frequency, const Pose& pose)
 {
     unsigned int width  = 2*(unsigned int)(0.5f*bearingAperture / resolution);
     unsigned int height = 2*(unsigned int)(0.5f*width*elevationAperture / bearingAperture);
 
-    return Ptr(new EmitterGL({width, height}, elevationAperture, pose));
+    return Ptr(new EmitterGL({width, height}, elevationAperture, frequency, pose));
 }
 
 display::PinholeView::Ptr EmitterGL::view()

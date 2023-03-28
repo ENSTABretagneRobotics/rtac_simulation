@@ -5,6 +5,8 @@
 name: oculus_m1200_1_emitter
 type: emitter_optix
 
+frequency: 1.2e6
+
 directivity:
     type: uniform
     amplitude: 1 # optional (default is 1)

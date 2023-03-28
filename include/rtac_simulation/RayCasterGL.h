@@ -24,6 +24,7 @@ class RayCasterGL : rtac::display::Renderer
     protected:
 
     display::GLMesh::Ptr mesh_;
+    float soundCelerity_;
 
     RayCasterGL(const display::GLContext::Ptr& context);
 
@@ -39,6 +40,9 @@ class RayCasterGL : rtac::display::Renderer
 
     virtual void draw(const display::View::ConstPtr& view) const;
     virtual void draw2(const display::View::ConstPtr& view) const;
+
+    float sound_celerity() const      { return soundCelerity_; }
+    void  set_sound_celerity(float c) { soundCelerity_ = c;    }
 };
 
 template <class MeshT>

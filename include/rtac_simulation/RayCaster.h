@@ -41,6 +41,7 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
         ReceiverView<SimSample2D> receiver;
         //const float3*              directions;
         float3*                   outputPoints;
+        float soundCelerity;
     };
 
     protected:
@@ -55,6 +56,8 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
 
     optix::ProgramGroup::Ptr       defaultHitProgram_;
     DefaultMaterial::Ptr           defaultMaterial_;
+
+    float soundCelerity_;
 
     RayCaster();
 
@@ -83,6 +86,9 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
     void trace(const Emitter&    emitter,
                SensorInstance2D& receiver,
                cuda::DeviceVector<float3>& outputPoints);
+
+    float sound_celerity() const      { return soundCelerity_; }
+    void  set_sound_celerity(float c) { soundCelerity_ = c;    }
 };
 
 } //namespace simulation

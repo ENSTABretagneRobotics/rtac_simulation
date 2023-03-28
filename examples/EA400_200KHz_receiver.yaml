@@ -6,7 +6,7 @@ name: EA400_200KHz_receiver
 type: single-beam
 
 globals: &global-params
-    frequency:      1.2e6
+    frequency:      200.0e3
     sound-celerity: 1500 # should be a global simulation parameter ?
     range-min:      0.1
 

@@ -27,13 +27,14 @@ class EmitterGL : public EmitterBase
     display::PinholeView::Ptr view_;
 
     EmitterGL(const Shape& outputSize, float fovy, //fovy = elevation aperture
-              const Pose& pose);
+              float frequency, const Pose& pose);
 
     public:
 
     static Ptr Create(float resolution,
                       float bearingAperture,
                       float elevationAperture,
+                      float frequency,
                       const Pose& pose = Pose());
 
     display::PinholeView::Ptr      view();

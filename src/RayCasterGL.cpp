@@ -62,7 +62,8 @@ void main()
 )");
 
 RayCasterGL::RayCasterGL(const display::GLContext::Ptr& context) :
-    rtac::display::Renderer(context, vertexShader, fragmentShader)
+    rtac::display::Renderer(context, vertexShader, fragmentShader),
+    soundCelerity_(1500.0f)
 {}
 
 RayCasterGL::Ptr RayCasterGL::Create(const display::GLContext::Ptr& context)

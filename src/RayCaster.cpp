@@ -8,7 +8,8 @@ RayCaster::RayCaster() :
     context_(optix::Context::Create()),
     pipeline_(optix::Pipeline::Create(context_)),
     sbt_(optix::ShaderBindingTable::Create(Raytypes::RaytypeCount)),
-    objectTree_(optix::GroupInstance::Create(context_))
+    objectTree_(optix::GroupInstance::Create(context_)),
+    soundCelerity_(1500.0f)
 {
     pipeline_->compile_options().numPayloadValues = 8;
     pipeline_->compile_options().exceptionFlags   = OPTIX_EXCEPTION_FLAG_DEBUG;
@@ -41,10 +42,11 @@ void RayCaster::trace(const Emitter&    emitter,
     outputPoints.resize(emitter.size());
     receiver.set_sample_count(emitter.size());
 
-    params.objectTree   = *objectTree_;
-    params.emitter      = emitter.view();
-    params.receiver     = receiver.receiver_view();
-    params.outputPoints = outputPoints.data();
+    params.objectTree    = *objectTree_;
+    params.emitter       = emitter.view();
+    params.receiver      = receiver.receiver_view();
+    params.outputPoints  = outputPoints.data();
+    params.soundCelerity = soundCelerity_;
 
     params.update_device();
 

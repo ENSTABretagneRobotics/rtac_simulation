@@ -41,6 +41,7 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterOptix(const YAML::Node& config)
     }
 
     auto directivity = parse_directivity(config["directivity"]);
+    auto frequency   = config["frequency"].as<float>();
 
     auto rayNode = config["ray-config"];
     if(!rayNode) {
@@ -56,7 +57,8 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterOptix(const YAML::Node& config)
         return Emitter::Create(scaling*resolution,
                                scaling*bearingAperture,
                                scaling*elevationAperture,
-                               directivity);
+                               directivity,
+                               frequency);
     }
     else {
         throw ConfigError() << " : unsupported ray-config type (" << rayType << ").";
@@ -77,6 +79,7 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterGL(const YAML::Node& config)
     }
 
     //auto directivity = parse_directivity(config["directivity"]);
+    auto frequency = config["frequency"].as<float>();
 
     auto rayNode = config["ray-config"];
     if(!rayNode) {
@@ -91,7 +94,8 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterGL(const YAML::Node& config)
         scaling *= 180.0 / M_PI; // EmitterGL::Create input is in degrees for now
         return EmitterGL::Create(scaling*resolution,
                                  scaling*bearingAperture,
-                                 scaling*elevationAperture);
+                                 scaling*elevationAperture,
+                                 frequency);
     }
     else {
         throw ConfigError() << " : unsupported ray-config type (" << rayType << ").";
