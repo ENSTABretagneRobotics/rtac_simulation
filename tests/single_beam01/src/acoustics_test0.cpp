@@ -42,6 +42,7 @@ using namespace rtac::cuda;
 #include <rtac_display/renderers/FrameInstances.h>
 #include <rtac_display/renderers/FanRenderer.h>
 #include <rtac_display/renderers/Frame.h>
+#include <rtac_display/renderers/SimplePlot.h>
 namespace plt = rtac::display;
 
 #include <rtac_simulation/RayCaster.h>
@@ -113,7 +114,8 @@ int main()
 
     plt::Display simDisplay(display.context());
     simDisplay.disable_frame_counter();
-    auto simRenderer = simDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
+    //auto simRenderer = simDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
+    auto simRenderer = simDisplay.create_renderer<plt::SimplePlot>(plt::View::Create());
 
     int screenshotCount = 0;
     int loopCount = 0;
@@ -140,6 +142,10 @@ int main()
         //                      //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
         //                      plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
         //                      //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
+
+        auto tmp1 = real(ea400->output());
+        simRenderer->set_data(tmp1);
+
 
         optixRenderer->points().copy_from_cuda(optixPoints.size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));

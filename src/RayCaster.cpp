@@ -28,7 +28,8 @@ RayCaster::RayCaster(const Emitter::Ptr& emitter,
     }
     else
     {
-        throw std::runtime_error("SensorInstance1D not implemented yet");
+        raygenProgram_ = pipeline_->add_raygen_program("__raygen__polar_ray_caster_1d", 
+                                                       "RayCaster");
     }
     missProgram_ = pipeline_->add_miss_program("__miss__polar_ray_caster",
                                                "RayCaster");
