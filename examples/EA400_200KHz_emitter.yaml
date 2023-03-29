@@ -5,6 +5,8 @@
 name: EA400_200KHz_emitter
 type: emitter_optix
 
+frequency: 200.0e3
+
 directivity:
     type: uniform
     amplitude: 1 # optional (default is 1)
