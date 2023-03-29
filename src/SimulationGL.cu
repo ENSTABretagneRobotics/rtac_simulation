@@ -113,7 +113,8 @@ __global__ void do_fill_receiver(ReceiverView<SimSample2D> receiver,
     auto w = blockDim.x*blockIdx.x + threadIdx.x;
     auto sampleIdx = samples.width()*h + w;
     if(w < samples.width()) {
-        receiver.samples[sampleIdx] = samples(h,w);
+        //receiver.samples[sampleIdx] = samples(h,w);
+        receiver.sample(sampleIdx) = samples(h,w);
     }
 }
 

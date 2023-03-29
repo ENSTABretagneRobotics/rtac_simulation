@@ -39,13 +39,16 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
     struct Params {
         OptixTraversableHandle    objectTree;
         EmitterView               emitter;
-        ReceiverView<SimSample2D> receiver;
+        ReceiverViewBase          receiver;
         //const float3*              directions;
         float3*                   outputPoints;
         float soundCelerity;
     };
 
     protected:
+
+    Emitter::Ptr        emitter_;
+    SensorInstance::Ptr receiver_;
 
     mutable optix::Context::Ptr    context_;
     mutable optix::Pipeline::Ptr   pipeline_;
@@ -60,14 +63,21 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
 
     float soundCelerity_;
 
-    RayCaster();
+    RayCaster(const Emitter::Ptr& emitter,
+              const SensorInstance::Ptr& receiver);
 
     public:
 
-    static Ptr Create() { return Ptr(new RayCaster()); }
+    static Ptr Create(const Emitter::Ptr& emitter,
+                      const SensorInstance::Ptr& receiver);
 
     Ptr      ptr()       { return this->shared_from_this(); }
     ConstPtr ptr() const { return this->shared_from_this(); }
+
+    const EmitterBase&    emitter()  const { return *emitter_; }
+          EmitterBase&    emitter()        { return *emitter_; }
+    const SensorInstance& receiver() const { return *receiver_; }
+          SensorInstance& receiver()       { return *receiver_; }
 
     optix::Context::Ptr  context()  const { return context_;  }
     optix::Pipeline::Ptr pipeline() const { return pipeline_; }
@@ -77,6 +87,8 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
 
     const DefaultMaterial::Ptr& default_material() { return defaultMaterial_; }
     optix::ObjectInstance::Ptr add_object(const cuda::DeviceMesh<>::ConstPtr& mesh);
+
+    void trace(cuda::DeviceVector<float3>& outputPoints);
 
     void trace(Emitter::Ptr                emitter,
                SensorInstance2D::Ptr       receiver,

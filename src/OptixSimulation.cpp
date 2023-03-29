@@ -13,7 +13,7 @@ OptixSimulation1::OptixSimulation1(const Emitter::Ptr& emitter,
     Simulation1(emitter, receiver),
     emitter_(emitter),
     receiver_(receiver),
-    rayCaster_(RayCaster::Create())
+    rayCaster_(RayCaster::Create(emitter, receiver))
 {}
 
 OptixSimulation1::Ptr OptixSimulation1::Create(const Emitter::Ptr& emitter,
@@ -55,12 +55,13 @@ optix::ObjectInstance::Ptr OptixSimulation1::add_object(const cuda::DeviceMesh<>
 
 void OptixSimulation1::run()
 {
-    if(auto receiverPtr = std::dynamic_pointer_cast<SensorInstance2D>(receiver_)) {
-        rayCaster_->trace(*emitter_, *receiverPtr, hitPoints_);
-    }
-    else {
-        throw std::runtime_error("SensorInstance1D not implemented yet");
-    }
+    //if(auto receiverPtr = std::dynamic_pointer_cast<SensorInstance2D>(receiver_)) {
+    //    rayCaster_->trace(*emitter_, *receiverPtr, hitPoints_);
+    //}
+    //else {
+    //    throw std::runtime_error("SensorInstance1D not implemented yet");
+    //}
+    rayCaster_->trace(hitPoints_);
     receiver_->compute_output();
 }
 

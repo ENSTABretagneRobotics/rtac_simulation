@@ -37,7 +37,8 @@ class SensorInstance : public std::enable_shared_from_this<SensorInstance>
                    const Pose& pose,
                    float soundCelerity);
 
-    virtual void generate_psf_data() = 0;
+    virtual void  generate_psf_data() = 0;
+    virtual void* sample_pointer() = 0;
 
     public:
 
@@ -55,8 +56,11 @@ class SensorInstance : public std::enable_shared_from_this<SensorInstance>
     void set_ranges(const Linspace<float>& ranges);
     void set_ranges(float maxRange, unsigned int rangeCount);
 
+    ReceiverViewBase receiver_view();
+
     virtual const SensorInfo& info() const = 0;
     virtual void set_sample_count(unsigned int count) = 0;
+    virtual unsigned int sample_count() const = 0;
     virtual bool is_complex() const = 0;
     virtual void compute_output() = 0;
 };

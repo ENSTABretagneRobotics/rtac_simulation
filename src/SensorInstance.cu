@@ -33,6 +33,16 @@ void SensorInstance::set_ranges(float maxRange, unsigned int rangeCount)
     this->set_ranges(Linspace<float>(ranges_.lower(), maxRange, rangeCount));
 }
 
+ReceiverViewBase SensorInstance::receiver_view()
+{
+    ReceiverViewBase res;
+    res.pose        = pose_;
+    res.directivity = this->directivity()->view();
+    res.size        = this->sample_count();
+    res.samples     = this->sample_pointer();
+    
+    return res;
+}
 
 } //namespace simulation
 } //namespace rtac

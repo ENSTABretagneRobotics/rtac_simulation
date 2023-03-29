@@ -13,17 +13,38 @@
 
 namespace rtac { namespace simulation {
 
-template <typename T>
-struct ReceiverView
-{
-    using SampleType = T;
-    using Pose = rtac::Pose<float>;
+template <typename T> struct ReceiverView;
 
+struct ReceiverViewBase
+{
+    using Pose = rtac::Pose<float>;
 
     Pose            pose;
     DirectivityView directivity;
     std::size_t     size;
-    SampleType*     samples;
+    void*           samples;
+    
+    template <typename T>
+    RTAC_HOSTDEVICE ReceiverView<T>& cast() {
+        return *static_cast<ReceiverView<T>*>(this);
+    }
+    template <typename T>
+    RTAC_HOSTDEVICE const ReceiverView<T>& cast() const {
+        return *static_cast<const ReceiverView<T>*>(this);
+    }
+};
+
+template <typename T>
+struct ReceiverView : public ReceiverViewBase
+{
+    using SampleType = T;
+
+    RTAC_HOSTDEVICE SampleType& sample(unsigned int idx) {
+        return static_cast<SampleType*>(samples)[idx];
+    }
+    RTAC_HOSTDEVICE const SampleType& sample(unsigned int idx) const {
+        return static_cast<const SampleType*>(samples)[idx];
+    }
 
     #ifdef RTAC_CUDACC
 
@@ -35,12 +56,12 @@ struct ReceiverView
         float3 localDir = this->pose.rotation_matrix().transpose()*(-direction);
         //samples[idx] = SampleType::Make(directivity(localDir)*value,
         //                                travel, localDir);
-        samples[idx] = SampleType::Make(value, travel, localDir);
+        this->sample(idx) = SampleType::Make(value, travel, localDir);
     }
 
     __device__ void set_null_sample(std::size_t idx)
     {
-        samples[idx] = SampleType::Null();
+        this->sample(idx) = SampleType::Null();
     }
 
     #endif //RTAC_CUDACC

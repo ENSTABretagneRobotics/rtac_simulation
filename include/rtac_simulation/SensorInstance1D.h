@@ -34,6 +34,7 @@ class SensorInstance1D : public SensorInstance
     void generate_psf_data();
     void do_reduce(cuda::DeviceVector<Complex<float>>& out,
                    const cuda::DeviceVector<VectorView<const SimSample1D>>& bins) const;
+    void* sample_pointer() { return receivedSamples_.data(); }
 
     public:
 
@@ -44,6 +45,7 @@ class SensorInstance1D : public SensorInstance
     KernelView1D<Complex<float>> kernel() const;
 
     void set_sample_count(unsigned int count) { receivedSamples_.resize(count); }
+    unsigned int sample_count() const { return receivedSamples_.size(); }
     const cuda::DeviceVector<Sample>& samples() const { return receivedSamples_; }
           cuda::DeviceVector<Sample>& samples()       { return receivedSamples_; }
 

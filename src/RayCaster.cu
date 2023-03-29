@@ -15,7 +15,7 @@ extern "C" {
 __constant__ rtac::PODWrapper<RayCaster::Params> params;
 
 
-__global__ void __raygen__polar_ray_caster()
+__global__ void __raygen__polar_ray_caster_2d()
 {
     auto idx   = optixGetLaunchIndex().x;
 
@@ -31,16 +31,16 @@ __global__ void __raygen__polar_ray_caster()
     auto distance = ray.travel();
     if(distance < 1.0e-4f) {
         params->outputPoints[idx] = float3({0.0f,0.0f,0.0f});
-        params->receiver.set_null_sample(idx);
+        params->receiver.cast<SimSample2D>().set_null_sample(idx);
     }
     else {
         float phase = (4.0*M_PI*params->emitter.frequency / params->soundCelerity) * distance;
         ray.value() *= rtac::Complex<float>(cos(phase), sin(phase))
                      / (distance*distance);
 
-        params->receiver.set_sample(idx, ray.value(), distance, -dir);
+        params->receiver.cast<SimSample2D>().set_sample(idx, ray.value(), distance, -dir);
 
-        const auto& pose = params->receiver.pose;
+        const auto& pose = params->receiver.cast<SimSample2D>().pose;
         params->outputPoints[idx] = pose.rotation_matrix().transpose()
                                   * (distance * dir);
     }
