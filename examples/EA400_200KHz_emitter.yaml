@@ -13,8 +13,8 @@ directivity:
 
 ray-config:
     type: polar
-    resolution: 0.1
-    bearing-aperture: 100
-    elevation-aperture: 100
+    resolution: 0.01
+    bearing-aperture: 10
+    elevation-aperture: 10
     unit: deg # supported (deg, rad, defaults to deg)
 

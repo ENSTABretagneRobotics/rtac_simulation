@@ -20,8 +20,8 @@ sampling:
     globals: *global-params
     ranges: # default value, can be overriden during simulation
         globals: *global-params
-        size: 512
-        range-max: 50.0
+        size: 2048
+        range-max: 25.0
         unit: m # optional (supported m, cm, mm), defaults to m
 
 waveform:
