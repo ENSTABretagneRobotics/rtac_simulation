@@ -43,7 +43,8 @@ out vec4 outColor;
 void main()
 {
     float squaredRange = dot(delta, delta);
-    float a            = reflected / squaredRange;
+    //float a            = reflected / squaredRange;
+    float a            = reflected;
     float range        = sqrt(squaredRange);
     float bearing      = atan(delta.x, -delta.z);
     float phase        = range*wavelengthFactor + reflectionShift;
