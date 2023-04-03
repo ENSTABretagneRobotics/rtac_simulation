@@ -133,7 +133,7 @@ class Waveform_Sine : public Waveform
         return Complex<float>(std::cos(phase), std::sin(phase));
     }
     virtual Waveform_Sine::Ptr copy() const {
-        return Waveform_Sine::Create(frequency_, duration_, oversampling_);
+        return Waveform_Sine::Create(frequency_, duration_, this->fixed(), oversampling_);
     }
 };
 
