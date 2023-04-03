@@ -23,7 +23,12 @@ void SensorInstance::set_ranges(const Linspace<float>& ranges, float soundCeleri
 void SensorInstance::set_ranges(const Linspace<float>& ranges)
 {
     ranges_ = ranges;
-    waveform_->set_duration(ranges.resolution() / soundCelerity_);
+    if(!waveform_->fixed()) {
+        waveform_->set_duration(ranges.resolution() / soundCelerity_);
+    }
+    else {
+        std::cout << "Waveform is fixed" << std::endl;
+    }
     binner_.reconfigure(ranges, soundCelerity_ * waveform_->duration());
     this->generate_psf_data();
 }

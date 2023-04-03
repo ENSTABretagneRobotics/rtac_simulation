@@ -122,7 +122,7 @@ class Waveform_Sine : public Waveform
         return Ptr(new Waveform_Sine(frequency, duration, fixed, oversampling));
     }
 
-    void set_duration(float duration) { duration_ = duration; }
+    void set_duration(float duration) { if(!this->fixed()) duration_ = duration; }
     
     float sample_rate() const { return 2*frequency_*oversampling_; }
     float frequency()   const { return frequency_; }

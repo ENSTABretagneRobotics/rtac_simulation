@@ -84,7 +84,9 @@ class SensorInstance1D_Complex : public SensorInstance1D
                              const Pose& pose,
                              float soundCelerity) :
         SensorInstance1D(info, pose, soundCelerity)
-    {}
+    {
+        this->set_ranges(info->ranges());
+    }
 
     public:
 
