@@ -10,14 +10,18 @@ globals: &global-params
     sound-celerity: 1500 # should be a global simulation parameter ?
     range-min:      0.1
 
+# directivity:
+#     globals: *global-params
+#     type:   rectangle
+#     width:  1.56 # directivity of a single hydrophone of the antenna
+#     # width:  0.78 # directivity of a single hydrophone of the antenna
+#     height: 8
+#     wavelength: 1.25
+#     unit:   mm # optional (supported m, cm, mm), defaults to m
+#     baffleMode: single-sided # optional (none, single-sided, cardioid), defaults to none.
 directivity:
-    globals: *global-params
-    type:   rectangle
-    width:  1.56 # directivity of a single hydrophone of the antenna
-    # width:  0.78 # directivity of a single hydrophone of the antenna
-    height: 8
-    unit:   mm # optional (supported m, cm, mm), defaults to m
-    baffleMode: single-sided # optional (none, single-sided, cardioid), defaults to none.
+    type: uniform
+    amplitude: 1 # optional (default is 1)
 
 sampling:
     globals: *global-params
