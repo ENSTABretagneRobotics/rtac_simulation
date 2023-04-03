@@ -1,5 +1,7 @@
 #include <iostream>
+#include <iomanip>
 #include <thread>
+#include <fstream>
 using namespace std;
 
 #include <rtac_simulation/helpers/OculusRosbagIterator.h>
@@ -58,6 +60,7 @@ using namespace rtac::simulation;
 
 std::vector<rtac::Pose<float>> poses_from_nmea(std::istream& is);
 std::vector<rtac::Pose<float>> poses_from_nmea(std::istream& is, double scaling, double x0, double y0);
+void write_to_file(const rtac::HostVector<rtac::Complex<float>>& data, std::ofstream& f);
 
 int main()
 {
@@ -69,6 +72,8 @@ int main()
 
     auto simulation = OptixSimulation1::Create("EA400_200KHz_emitter.yaml",
                                                "EA400_200KHz_receiver.yaml");
+    //auto simulation = OptixSimulation1::Create("EA400_38KHz_emitter.yaml",
+    //                                           "EA400_38KHz_receiver.yaml");
     auto ea400 = std::dynamic_pointer_cast<SensorInstance1D_Complex>(simulation->receiver().ptr());
 
     auto mesh = HostMesh<>::from_ply(dtmPath);
@@ -124,14 +129,21 @@ int main()
     simDisplay.disable_frame_counter();
     auto simRenderer = simDisplay.create_renderer<plt::SimplePlot>(plt::View::Create());
 
+    std::ofstream f("out.csv", std::ofstream::out);
+    if(!f) {
+        throw std::runtime_error("could not open output file");
+    }
+
     auto it = poses.cbegin();
     while(!display.should_close()) {
 
         simulation->emitter().pose()  = *it;
         simulation->receiver().pose() = *it;
-        simulation->receiver().set_ranges(25.0, 2048);
+        //simulation->receiver().set_ranges(26.0, 4197);
         //simulation->receiver().set_ranges(25.0, 4096);
         simulation->run();
+
+        write_to_file(ea400->output(), f);
 
         //auto tmp1 = real(ea400->output());
         auto tmp1 = abs(ea400->output());
@@ -142,6 +154,7 @@ int main()
         display.draw();
         simDisplay.draw();
         if(++it == poses.cend()) {
+            break;
             it = poses.cbegin();
         }
     }
@@ -177,4 +190,15 @@ std::vector<rtac::Pose<float>> poses_from_nmea(std::istream& is, double scaling,
         poses.push_back(p);
     }
     return poses;
+}
+
+void write_to_file(const rtac::HostVector<rtac::Complex<float>>& data, std::ofstream& f)
+{
+    std::ostringstream oss;
+    oss << data[0].real() << ' ' << data[0].imag();
+    for(unsigned int i = 1; i < data.size(); i++) {
+        oss << ' ' << data[i].real() << ' ' << data[i].imag();
+    }
+    oss << '\n';
+    f << oss.str();
 }
