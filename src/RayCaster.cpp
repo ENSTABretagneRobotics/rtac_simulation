@@ -98,7 +98,7 @@ void RayCaster::trace(const Emitter&    emitter,
     CUDA_CHECK_LAST();
 }
 
-optix::ObjectInstance::Ptr  RayCaster::add_object(const cuda::DeviceMesh<>::ConstPtr& mesh)
+optix::ObjectInstance::Ptr RayCaster::add_object(const cuda::DeviceMesh<>::ConstPtr& mesh)
 {
     auto geom = optix::MeshGeometry::Create(context_, mesh);
     geom->material_hit_setup({OPTIX_GEOMETRY_FLAG_NONE});
@@ -109,6 +109,9 @@ optix::ObjectInstance::Ptr  RayCaster::add_object(const cuda::DeviceMesh<>::Cons
 
     objectTree_->add_instance(object);
     sbt_->add_object(object);
+
+    object->build();
+    geom->clear_mesh();
 
     return object;
 }
