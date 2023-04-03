@@ -2,16 +2,17 @@
 # Oculus M1200d FLS in 1.2MHz mode (simplified for now
 
 ---
-name: EA400_200KHz_emitter
+name: EA400_38KHz_emitter
 type: emitter_optix
 
-frequency: 200.0e3
+frequency: 38.0e3
 
+# should be rectangle
 directivity:
     type: disk
-    wavelength: 0.75
+    wavelength: 3.95
     baffle-mode: single-sided
-    diameter: 6.5
+    diameter: 15
     unit: cm
 
 ray-config:
@@ -20,10 +21,4 @@ ray-config:
     bearing-aperture: 90
     elevation-aperture: 90
     unit: deg # supported (deg, rad, defaults to deg)
-# ray-config:
-#     type: polar
-#     resolution: 0.03
-#     bearing-aperture: 30
-#     elevation-aperture: 30
-#     unit: deg # supported (deg, rad, defaults to deg)
 
