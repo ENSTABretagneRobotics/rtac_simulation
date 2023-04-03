@@ -10,7 +10,12 @@ SensorInstance2D::SensorInstance2D(const SensorInfo2D::ConstPtr& info,
                                    float soundCelerity) :
     SensorInstance(info, pose, soundCelerity),
     info_(info)
-{}
+{
+    psfData_.set_filter_mode(cudaFilterModeLinear, false);
+    //psfData_.set_wrap_mode(cudaAddressModeBorder, true);
+    //psfData_.set_wrap_mode(cudaAddressModeClamp, true);
+    psfData_.set_wrap_mode(cudaAddressModeBorder, cudaAddressModeClamp, true);
+}
 
 void SensorInstance2D::generate_psf_data()
 {
