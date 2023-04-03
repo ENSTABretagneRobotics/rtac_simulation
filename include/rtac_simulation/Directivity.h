@@ -77,6 +77,9 @@ class Directivity
                                  const std::string& baffleMode = "single-sided",
                                  unsigned int oversampling = 8);
     static Ptr make_uniform(float amplitude = 1.0f, unsigned int oversampling = 1);
+    static Ptr disk_antenna(float diameter, float wavelength,
+                            const std::string& baffleMode = "single-sided",
+                            unsigned int oversampling = 8);
 };
 
 } //namespace simulation

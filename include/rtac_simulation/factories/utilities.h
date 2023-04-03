@@ -52,7 +52,7 @@ class FileFinder
 };
 
 std::vector<float> parse_bearings_from_csv(const std::string& filename);
-Directivity::Ptr   parse_directivity(const YAML::Node& config);
+Directivity::Ptr   parse_directivity(const YAML::Node& config, float wavelength = -1);
 
 float parse_distance_unit(const YAML::Node& config);
 float parse_angle_unit(const YAML::Node& config);

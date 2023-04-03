@@ -74,6 +74,7 @@ target_link_libraries(rtac_simulation PUBLIC
     rtac_base
     rtac_cuda
     yaml-cpp
+    m
 )
 target_compile_options(rtac_simulation PUBLIC
     -DRTAC_TEST_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/examples/"

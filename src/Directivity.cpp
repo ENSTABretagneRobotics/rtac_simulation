@@ -2,6 +2,8 @@
 
 #include <rtac_base/signal_helpers.h>
 
+#include <math.h>
+
 namespace rtac { namespace simulation {
 
 Directivity::Directivity(const HostImage& data)
@@ -78,19 +80,21 @@ Directivity::Ptr Directivity::rectangle_antenna(float width, float height, float
     }
 
     if(baffleMode == "single-sided") {
-        for(unsigned int h = data.height() / 2; h < data.height(); h++) {
+        for(unsigned int h = data.height(); h < data.height(); h++) {
             for(unsigned int w = 0; w < data.width(); w++) {
-                data(h,w) = 0;
+                if(h > data.height() / 2 || w > data.width() / 2)
+                    data(h,w) = 0;
             }
         }
     }
     else if(baffleMode == "cardioid") {
-        for(unsigned int h = 0; h < data.height(); h++) {
-            double elevation = M_PI * h / data.height();
-            for(unsigned int w = 0; w < data.width(); w++) {
-                data(h,w) *= 0.5f*(1.0f + cos(elevation));
-            }
-        }
+        throw std::runtime_error("baffleMode 'cardioid' unsupported");
+        //for(unsigned int h = 0; h < data.height(); h++) {
+        //    double elevation = M_PI * h / data.height();
+        //    for(unsigned int w = 0; w < data.width(); w++) {
+        //        data(h,w) *= 0.5f*(1.0f + cos(elevation));
+        //    }
+        //}
     }
 
     return Directivity::Create(data);
@@ -100,6 +104,65 @@ Directivity::Ptr Directivity::make_uniform(float amplitude, unsigned int oversam
 {
     return Directivity::Create(Image<float>({oversampling, oversampling},
                                             HostVector<float>(1, 1.0f)));
+}
+
+Directivity::Ptr Directivity::disk_antenna(float diameter, float wavelength,
+                                           const std::string& baffleMode,
+                                           unsigned int oversampling)
+{
+    float period = 2.0f*wavelength / diameter;
+    unsigned int N = std::max(64u, 8u*((unsigned int)(oversampling * M_PI / period)));
+
+    HostImage data(N, N);
+    for(unsigned int h = 0; h < data.height(); h++) {
+        double elevation = M_PI * h / data.height();
+        double cose2 = cos(elevation); cose2 *= cose2;
+        double sine2 = sin(elevation); sine2 *= sine2;
+        for(unsigned int w = 0; w < data.width(); w++) {
+            double bearing = M_PI * w / data.width();
+            double cosb2 = cos(bearing); cosb2 *= cosb2;
+            double sinb2 = sin(bearing); sinb2 *= sinb2;
+
+            double denom = (1 - sine2 * sinb2);
+            double y2 = cose2 * sinb2 / denom;
+            double z2 = sine2 * cosb2 / denom;
+            double x = sqrt(1 - y2 - z2);
+            if(abs(x) < 1.0e-2) {
+                data(h,w) = 0.0f;
+                continue;
+            }
+            if(elevation > 0.5*M_PI || bearing > 0.5f*M_PI)
+                x = -x;
+
+            double a = (M_PI*diameter / wavelength) * sin(atan2(sqrt(y2 + z2), x));
+            if(abs(a) < 1.0e-3) {
+                data(h,w) = 1.0f;
+                continue;
+            }
+            data(h,w) = 2.0*j1(a) / a;
+        }
+    }
+
+    if(baffleMode == "single-sided") {
+        for(unsigned int h = 0; h < data.height(); h++) {
+            for(unsigned int w = 0; w < data.width(); w++) {
+                if(h > data.height() / 2 || w > data.width() / 2) {
+                    data(h,w) = 0;
+                }
+            }
+        }
+    }
+    else if(baffleMode == "cardioid") {
+        throw std::runtime_error("baffleMode 'cardioid' unsupported");
+        //for(unsigned int h = 0; h < data.height(); h++) {
+        //    double elevation = M_PI * h / data.height();
+        //    for(unsigned int w = 0; w < data.width(); w++) {
+        //        data(h,w) *= 0.5f*(1.0f + cos(elevation));
+        //    }
+        //}
+    }
+
+    return Directivity::Create(data);
 }
 
 } //namespace simulation

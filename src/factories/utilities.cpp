@@ -152,27 +152,45 @@ std::vector<float> parse_bearings_from_csv(const std::string& filename)
     return res;
 }
 
-Directivity::Ptr parse_directivity(const YAML::Node& config)
+Directivity::Ptr parse_directivity(const YAML::Node& config, float wavelength)
 {
     if(!config) {
         throw ConfigError() << " : Invalid directivity node.";
     }
 
     float scaling = parse_distance_unit(config["unit"]);
+    std::string baffleMode = "";
+    if(auto bMode = config["baffle-mode"]) {
+        baffleMode = bMode.as<std::string>();
+    }
 
-
+    if(wavelength < 0) {
+        if(auto wlNode = config["wavelength"]) {
+            wavelength = scaling*wlNode.as<float>();
+        }
+    }
+    
     std::string type = config["type"].as<std::string>();
     if(type == "rectangle")
     {
-        std::string baffleMode = "";
-        if(auto bMode = config["baffleMode"]) {
-            baffleMode = bMode.as<std::string>();
+        //float wavelength = config["globals"]["sound-celerity"].as<float>()
+        //                 / config["globals"]["frequency"].as<float>();
+        if(wavelength < 0) {
+            throw ConfigError() << " : no wavelength info to create directivity function";
         }
-        float wavelength = config["globals"]["sound-celerity"].as<float>()
-                         / config["globals"]["frequency"].as<float>();
         return Directivity::rectangle_antenna(scaling*config["width"].as<float>(),
                                               scaling*config["height"].as<float>(),
                                               wavelength, baffleMode);
+    }
+    if(type == "disk")
+    {
+        //float wavelength = config["sound-celerity"].as<float>()
+        //                 / config["frequency"].as<float>();
+        if(wavelength < 0) {
+            throw ConfigError() << " : no wavelength info to create directivity function";
+        }
+        return Directivity::disk_antenna(scaling*config["diameter"].as<float>(),
+                                         wavelength, baffleMode);
     }
     else if(type == "uniform")
     {

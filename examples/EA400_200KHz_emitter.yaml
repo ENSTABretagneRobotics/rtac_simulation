@@ -8,13 +8,16 @@ type: emitter_optix
 frequency: 200.0e3
 
 directivity:
-    type: uniform
-    amplitude: 1 # optional (default is 1)
+    type: disk
+    wavelength: 0.75
+    baffle-mode: single-sided
+    diameter: 10
+    unit: cm
 
 ray-config:
     type: polar
-    resolution: 0.01
-    bearing-aperture: 10
-    elevation-aperture: 10
+    resolution: 0.03
+    bearing-aperture: 30
+    elevation-aperture: 30
     unit: deg # supported (deg, rad, defaults to deg)
 

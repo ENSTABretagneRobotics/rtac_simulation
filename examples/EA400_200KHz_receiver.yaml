@@ -11,10 +11,11 @@ globals: &global-params
     range-min:      0.1
 
 directivity:
-    globals: *global-params
-    type:  uniform # supported (uniform, rectangle), defaults to uniform
-    amplitude: 1.0
-    baffleMode: single-sided # optional (none, single-sided, cardioid), defaults to none.
+    type: disk
+    wavelength: 0.75
+    baffle-mode: single-sided
+    diameter: 10
+    unit: cm
 
 sampling:
     globals: *global-params
