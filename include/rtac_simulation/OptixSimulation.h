@@ -54,6 +54,8 @@ class OptixSimulation1 : public Simulation1
     optix::ObjectInstance::Ptr add_object(const cuda::DeviceMesh<>::Ptr& mesh);
     
     void run();
+
+    const cuda::DeviceVector<float3>& hit_points() const { return hitPoints_; }
 };
 
 } //namespace simulation
