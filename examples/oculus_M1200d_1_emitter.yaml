@@ -16,6 +16,6 @@ ray-config:
     # type: polar
     resolution: 0.1
     bearing-aperture: 140
-    elevation-aperture: 100
+    elevation-aperture: 140
     unit: deg # supported (deg, rad, defaults to deg)
 

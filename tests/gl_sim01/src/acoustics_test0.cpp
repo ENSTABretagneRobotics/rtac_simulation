@@ -162,19 +162,23 @@ int main()
         simRenderer->set_range(oculusSensor3->ranges().bounds());
         simRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());
         auto tmp1 = abs(oculusSensor3->output().container());
+        tmp1 = log(tmp1 += 1.0e-2f*max(tmp1));
         simRenderer->set_data({oculusSensor3->width(),
                                oculusSensor3->height()},
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
+                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
+                              plt::GLVector<float>(rescale(tmp1, 0.0f, 0.9f)), false);
 
         glSimRenderer->set_range(oculusSensor4->ranges().bounds());
         glSimRenderer->set_bearings(oculusSensor4->width(), oculusSensor4->bearings().data());
         auto tmp2 = abs(oculusSensor4->output().container());
+        tmp2 = log(tmp2 += 1.0e-2f*max(tmp2));
         glSimRenderer->set_data({oculusSensor4->width(), oculusSensor4->height()},
                                 //plt::GLVector<float>(rescale(tmp2, 0.0f, 10.0f)), false);
-                                plt::GLVector<float>(rescale(tmp2, 0.0f, 1.2f)), false);
+                                //plt::GLVector<float>(rescale(tmp2, 0.0f, 1.2f)), false);
                                 //plt::GLVector<float>(rescale(tmp2, 0.0f, 1.0f)), false);
+                                plt::GLVector<float>(rescale(tmp2, 0.0f, 0.9f)), false);
 
         optixRenderer->points().copy_from_cuda(simulation->hit_points().size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));

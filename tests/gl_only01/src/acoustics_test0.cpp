@@ -142,10 +142,12 @@ int main()
         glSimRenderer->set_range(oculusSensor4->ranges().bounds());
         glSimRenderer->set_bearings(oculusSensor4->width(), oculusSensor4->bearings().data());
         auto tmp2 = abs(oculusSensor4->output().container());
+        tmp2 = log(tmp2 += 1.0e-2f*max(tmp2));
         glSimRenderer->set_data({oculusSensor4->width(), oculusSensor4->height()},
                                 //plt::GLVector<float>(rescale(tmp2, 0.0f, 10.0f)), false);
-                                plt::GLVector<float>(rescale(tmp2, 0.0f, 1.2f)), false);
+                                //plt::GLVector<float>(rescale(tmp2, 0.0f, 1.2f)), false);
                                 //plt::GLVector<float>(rescale(tmp2, 0.0f, 1.0f)), false);
+                                plt::GLVector<float>(rescale(tmp2, 0.0f, 0.9f)), false);
 
         trace->add_pose(pose);
 

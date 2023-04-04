@@ -35,9 +35,9 @@ __global__ void __raygen__polar_ray_caster_1d()
     }
     else {
         float phase = (4.0*M_PI*params->emitter.frequency / params->soundCelerity) * distance;
-        //ray.value() *= rtac::Complex<float>(cos(phase), sin(phase))
-        //             / (distance*distance);
-        ray.value() *= rtac::Complex<float>(cos(phase), sin(phase));
+        ray.value() *= rtac::Complex<float>(cos(phase), sin(phase))
+                     / (distance*distance);
+        //ray.value() *= rtac::Complex<float>(cos(phase), sin(phase));
 
         params->receiver.cast<SimSample1D>().set_sample(idx, ray.value(), distance, -dir);
 
@@ -67,9 +67,9 @@ __global__ void __raygen__polar_ray_caster_2d()
     }
     else {
         float phase = (4.0*M_PI*params->emitter.frequency / params->soundCelerity) * distance;
-        //ray.value() *= rtac::Complex<float>(cos(phase), sin(phase))
-        //             / (distance*distance);
-        ray.value() *= rtac::Complex<float>(cos(phase), sin(phase));
+        ray.value() *= rtac::Complex<float>(cos(phase), sin(phase))
+                     / (distance*distance);
+        //ray.value() *= rtac::Complex<float>(cos(phase), sin(phase));
 
         params->receiver.cast<SimSample2D>().set_sample(idx, ray.value(), distance, -dir);
 

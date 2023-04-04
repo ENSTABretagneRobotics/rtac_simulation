@@ -75,12 +75,12 @@ Directivity::Ptr Directivity::rectangle_antenna(float width, float height, float
                          / (M_PI*width/wavelength*std::sin(bearing));
             if(w == 0) bValue = 1;
 
-            data(h,w)  = (eValue * bValue) * (eValue  * bValue);
+            data(h,w)  = (eValue * bValue);
         }
     }
 
     if(baffleMode == "single-sided") {
-        for(unsigned int h = data.height(); h < data.height(); h++) {
+        for(unsigned int h = 0; h < data.height(); h++) {
             for(unsigned int w = 0; w < data.width(); w++) {
                 if(h > data.height() / 2 || w > data.width() / 2)
                     data(h,w) = 0;

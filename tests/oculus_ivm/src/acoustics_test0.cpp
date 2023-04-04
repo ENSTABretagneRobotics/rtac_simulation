@@ -144,11 +144,13 @@ int main()
         simRenderer->set_range(oculusSensor3->ranges().bounds());
         simRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());
         auto tmp1 = abs(oculusSensor3->output().container());
+        tmp1 = log(tmp1 += 1.0e-4f*max(tmp1));
         simRenderer->set_data({oculusSensor3->width(),
                                oculusSensor3->height()},
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
+                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
+                              plt::GLVector<float>(rescale(tmp1, 0.0f, 0.9f)), false);
 
         //simRenderer2->texture()->set_image({oculusSensor3->width(), oculusSensor3->height()},
         //                      plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)));

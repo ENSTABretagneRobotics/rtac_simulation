@@ -17,12 +17,12 @@ using namespace rtac::simulation;
 
 int main()
 {
-    //auto directivity = Directivity::rectangle_antenna(0.1 / 64, 0.008, 1500 / 1.2e6,
-    //                                                  "single-sided");
+    auto directivity = Directivity::rectangle_antenna(0.1 / 64, 0.008, 1500 / 1.2e6,
+                                                      "single-sided");
     //auto directivity = Directivity::disk_antenna(0.1, 1500.0 / 200.0e3, "single-sided");
     //auto directivity = Directivity::from_sinc_parameters(130.0f, 20.0f);
-    auto directivity = parse_directivity(
-        YAML::LoadFile(FileFinder::Get()->find_one("EA400_200KHz_emitter.yaml"))["directivity"]);
+    //auto directivity = parse_directivity(
+    //    YAML::LoadFile(FileFinder::Get()->find_one("EA400_200KHz_emitter.yaml"))["directivity"]);
 
     auto rendered = render_texture(directivity->texture());
 
