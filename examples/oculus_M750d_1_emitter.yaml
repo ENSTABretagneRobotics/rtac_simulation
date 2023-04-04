@@ -1,0 +1,21 @@
+# Example configuration file to generate an Emitter type for a Blueprint
+# Oculus M1200d FLS in 1.2MHz mode (simplified for now
+
+---
+name: oculus_m750d_1_emitter
+type: emitter_optix
+
+frequency: 750.0e3
+
+directivity:
+    type: uniform
+    amplitude: 1 # optional (default is 1)
+
+ray-config:
+    type: icosphere
+    # type: polar
+    resolution: 0.1
+    bearing-aperture: 140
+    elevation-aperture: 140
+    unit: deg # supported (deg, rad, defaults to deg)
+

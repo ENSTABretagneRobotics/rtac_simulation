@@ -88,8 +88,10 @@ int main()
 
     auto mesh = parser.create_single_mesh<HostMesh<>>();
 
-    auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
-                                               "oculus_M1200d_1_receiver.yaml");
+    //auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
+    //                                           "oculus_M1200d_1_receiver.yaml");
+    auto simulation = OptixSimulation1::Create("oculus_M750d_1_emitter.yaml",
+                                               "oculus_M750d_1_receiver.yaml");
     auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 

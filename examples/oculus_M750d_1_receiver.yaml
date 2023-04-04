@@ -1,0 +1,56 @@
+# Example configuration file to generate a SensorInfo2D type for a Blueprint
+# Oculus M1200d FLS in 1.2MHz mode.
+
+---
+name: oculus_m750d_1_receiver
+type: front-scan
+
+globals: &global-params
+    frequency:      750.0e3
+    sound-celerity: 1500 # should be a global simulation parameter ?
+    range-min:      0.1
+
+directivity:
+    globals: *global-params
+    type:   rectangle
+    width:  1.56 # directivity of a single hydrophone of the antenna
+    # width:  0.78 # directivity of a single hydrophone of the antenna
+    height: 8
+    wavelength: 1.25
+    unit:   mm # optional (supported m, cm, mm), defaults to m
+    baffle-mode: single-sided # optional (none, single-sided, cardioid), defaults to none.
+# directivity:
+#     type: uniform
+#     amplitude: 1 # optional (default is 1)
+
+sampling:
+    globals: *global-params
+    bearings:
+        # type:     beamsteering # complete this ?
+        # steering: linear-delay
+        # size:     256
+        # aperture: 130.0
+        # unit:     deg # optional (supported deg,rad), defaults to deg
+        type: csv
+        path: oculus_M1200d_1_bearings.csv
+    
+    ranges: # default value, can be overriden during simulation
+        globals: *global-params
+        size: 512
+        range-max:  10.0
+        unit: m # optional (supported m, cm, mm), defaults to m
+
+waveform:
+    type: sine
+    frequency: 750.0e3
+    duration-mode: adaptive # default adaptive (supported : adaptive, fixed)
+    duration: 1.0 # ignored in adaptive mode
+    oversampling: 8 # optional, defaults to 8 (important because of linear interpolation)
+
+beamsteering:
+    globals: *global-params
+    type: sinc
+    resolution: 1.0
+    span: 130.0
+    unit: deg # supported (deg, rad)
+
