@@ -31,6 +31,7 @@ __global__ void __raygen__polar_ray_caster_1d()
     if(distance < 1.0e-4f) {
         params->outputPoints[idx] = float3({0.0f,0.0f,0.0f});
         params->receiver.cast<SimSample1D>().set_null_sample(idx);
+        params->outputPoints[idx] = float3{};
     }
     else {
         float phase = (4.0*M_PI*params->emitter.frequency / params->soundCelerity) * distance;
@@ -41,8 +42,7 @@ __global__ void __raygen__polar_ray_caster_1d()
         params->receiver.cast<SimSample1D>().set_sample(idx, ray.value(), distance, -dir);
 
         const auto& pose = params->receiver.cast<SimSample1D>().pose;
-        params->outputPoints[idx] = pose.rotation_matrix().transpose()
-                                  * (distance * dir);
+        params->outputPoints[idx] = origin + distance*dir;
     }
 }
 

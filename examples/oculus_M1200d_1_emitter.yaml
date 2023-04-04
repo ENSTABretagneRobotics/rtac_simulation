@@ -12,7 +12,8 @@ directivity:
     amplitude: 1 # optional (default is 1)
 
 ray-config:
-    type: polar
+    type: icosphere
+    # type: polar
     resolution: 0.1
     bearing-aperture: 140
     elevation-aperture: 100

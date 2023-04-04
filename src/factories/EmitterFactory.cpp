@@ -60,6 +60,18 @@ EmitterBase::Ptr EmitterFactory::MakeEmitterOptix(const YAML::Node& config)
                                directivity,
                                frequency);
     }
+    else if(rayType == "icosphere") {
+        auto resolution        = rayNode["resolution"].as<float>();
+        auto bearingAperture   = rayNode["bearing-aperture"].as<float>();
+        auto elevationAperture = rayNode["elevation-aperture"].as<float>();
+        float scaling = parse_angle_unit(rayNode["unit"]);
+        scaling *= 180.0 / M_PI; // Emitter::Create input is in degrees for now
+        return Emitter::Create(Emitter::generate_icosahedron_directions(scaling*resolution,
+                                                                        scaling*bearingAperture,
+                                                                        scaling*elevationAperture),
+                               directivity,
+                               frequency);
+    }
     else {
         throw ConfigError() << " : unsupported ray-config type (" << rayType << ").";
     }

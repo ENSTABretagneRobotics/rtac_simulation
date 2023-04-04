@@ -1,5 +1,7 @@
 #include <rtac_simulation/Emitter.h>
 
+#include <rtac_base/types/Mesh.h>
+
 namespace rtac { namespace simulation {
 
 Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
@@ -75,6 +77,29 @@ cuda::DeviceVector<float3> Emitter::generate_polar_directions(float resolution,
         }
     }
     return cuda::DeviceVector<float3>(data);
+}
+
+cuda::DeviceVector<float3>
+    Emitter::generate_icosahedron_directions(float resolution,
+                                             float bearingAperture,
+                                             float elevationAperture)
+{
+    unsigned level = std::log2(63.43494882292201 / resolution);
+    auto mesh = make_icosphere(level);
+
+    bearingAperture   *= M_PI  / 180.0f;
+    elevationAperture *= M_PI  / 180.0f;
+
+    std::vector<float3> dirs;
+    for(const auto& p : mesh->points()) {
+        if(std::abs(std::atan2(p.y, p.x)) < 0.5f*bearingAperture &&
+           std::abs(std::atan2(p.z, p.x)) < 0.5f*elevationAperture)
+        {
+            dirs.push_back(float3{p.x, p.y, p.z});
+        }
+    }
+
+    return cuda::DeviceVector<float3>(dirs);
 }
 
 

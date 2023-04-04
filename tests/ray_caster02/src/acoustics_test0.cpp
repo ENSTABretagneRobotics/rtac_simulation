@@ -71,15 +71,15 @@ int main()
     parser.load_geometry();
 
     auto mesh = parser.create_single_mesh<HostMesh<>>();
-    cout << "Number of points : " << mesh->points().size() << endl;
-    cout << "Number of faces  : " << mesh->faces().size() << endl;
 
     auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
                                                "oculus_M1200d_1_receiver.yaml");
     auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 
-    DeviceVector<float3> optixPoints;
+    cout << "Number of points : " << mesh->points().size() << endl;
+    cout << "Number of faces  : " << mesh->faces().size() << endl;
+    cout << "Number of rays   : " << simulation->emitter().ray_count() << std::endl;
 
     plt::samples::Display3D display;
     display.disable_frame_counter();
@@ -132,9 +132,8 @@ int main()
                               plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
 
-        optixRenderer->points().copy_from_cuda(optixPoints.size(),
-            reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));
-        optixRenderer->set_pose(pose);
+        optixRenderer->points().copy_from_cuda(simulation->hit_points().size(),
+            reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));
         trace->add_pose(pose);
 
         pingRenderer->set_data(meta, pingData);

@@ -149,6 +149,8 @@ int main()
         auto tmp1 = abs(ea400->output());
         simRenderer->set_data(tmp1);
 
+        optixRenderer->points().copy_from_cuda(simulation->hit_points().size(),
+            reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));
         trace->add_pose(*it);
 
         display.draw();

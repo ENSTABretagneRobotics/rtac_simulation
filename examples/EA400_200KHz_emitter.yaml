@@ -15,7 +15,8 @@ directivity:
     unit: cm
 
 ray-config:
-    type: polar
+    # type: polar
+    type: icosphere
     resolution: 0.05
     bearing-aperture: 90
     elevation-aperture: 90

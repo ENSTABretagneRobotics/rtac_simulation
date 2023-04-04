@@ -54,30 +54,48 @@ using namespace rtac::simulation;
 
 int main()
 {
+    auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_4pyr.obj");
+    auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_4pyr.xml");
+
+    //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_1.obj");
+    //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_1.xml");
+
+    //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_2.obj");
+    //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_2.xml");
+
+    // auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_fosse.obj");
+    // auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_fosse.xml");
+
+    //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_mur_pyr.obj");
+    //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_mur_pyr.xml");
+
+    // auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_pyr_pil_metro_1338.obj");
+    // auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_pyr_pil_metro_1338.xml");
+
+
+    cout << "3D model  : " << obj << endl;
+    cout << "Pose file : " << xml << endl;
+
     auto Roculus = rtac::Pose<float>::from_rotation_matrix(
         Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitX()).toRotationMatrix() *
         Eigen::AngleAxisf(0.5f*M_PI, Eigen::Vector3f::UnitZ()).toRotationMatrix());
 
-    auto xml = rtac::files::find_one(".*test_oculus_pyr_pil_metro_1338.xml");
-    cout << "Opening : " << xml << endl;
     rtac::external::MetashapeOutput metashape;
     metashape.load_file(xml);
 
-    auto obj = rtac::files::find_one(".*tests/test_oculus_pyr_pil_metro_1338.obj");
-    cout << "Opening : " << obj << endl;
     rtac::external::ObjLoader parser(obj);
     parser.load_geometry();
 
     auto mesh = parser.create_single_mesh<HostMesh<>>();
-    cout << "Number of points : " << mesh->points().size() << endl;
-    cout << "Number of faces  : " << mesh->faces().size() << endl;
 
     auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
                                                "oculus_M1200d_1_receiver.yaml");
     auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 
-    DeviceVector<float3> optixPoints;
+    cout << "Number of points : " << mesh->points().size() << endl;
+    cout << "Number of faces  : " << mesh->faces().size() << endl;
+    cout << "Number of rays   : " << simulation->emitter().ray_count() << std::endl;
 
     plt::samples::Display3D display;
     display.disable_frame_counter();
@@ -92,6 +110,7 @@ int main()
     glMesh->compute_normals();
     auto renderer = display.create_renderer<plt::MeshRenderer>(display.view());
     renderer->mesh() = glMesh;
+
     auto optixRenderer = display.create_renderer<plt::PointCloudRenderer>(display.view());
     optixRenderer->set_color({0.5,0.0,0.0,1.0});
     auto trace = display.create_renderer<plt::FrameInstances>(display.view());
@@ -112,7 +131,7 @@ int main()
     while(!display.should_close() &&
           !simDisplay.should_close())
     {
-        auto pose = poseIt->pose * Roculus;
+        auto pose = (*poseIt) * Roculus;
         if(++poseIt == metashape.poses(0).end()) {
             poseIt = metashape.poses(0).begin();
         }
@@ -127,23 +146,23 @@ int main()
         auto tmp1 = abs(oculusSensor3->output().container());
         simRenderer->set_data({oculusSensor3->width(),
                                oculusSensor3->height()},
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
+                              plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
+                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
 
-        simRenderer2->texture()->set_image({oculusSensor3->width(), oculusSensor3->height()},
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)));
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)));
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)));
+        //simRenderer2->texture()->set_image({oculusSensor3->width(), oculusSensor3->height()},
+        //                      plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)));
+        //                      //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)));
+        //                      //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)));
 
-        optixRenderer->points().copy_from_cuda(optixPoints.size(),
-            reinterpret_cast<const typename plt::GLMesh::Point*>(optixPoints.data()));
-        optixRenderer->set_pose(pose);
+        optixRenderer->points().copy_from_cuda(simulation->hit_points().size(),
+            reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));
+        //optixRenderer->set_pose(pose);
         trace->add_pose(pose);
 
         display.draw();
         simDisplay.draw();
-        simDisplay2.draw();
+        //simDisplay2.draw();
 
         screenshotCount++;
 

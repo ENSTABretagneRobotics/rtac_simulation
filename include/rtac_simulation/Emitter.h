@@ -73,6 +73,15 @@ class Emitter : public EmitterBase
     
     using Pose = EmitterBase::Pose;
 
+    static cuda::DeviceVector<float3>
+        generate_polar_directions(float resolution,
+                                  float bearingAperture,
+                                  float elevationAperture);
+    static cuda::DeviceVector<float3>
+        generate_icosahedron_directions(float resolution,
+                                        float bearingAperture,
+                                        float elevationAperture);
+
     protected:
 
     Directivity::ConstPtr              directivity_;
@@ -85,10 +94,6 @@ class Emitter : public EmitterBase
             const Pose& pose = Pose());
 
     void load_initial_values();
-    static cuda::DeviceVector<float3>
-        generate_polar_directions(float resolution,
-                                  float bearingAperture,
-                                  float elevationAperture);
 
     public:
 
