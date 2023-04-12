@@ -12,9 +12,9 @@ SensorInstance2D::SensorInstance2D(const SensorInfo2D::ConstPtr& info,
     info_(info)
 {
     psfData_.set_filter_mode(cudaFilterModeLinear, false);
-    //psfData_.set_wrap_mode(cudaAddressModeBorder, true);
+    psfData_.set_wrap_mode(cudaAddressModeBorder, true);
     //psfData_.set_wrap_mode(cudaAddressModeClamp, true);
-    psfData_.set_wrap_mode(cudaAddressModeBorder, cudaAddressModeClamp, true);
+    //psfData_.set_wrap_mode(cudaAddressModeBorder, cudaAddressModeClamp, true);
 }
 
 void SensorInstance2D::generate_psf_data()
@@ -36,7 +36,7 @@ KernelView2D<Complex<float>> SensorInstance2D::kernel() const
 {
     KernelView2D<Complex<float>> kernel;
     kernel.xScaling_ = float2{1.0f / this->beam_directivity()->span(), 0.5f};
-    kernel.yScaling_ = float2{1.0f / waveform_->duration()*soundCelerity_,   0.5f};
+    kernel.yScaling_ = float2{1.0f / (waveform_->duration()*soundCelerity_),   0.5f};
     kernel.function_ = psfData_.texture();
     return kernel;
 }

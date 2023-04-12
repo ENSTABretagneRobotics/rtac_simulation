@@ -54,14 +54,14 @@ using namespace rtac::simulation;
 
 int main()
 {
-    auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_4pyr.obj");
-    auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_4pyr.xml");
+    //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_4pyr.obj");
+    //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_4pyr.xml");
 
     //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_1.obj");
     //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_1.xml");
 
-    //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_2.obj");
-    //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_2.xml");
+    auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_2.obj");
+    auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_cercle_pilier_2.xml");
 
     // auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_fosse.obj");
     // auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_fosse.xml");
@@ -69,8 +69,8 @@ int main()
     //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_mur_pyr.obj");
     //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_mur_pyr.xml");
 
-    // auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_pyr_pil_metro_1338.obj");
-    // auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_pyr_pil_metro_1338.xml");
+    //auto obj = rtac::files::find_one(".*models3d_decimated/test_oculus_pyr_pil_metro_1338.obj");
+    //auto xml = rtac::files::find_one(".*models3d_decimated/test_oculus_pyr_pil_metro_1338.xml");
 
 
     cout << "3D model  : " << obj << endl;
@@ -88,10 +88,10 @@ int main()
 
     auto mesh = parser.create_single_mesh<HostMesh<>>();
 
-    //auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
-    //                                           "oculus_M1200d_1_receiver.yaml");
-    auto simulation = OptixSimulation1::Create("oculus_M750d_1_emitter.yaml",
-                                               "oculus_M750d_1_receiver.yaml");
+    auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
+                                               "oculus_M1200d_1_receiver.yaml");
+    //auto simulation = OptixSimulation1::Create("oculus_M750d_1_emitter.yaml",
+    //                                           "oculus_M750d_1_receiver.yaml");
     auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 

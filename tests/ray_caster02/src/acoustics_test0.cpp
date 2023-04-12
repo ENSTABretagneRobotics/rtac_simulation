@@ -53,7 +53,8 @@ using namespace rtac::simulation;
 
 int main()
 {
-    auto dtmPath = find_one(".*models3d/pyramide2_test01/.*.obj");
+    //auto dtmPath = find_one(".*models3d/pyramide2_test01_2/.*.obj");
+    auto dtmPath = find_one(".*models3d/pyramide2_test01_2_subsampled/.*.obj");
     auto bagPath = find_one(".*pyramide2_matisse_positions.bag");
     //auto dtmPath = find_one(".*models3d/pyramide2_test01", "/media/pnarvor/Samsung_T5/submeeting/save_sabre01");
     //auto bagPath = find_one(".*pyramide2_matisse_positions.bag", "/media/pnarvor/Samsung_T5/submeeting/save_sabre01");
@@ -106,10 +107,15 @@ int main()
     simDisplay.disable_frame_counter();
     auto simRenderer = simDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
 
+    plt::Display diffDisplay(display.context());
+    diffDisplay.disable_frame_counter();
+    auto diffRenderer = diffDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
+
     int screenshotCount = 0;
     int loopCount = 0;
     while(!display.should_close() &&
           !simDisplay.should_close() &&
+          !diffDisplay.should_close() &&
           !sonarDisplay.should_close())
     {
         auto oculusDatum = bag.next();
@@ -120,29 +126,52 @@ int main()
 
         simulation->emitter().pose()  = pose;
         simulation->receiver().pose() = pose;
-        simulation->receiver().set_ranges(meta.fireMessage.range, meta.nRanges);
+        //simulation->receiver().set_ranges(meta.fireMessage.range, meta.nRanges);
+        simulation->receiver().set_ranges(1.05*meta.fireMessage.range, meta.nRanges);
         simulation->run();
 
         simRenderer->set_range(oculusSensor3->ranges().bounds());
         simRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());
         auto tmp1 = abs(oculusSensor3->output().container());
         tmp1 = log(tmp1 += 1.0e-2f*max(tmp1));
+        rescale(tmp1, 0.0f, 1.0f);
+        //rescale(tmp1, 0.0f, 10.0f);
+        //rescale(tmp1, 0.0f, 1.2f);
+        //rescale(tmp1, 0.0f, .8f);
         simRenderer->set_data({oculusSensor3->width(),
                                oculusSensor3->height()},
+                              plt::GLVector<float>(tmp1), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
                               //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
-                              plt::GLVector<float>(rescale(tmp1, 0.0f, .9f)), false);
+                              //plt::GLVector<float>(rescale(tmp1, 0.0f, .8f)), false);
 
         optixRenderer->points().copy_from_cuda(simulation->hit_points().size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));
         trace->add_pose(pose);
+
+        rtac::Image<float,rtac::cuda::DeviceVector> pingImg = plt::build_ping_image(meta, pingData);
+        auto tmp2 = tmp1;
+        tmp1 -= rescale(pingImg.container(), 0.0f, 1.0f);
+        auto tmp3 = tmp1;
+
+        std::cout << "diff energy  : " << sum(tmp3 *= tmp3)
+                  << " start energy : " << sum(tmp2 *= tmp2) << std::endl;
+
+        //tmp1 *= -1.0f;
+        rescale(tmp1, 0.0f, 1.0f);
+        diffRenderer->set_range(oculusSensor3->ranges().bounds());
+        diffRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());
+        diffRenderer->set_data({oculusSensor3->width(),
+                               oculusSensor3->height()},
+                               plt::GLVector<float>(tmp1), false);
 
         pingRenderer->set_data(meta, pingData);
 
         display.draw();
         sonarDisplay.draw();
         simDisplay.draw();
+        diffDisplay.draw();
 
         //rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
         //sonarDisplay.take_screenshot(screenshot);
@@ -178,7 +207,7 @@ int main()
         //}
         screenshotCount++;
 
-        std::this_thread::sleep_for(50ms);
+        //std::this_thread::sleep_for(50ms);
     }
 
     return 0;

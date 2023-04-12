@@ -3,11 +3,38 @@
 
 #include <memory>
 
+#include <rtac_base/containers/Image.h>
+
 #include <rtac_display/renderers/FanRenderer.h>
 
 #include <narval_oculus/Oculus.h>
 
 namespace rtac { namespace display {
+
+inline Image<float> build_ping_image(const OculusSimplePingResult& metadata, const uint8_t* data)
+{
+    Image<float> pingData(metadata.nBeams, metadata.nRanges);
+
+    if(metadata.fireMessage.flags | 0x4) {
+        auto raw = data + metadata.imageOffset;
+        for(int r = 0; r < metadata.nRanges; r++) {
+            float gain = 1.0f / sqrt((float)*((const uint32_t*)raw));
+            raw += 4;
+            for(int b = 0; b < metadata.nBeams; b++) {
+                pingData(r,b) = gain * raw[b];
+            }
+            raw += metadata.nBeams;
+        }
+    }
+    else {
+        auto raw = data + metadata.imageOffset;
+        auto ptr = pingData.data();
+        for(int i = 0; i < pingData.size(); i++) {
+            ptr[i] = raw[i] / 255.0;
+        }
+    }
+    return pingData;
+}
 
 class OculusRenderer : public FanRenderer
 {
