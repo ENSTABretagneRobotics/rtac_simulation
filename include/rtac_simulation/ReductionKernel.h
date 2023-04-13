@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <rtac_base/containers/Image.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 #include <rtac_base/cuda/Texture2D.h>
 #include <rtac_base/cuda/vec_math.h>
 

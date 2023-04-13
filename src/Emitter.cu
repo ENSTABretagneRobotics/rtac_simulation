@@ -4,7 +4,7 @@
 
 namespace rtac { namespace simulation {
 
-Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
+Emitter::Emitter(const cuda::CudaVector<float3>& rayDirs,
                  Directivity::ConstPtr directivity,
                  float frequency, const Pose& pose) :
     EmitterBase(frequency, pose),
@@ -15,7 +15,7 @@ Emitter::Emitter(const cuda::DeviceVector<float3>& rayDirs,
     this->load_initial_values();
 }
 
-Emitter::Ptr Emitter::Create(const cuda::DeviceVector<float3>& rayDirs,
+Emitter::Ptr Emitter::Create(const cuda::CudaVector<float3>& rayDirs,
                              Directivity::ConstPtr directivity,
                              float frequency, const Pose& pose)
 {
@@ -54,9 +54,9 @@ void Emitter::load_initial_values()
     CUDA_CHECK_LAST();
 }
 
-cuda::DeviceVector<float3> Emitter::generate_polar_directions(float resolution,
-                                                              float bearingAperture,
-                                                              float elevationAperture)
+cuda::CudaVector<float3> Emitter::generate_polar_directions(float resolution,
+                                                            float bearingAperture,
+                                                            float elevationAperture)
 {
     resolution        *= M_PI  / 180.0f;
     bearingAperture   *= M_PI  / 180.0f;
@@ -76,10 +76,10 @@ cuda::DeviceVector<float3> Emitter::generate_polar_directions(float resolution,
                                   std::sin(phi)});
         }
     }
-    return cuda::DeviceVector<float3>(data);
+    return cuda::CudaVector<float3>(data);
 }
 
-cuda::DeviceVector<float3>
+cuda::CudaVector<float3>
     Emitter::generate_icosahedron_directions(float resolution,
                                              float bearingAperture,
                                              float elevationAperture)
@@ -99,7 +99,7 @@ cuda::DeviceVector<float3>
         }
     }
 
-    return cuda::DeviceVector<float3>(dirs);
+    return cuda::CudaVector<float3>(dirs);
 }
 
 

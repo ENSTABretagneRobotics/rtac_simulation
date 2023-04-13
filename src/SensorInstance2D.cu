@@ -82,8 +82,8 @@ __global__ void do_sparse_convolve_2d_f(ImageView<Complex<float>> out,
     }
 }
 
-void SensorInstance2D::do_reduce(Image<Complex<float>, cuda::DeviceVector>& out,
-    const cuda::DeviceVector<VectorView<const SimSample2D>>& bins) const
+void SensorInstance2D::do_reduce(Image<Complex<float>, cuda::CudaVector>& out,
+    const cuda::CudaVector<VectorView<const SimSample2D>>& bins) const
 {
     out.resize({this->width(), this->height()});
 

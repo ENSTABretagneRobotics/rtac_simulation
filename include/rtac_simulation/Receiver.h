@@ -6,7 +6,7 @@
 
 #include <rtac_base/types/Pose.h>
 #include <rtac_base/cuda/geometry.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 
 #include <rtac_simulation/Sample.h>
 #include <rtac_simulation/Directivity.h>
@@ -67,9 +67,9 @@ struct ReceiverView : public ReceiverViewBase
     #endif //RTAC_CUDACC
 };
 
-void sort(rtac::cuda::DeviceVector<SimSample1D>& samples);
-void sort(rtac::cuda::DeviceVector<SimSample2D>& samples);
-void sort(rtac::cuda::DeviceVector<SimSample3D>& samples);
+void sort(rtac::cuda::CudaVector<SimSample1D>& samples);
+void sort(rtac::cuda::CudaVector<SimSample2D>& samples);
+void sort(rtac::cuda::CudaVector<SimSample3D>& samples);
 
 } //namespace simulation
 } //namespace rtac

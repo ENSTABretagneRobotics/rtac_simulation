@@ -36,7 +36,7 @@ using namespace rtac::algorithm;
 #include <rtac_base/containers/HostVector.h>
 
 #include <rtac_base/cuda/Texture2D.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 #include <rtac_base/cuda/DeviceObject.h>
 using namespace rtac::cuda;
 
@@ -101,8 +101,6 @@ int main()
     cout << "Number of points : " << mesh->points().size() << endl;
     cout << "Number of faces  : " << mesh->faces().size() << endl;
     simulation->add_object(DeviceMesh<>::Create(*mesh));
-
-    //DeviceVector<float3> optixPoints;
 
     plt::samples::Display3D display;
     display.disable_frame_counter();

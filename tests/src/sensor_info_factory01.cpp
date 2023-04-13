@@ -4,7 +4,7 @@ using namespace std;
 #include <rtac_base/containers/Image.h>
 using namespace rtac;
 
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 #include <rtac_base/cuda/texture_utils.h>
 #include <rtac_base/cuda/vector_utils.h>
 using namespace rtac::cuda;
@@ -31,8 +31,8 @@ int main()
     auto sensorInfo2 = SensorInfoFactory::Make(YAML::LoadFile(filename2));
 
     auto directivity = sensorInfo->directivity();
-    Image<float, DeviceVector> tmp0(directivity->texture().width(), 
-                                    directivity->texture().height());
+    Image<float, CudaVector> tmp0(directivity->texture().width(), 
+                                  directivity->texture().height());
     render_texture(directivity->texture(), tmp0.view());
 
     #ifdef RTAC_SIMULATION_OPENGL_ENABLED

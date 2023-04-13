@@ -21,7 +21,7 @@ void Binner::reconfigure(unsigned int binCount, const Bounds<float>& bounds,
     binIndexes_.resize(binCount_);
 }
 
-void Binner::compute_keys(const rtac::cuda::DeviceVector<SimSample1D>& samples)
+void Binner::compute_keys(const rtac::cuda::CudaVector<SimSample1D>& samples)
 {
     keys_.resize(samples.size());
     thrust::transform(thrust::device_pointer_cast(samples.begin()),
@@ -30,7 +30,7 @@ void Binner::compute_keys(const rtac::cuda::DeviceVector<SimSample1D>& samples)
                       Key(this->bin_count(), bounds_.lower, bounds_.upper, margin_));
 }
 
-void Binner::compute_keys(const rtac::cuda::DeviceVector<SimSample2D>& samples)
+void Binner::compute_keys(const rtac::cuda::CudaVector<SimSample2D>& samples)
 {
     keys_.resize(samples.size());
     thrust::transform(thrust::device_pointer_cast(samples.begin()),
@@ -39,7 +39,7 @@ void Binner::compute_keys(const rtac::cuda::DeviceVector<SimSample2D>& samples)
                       Key(this->bin_count(), bounds_.lower, bounds_.upper, margin_));
 }
 
-void Binner::compute_keys(const rtac::cuda::DeviceVector<SimSample3D>& samples)
+void Binner::compute_keys(const rtac::cuda::CudaVector<SimSample3D>& samples)
 {
     keys_.resize(samples.size());
     thrust::transform(thrust::device_pointer_cast(samples.begin()),
@@ -105,8 +105,8 @@ __global__ void do_make_bins(VectorView<const T>* bins,
     }
 }
 
-void Binner::make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample1D>>& bins,
-                       const rtac::cuda::DeviceVector<SimSample1D>& samples)
+void Binner::make_bins(rtac::cuda::CudaVector<rtac::VectorView<const SimSample1D>>& bins,
+                       const rtac::cuda::CudaVector<SimSample1D>& samples)
 {
     bins.resize(this->bin_count());
     float resolution = bounds_.length() / (this->bin_count() - 1);
@@ -119,8 +119,8 @@ void Binner::make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample
     CUDA_CHECK_LAST();
 }
 
-void Binner::make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample2D>>& bins,
-                       const rtac::cuda::DeviceVector<SimSample2D>& samples)
+void Binner::make_bins(rtac::cuda::CudaVector<rtac::VectorView<const SimSample2D>>& bins,
+                       const rtac::cuda::CudaVector<SimSample2D>& samples)
 {
     bins.resize(this->bin_count());
     float resolution = bounds_.length() / (this->bin_count() - 1);

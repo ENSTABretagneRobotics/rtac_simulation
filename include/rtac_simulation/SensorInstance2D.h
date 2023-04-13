@@ -14,13 +14,13 @@ class SensorInstance2D : public SensorInstance
     using Pose     = rtac::Pose<float>;
 
     using Sample = SimSample2D;
-    using Bins   = rtac::cuda::DeviceVector<VectorView<const Sample>>;
+    using Bins   = rtac::cuda::CudaVector<VectorView<const Sample>>;
 
     protected:
 
     SensorInfo2D::ConstPtr info_;
 
-    cuda::DeviceVector<Sample> receivedSamples_;
+    cuda::CudaVector<Sample> receivedSamples_;
     Bins bins_;
 
     cuda::Texture2D<float2> psfData_;
@@ -30,8 +30,8 @@ class SensorInstance2D : public SensorInstance
                      float soundCelerity);
 
     void generate_psf_data();
-    void do_reduce(Image<Complex<float>, cuda::DeviceVector>& out,
-                   const cuda::DeviceVector<VectorView<const SimSample2D>>& bins) const;
+    void do_reduce(Image<Complex<float>, cuda::CudaVector>& out,
+                   const cuda::CudaVector<VectorView<const SimSample2D>>& bins) const;
     
     void* sample_pointer() { return receivedSamples_.data(); }
 
@@ -53,8 +53,8 @@ class SensorInstance2D : public SensorInstance
 
     void set_sample_count(unsigned int count) { receivedSamples_.resize(count); }
     unsigned int sample_count() const { return receivedSamples_.size(); }
-    const cuda::DeviceVector<Sample>& samples() const { return receivedSamples_; }
-          cuda::DeviceVector<Sample>& samples()       { return receivedSamples_; }
+    const cuda::CudaVector<Sample>& samples() const { return receivedSamples_; }
+          cuda::CudaVector<Sample>& samples()       { return receivedSamples_; }
 
     ReceiverView<Sample> receiver_view()
     {
@@ -68,7 +68,7 @@ class SensorInstance2D : public SensorInstance
     }
 
     template <typename T>
-    void reduce_samples(Image<T, cuda::DeviceVector>& out)
+    void reduce_samples(Image<T, cuda::CudaVector>& out)
     {
         sort(receivedSamples_);
         binner_.compute(bins_, receivedSamples_);
@@ -85,7 +85,7 @@ class SensorInstance2D_Complex : public SensorInstance2D
 
     protected:
 
-    Image<Complex<float>, cuda::DeviceVector> sensorOutput_;
+    Image<Complex<float>, cuda::CudaVector> sensorOutput_;
 
     SensorInstance2D_Complex(const SensorInfo2D::ConstPtr& info,
                              const Pose& pose,
@@ -118,7 +118,7 @@ class SensorInstance2D_Complex : public SensorInstance2D
 
     bool is_complex() const { return true; }
 
-    const Image<Complex<float>, cuda::DeviceVector>& output() const { return sensorOutput_; }
+    const Image<Complex<float>, cuda::CudaVector>& output() const { return sensorOutput_; }
 
     void compute_output()
     {

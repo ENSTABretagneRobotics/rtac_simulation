@@ -17,7 +17,7 @@ struct Lesser
 };
 
 
-void sort(rtac::cuda::DeviceVector<SimSample1D>& samples)
+void sort(rtac::cuda::CudaVector<SimSample1D>& samples)
 {
     thrust::sort(thrust::device,
                  thrust::device_pointer_cast(samples.begin()),
@@ -25,7 +25,7 @@ void sort(rtac::cuda::DeviceVector<SimSample1D>& samples)
                  Lesser<SimSample1D>());
 }
 
-void sort(rtac::cuda::DeviceVector<SimSample2D>& samples)
+void sort(rtac::cuda::CudaVector<SimSample2D>& samples)
 {
     thrust::sort(thrust::device,
                  thrust::device_pointer_cast(samples.begin()),
@@ -33,7 +33,7 @@ void sort(rtac::cuda::DeviceVector<SimSample2D>& samples)
                  Lesser<SimSample2D>());
 }
 
-void sort(rtac::cuda::DeviceVector<SimSample3D>& samples)
+void sort(rtac::cuda::CudaVector<SimSample3D>& samples)
 {
     thrust::sort(thrust::device,
                  thrust::device_pointer_cast(samples.begin()),

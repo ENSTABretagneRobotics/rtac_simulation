@@ -88,17 +88,17 @@ class RayCaster : public std::enable_shared_from_this<RayCaster>
     const DefaultMaterial::Ptr& default_material() { return defaultMaterial_; }
     optix::ObjectInstance::Ptr add_object(const cuda::DeviceMesh<>::ConstPtr& mesh);
 
-    void trace(cuda::DeviceVector<float3>& outputPoints);
+    void trace(cuda::CudaVector<float3>& outputPoints);
 
     void trace(Emitter::Ptr                emitter,
                SensorInstance2D::Ptr       receiver,
-               cuda::DeviceVector<float3>& outputPoints)
+               cuda::CudaVector<float3>& outputPoints)
     {
         this->trace(*emitter, *receiver, outputPoints);
     }
     void trace(const Emitter&    emitter,
                SensorInstance2D& receiver,
-               cuda::DeviceVector<float3>& outputPoints);
+               cuda::CudaVector<float3>& outputPoints);
 
     float sound_celerity() const      { return soundCelerity_; }
     void  set_sound_celerity(float c) { soundCelerity_ = c;    }

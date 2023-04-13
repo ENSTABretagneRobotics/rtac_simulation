@@ -47,7 +47,7 @@ class Directivity
     using Ptr      = std::shared_ptr<Directivity>;
     using ConstPtr = std::shared_ptr<const Directivity>;
 
-    using DeviceImage = rtac::Image<float, rtac::cuda::DeviceVector>;
+    using DeviceImage = rtac::Image<float, rtac::cuda::CudaVector>;
     using HostImage   = rtac::Image<float, rtac::HostVector>;
     using DataShape   = typename HostImage::Shape;
 

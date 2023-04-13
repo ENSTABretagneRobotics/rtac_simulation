@@ -5,7 +5,7 @@
 #include <memory>
 
 #include <rtac_base/types/Pose.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 #include <rtac_base/cuda/geometry.h>
 
 #include <rtac_simulation/Directivity.h>
@@ -73,22 +73,22 @@ class Emitter : public EmitterBase
     
     using Pose = EmitterBase::Pose;
 
-    static cuda::DeviceVector<float3>
+    static cuda::CudaVector<float3>
         generate_polar_directions(float resolution,
                                   float bearingAperture,
                                   float elevationAperture);
-    static cuda::DeviceVector<float3>
+    static cuda::CudaVector<float3>
         generate_icosahedron_directions(float resolution,
                                         float bearingAperture,
                                         float elevationAperture);
 
     protected:
 
-    Directivity::ConstPtr              directivity_;
-    cuda::DeviceVector<float3>         directions_;
-    cuda::DeviceVector<Complex<float>> initialValues_;
+    Directivity::ConstPtr            directivity_;
+    cuda::CudaVector<float3>         directions_;
+    cuda::CudaVector<Complex<float>> initialValues_;
 
-    Emitter(const cuda::DeviceVector<float3>& rayDirs,
+    Emitter(const cuda::CudaVector<float3>& rayDirs,
             Directivity::ConstPtr directivity,
             float frequency,
             const Pose& pose = Pose());
@@ -97,7 +97,7 @@ class Emitter : public EmitterBase
 
     public:
 
-    static Ptr Create(const cuda::DeviceVector<float3>& rayDirs,
+    static Ptr Create(const cuda::CudaVector<float3>& rayDirs,
                       Directivity::ConstPtr directivity,
                       float frequency,
                       const Pose& pose = Pose());

@@ -50,7 +50,7 @@ RayCaster::Ptr RayCaster::Create(const Emitter::Ptr& emitter,
     return Ptr(new RayCaster(emitter, receiver));
 }
 
-void RayCaster::trace(cuda::DeviceVector<float3>& outputPoints)
+void RayCaster::trace(cuda::CudaVector<float3>& outputPoints)
 {
     cuda::DeviceObject<Params> params;
 
@@ -75,7 +75,7 @@ void RayCaster::trace(cuda::DeviceVector<float3>& outputPoints)
 
 void RayCaster::trace(const Emitter&    emitter,
                       SensorInstance2D& receiver,
-                      cuda::DeviceVector<float3>& outputPoints)
+                      cuda::CudaVector<float3>& outputPoints)
 {
     cuda::DeviceObject<Params> params;
 

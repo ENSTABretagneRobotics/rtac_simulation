@@ -32,7 +32,7 @@ using namespace rtac::algorithm;
 #include <rtac_base/containers/HostVector.h>
 
 #include <rtac_base/cuda/Texture2D.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 #include <rtac_base/cuda/DeviceObject.h>
 using namespace rtac::cuda;
 
@@ -177,7 +177,7 @@ int main()
 }
 
 //#include <random>
-//DeviceVector<float> dtm_phases(const MeshGeometry::Ptr& mesh)
+//CudaVector<float> dtm_phases(const MeshGeometry::Ptr& mesh)
 //{
 //    std::vector<float> phases(mesh->primitive_count());
 //    
@@ -187,5 +187,5 @@ int main()
 //        v = distribution(randGenerator);
 //    }
 //
-//    return DeviceVector<float>(phases);
+//    return CudaVector<float>(phases);
 //}

@@ -71,8 +71,8 @@ __global__ void do_sparse_convolve_1d_f(VectorView<Complex<float>> out,
     }
 }
 
-void SensorInstance1D::do_reduce(cuda::DeviceVector<Complex<float>>& out,
-    const cuda::DeviceVector<VectorView<const SimSample1D>>& bins) const
+void SensorInstance1D::do_reduce(cuda::CudaVector<Complex<float>>& out,
+    const cuda::CudaVector<VectorView<const SimSample1D>>& bins) const
 {
     out.resize(this->size());
 

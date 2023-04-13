@@ -25,7 +25,7 @@ class OptixSimulation1 : public Simulation1
     SensorInstance::Ptr receiver_;
 
     RayCaster::Ptr rayCaster_;
-    cuda::DeviceVector<float3> hitPoints_;
+    cuda::CudaVector<float3> hitPoints_;
 
 
     OptixSimulation1(const Emitter::Ptr& emitter,
@@ -55,7 +55,7 @@ class OptixSimulation1 : public Simulation1
     
     void run();
 
-    const cuda::DeviceVector<float3>& hit_points() const { return hitPoints_; }
+    const cuda::CudaVector<float3>& hit_points() const { return hitPoints_; }
 };
 
 } //namespace simulation

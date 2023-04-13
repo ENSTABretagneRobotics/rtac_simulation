@@ -31,7 +31,7 @@ using namespace rtac::algorithm;
 #include <rtac_base/containers/HostVector.h>
 
 #include <rtac_base/cuda/Texture2D.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 #include <rtac_base/cuda/DeviceObject.h>
 #include <rtac_base/cuda/DeviceMesh.h>
 using namespace rtac::cuda;
@@ -93,8 +93,6 @@ int main()
                                       "oculus_M1200d_1_receiver.yaml");
     glSim->ray_caster()->set_mesh(*mesh);
     auto oculusSensor4 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(glSim->receiver_ptr());
-
-    DeviceVector<float3> optixPoints;
 
     plt::samples::Display3D display(glSim->context());
     //plt::samples::Display3D display;

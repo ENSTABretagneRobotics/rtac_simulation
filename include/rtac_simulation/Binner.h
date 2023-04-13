@@ -6,7 +6,7 @@
 #include <rtac_base/types/Bounds.h>
 #include <rtac_base/types/Linspace.h>
 #include <rtac_base/containers/HostVector.h>
-#include <rtac_base/cuda/DeviceVector.h>
+#include <rtac_base/cuda/CudaVector.h>
 
 #include <rtac_simulation/Sample.h>
 
@@ -58,23 +58,23 @@ class Binner
     unsigned int  binCount_;
     Bounds<float> bounds_;
     float         margin_;
-    rtac::cuda::DeviceVector<unsigned int> keys_;
-    rtac::cuda::DeviceVector<uint2> binIndexes_; // x is bin start, y is bin end
+    rtac::cuda::CudaVector<unsigned int> keys_;
+    rtac::cuda::CudaVector<uint2> binIndexes_; // x is bin start, y is bin end
 
-    void compute_keys(const rtac::cuda::DeviceVector<SimSample1D>& samples);
-    void compute_keys(const rtac::cuda::DeviceVector<SimSample2D>& samples);
-    void compute_keys(const rtac::cuda::DeviceVector<SimSample3D>& samples);
+    void compute_keys(const rtac::cuda::CudaVector<SimSample1D>& samples);
+    void compute_keys(const rtac::cuda::CudaVector<SimSample2D>& samples);
+    void compute_keys(const rtac::cuda::CudaVector<SimSample3D>& samples);
     void make_segments();
 
-    void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample1D>>& bins,
-                   const rtac::cuda::DeviceVector<SimSample1D>& samples);
-    void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample2D>>& bins,
-                   const rtac::cuda::DeviceVector<SimSample2D>& samples);
-    //void make_bins(rtac::cuda::DeviceVector<rtac::VectorView<const SimSample3D>>& bins,
-    //               const rtac::cuda::DeviceVector<SimSample3D>& samples);
+    void make_bins(rtac::cuda::CudaVector<rtac::VectorView<const SimSample1D>>& bins,
+                   const rtac::cuda::CudaVector<SimSample1D>& samples);
+    void make_bins(rtac::cuda::CudaVector<rtac::VectorView<const SimSample2D>>& bins,
+                   const rtac::cuda::CudaVector<SimSample2D>& samples);
+    //void make_bins(rtac::cuda::CudaVector<rtac::VectorView<const SimSample3D>>& bins,
+    //               const rtac::cuda::CudaVector<SimSample3D>& samples);
     template <typename T>
-    void compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& bins,
-                      const rtac::cuda::DeviceVector<T>& samples);
+    void compute_bins(rtac::cuda::CudaVector<rtac::VectorView<const T>>& bins,
+                      const rtac::cuda::CudaVector<T>& samples);
 
     public:
 
@@ -94,8 +94,8 @@ class Binner
 
     // input data is supposed to be sorted
     template <typename T>
-    void compute(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& bins,
-                 const rtac::cuda::DeviceVector<T>& samples)
+    void compute(rtac::cuda::CudaVector<rtac::VectorView<const T>>& bins,
+                 const rtac::cuda::CudaVector<T>& samples)
     {
         this->compute_keys(samples);
         this->compute_bins(bins, samples);
@@ -106,8 +106,8 @@ class Binner
  * This method is not GPUised but should be
  */
 template <typename T>
-void Binner::compute_bins(rtac::cuda::DeviceVector<rtac::VectorView<const T>>& bins,
-                          const rtac::cuda::DeviceVector<T>& samples)
+void Binner::compute_bins(rtac::cuda::CudaVector<rtac::VectorView<const T>>& bins,
+                          const rtac::cuda::CudaVector<T>& samples)
 {
     this->make_segments();
     this->make_bins(bins, samples);
