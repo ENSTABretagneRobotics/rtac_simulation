@@ -150,7 +150,7 @@ int main()
             reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));
         trace->add_pose(pose);
 
-        rtac::Image<float,rtac::cuda::DeviceVector> pingImg = plt::build_ping_image(meta, pingData);
+        rtac::Image<float,rtac::cuda::CudaVector> pingImg = plt::build_ping_image(meta, pingData);
         auto tmp2 = tmp1;
         tmp1 -= rescale(pingImg.container(), 0.0f, 1.0f);
         auto tmp3 = tmp1;
