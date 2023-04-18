@@ -101,6 +101,12 @@ void SensorInstance2D::do_reduce(Image<Complex<float>, cuda::CudaVector>& out,
     CUDA_CHECK_LAST();
 }
 
+cuda::CudaPing2D<Complex<float>> SensorInstance2D_Complex::get_ping() const 
+{
+    return cuda::CudaPing2D<Complex<float>>(this->ranges(),
+                                            cuda::CudaVector<float>(this->bearings()),
+                                            sensorOutput_.container());
+}
 
 } //namespace simulation
 } //namespace rtac

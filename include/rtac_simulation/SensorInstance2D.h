@@ -1,6 +1,9 @@
 #ifndef _DEF_RTAC_SIMULATION_SENSOR_INSTANCE_2D_H_
 #define _DEF_RTAC_SIMULATION_SENSOR_INSTANCE_2D_H_
 
+#include <rtac_base/types/SonarPing.h>
+#include <rtac_base/cuda/CudaPing.h>
+
 #include <rtac_simulation/SensorInstance.h>
 
 namespace rtac { namespace simulation {
@@ -125,6 +128,8 @@ class SensorInstance2D_Complex : public SensorInstance2D
         sensorOutput_.resize({this->width(), this->height()});
         this->reduce_samples(sensorOutput_);
     }
+
+    cuda::CudaPing2D<Complex<float>> get_ping() const;
 };
 
 
