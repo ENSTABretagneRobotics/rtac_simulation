@@ -35,6 +35,8 @@ class SensorInstance2D : public SensorInstance
     void generate_psf_data();
     void do_reduce(Image<Complex<float>, cuda::CudaVector>& out,
                    const cuda::CudaVector<VectorView<const SimSample2D>>& bins) const;
+    void do_reduce(cuda::CudaPing2D<Complex<float>>& out,
+                   const cuda::CudaVector<VectorView<const SimSample2D>>& bins) const;
     
     void* sample_pointer() { return receivedSamples_.data(); }
 
@@ -76,6 +78,18 @@ class SensorInstance2D : public SensorInstance
         sort(receivedSamples_);
         binner_.compute(bins_, receivedSamples_);
         this->do_reduce(out, bins_);
+    }
+
+    template <typename T>
+    void fill_ping(cuda::CudaPing2D<T>& ping, bool resizePing = true)
+    {
+        if(resizePing) {
+            ping.set_bearings(this->bearings(), false);
+            ping.set_ranges(this->ranges(), true);
+        }
+        sort(receivedSamples_);
+        binner_.compute(bins_, receivedSamples_);
+        this->do_reduce(ping, bins_);
     }
 };
 

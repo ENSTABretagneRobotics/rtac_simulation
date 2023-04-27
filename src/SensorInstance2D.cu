@@ -101,6 +101,23 @@ void SensorInstance2D::do_reduce(Image<Complex<float>, cuda::CudaVector>& out,
     CUDA_CHECK_LAST();
 }
 
+void SensorInstance2D::do_reduce(cuda::CudaPing2D<Complex<float>>& out,
+               const cuda::CudaVector<VectorView<const SimSample2D>>& bins) const
+{
+    static constexpr unsigned int BlockSize = 512;
+    uint3 grid{out.width(), out.height(), 1};
+
+    do_sparse_convolve_2d_f<<<grid, BlockSize, sizeof(float)*BlockSize>>>(
+        out.image_view(),
+        this->bearings_view(),
+        this->ranges(),
+        bins.data(),
+        this->kernel());
+
+    cudaDeviceSynchronize();
+    CUDA_CHECK_LAST();
+}
+
 cuda::CudaPing2D<Complex<float>> SensorInstance2D_Complex::get_ping() const 
 {
     return cuda::CudaPing2D<Complex<float>>(this->ranges(),
