@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <fstream>
 using namespace std;
 
 #include <rtac_simulation/helpers/OculusRosbagIterator.h>
@@ -29,6 +30,7 @@ using Quaternion = Pose::Quat;
 using namespace rtac::algorithm;
 
 #include <rtac_base/containers/HostVector.h>
+#include <rtac_base/serialization/sonar_ping.h>
 
 #include <rtac_base/cuda/Texture2D.h>
 #include <rtac_base/cuda/CudaVector.h>
@@ -119,6 +121,8 @@ int main()
     ping2Display.disable_frame_counter();
     auto ping2Renderer = ping2Display.create_renderer<plt::FanRenderer>(plt::View::Create());
 
+    std::ofstream fout("output.rtac", std::ofstream::binary);
+
     int screenshotCount = 0;
     int loopCount = 0;
     while(!display.should_close() &&
@@ -162,6 +166,7 @@ int main()
         trace->add_pose(pose);
         
         ping2Renderer->set_ping(ping);
+        rtac::serialize(fout, ping);
 
         //rtac::Image<float,rtac::cuda::CudaVector> pingImg = plt::build_ping_image(meta, pingData);
         //auto tmp2 = tmp1;
