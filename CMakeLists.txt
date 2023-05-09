@@ -46,6 +46,9 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Simulation.h
     include/rtac_simulation/Binner.h
 
+    include/rtac_simulation/Sink.h
+    include/rtac_simulation/Sink2D.h
+
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/EmitterFactory.h
     include/rtac_simulation/factories/SensorInfoFactory.h
@@ -60,6 +63,8 @@ add_library(rtac_simulation SHARED
     src/SensorInstance1D.cu
     src/SensorInstance2D.cu
     src/Binner.cu
+
+    src/Sink2D.cpp
 
     src/factories/utilities.cpp
     src/factories/EmitterFactory.cpp

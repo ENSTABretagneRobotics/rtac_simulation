@@ -49,6 +49,7 @@ namespace plt = rtac::display;
 #include <rtac_simulation/RayCaster.h>
 #include <rtac_simulation/SensorInstance.h>
 #include <rtac_simulation/OptixSimulation.h>
+#include <rtac_simulation/Sink2D.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
 using namespace rtac::simulation;
@@ -122,7 +123,8 @@ int main()
     ping2Display.disable_frame_counter();
     auto ping2Renderer = ping2Display.create_renderer<plt::FanRenderer>(plt::View::Create());
 
-    std::ofstream fout("output.rtac", std::ofstream::binary);
+    //std::ofstream fout("output.rtac", std::ofstream::binary);
+    auto fout = rtac::simulation::FileSink2D::Create("output.rtac", true);
 
     int screenshotCount = 0;
     int loopCount = 0;
@@ -167,7 +169,10 @@ int main()
         trace->add_pose(pose);
         
         ping2Renderer->set_ping(ping);
-        rtac::serialize(fout, ping);
+        fout->set_output(oculusSensor3);
+
+        //rtac::serialize(fout, ping);
+
 
         //rtac::Image<float,rtac::cuda::CudaVector> pingImg = plt::build_ping_image(meta, pingData);
         //auto tmp2 = tmp1;
