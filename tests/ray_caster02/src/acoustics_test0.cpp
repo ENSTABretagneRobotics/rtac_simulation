@@ -50,6 +50,7 @@ namespace plt = rtac::display;
 #include <rtac_simulation/SensorInstance.h>
 #include <rtac_simulation/OptixSimulation.h>
 #include <rtac_simulation/Sink2D.h>
+#include <rtac_simulation/DisplaySink2D.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
 using namespace rtac::simulation;
@@ -108,31 +109,15 @@ int main()
     sonarDisplay.disable_frame_counter();
     auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::Create());
 
-    plt::Display simDisplay(display.context());
-    simDisplay.disable_frame_counter();
-    auto simRenderer = simDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
+    //CudaPing2D<rtac::Complex<float>> ping(rtac::Linspace<float>(0.0,1.0,0),
+    //                                      rtac::HostVector<float>::linspace(-1.0,1.0,2));
 
-    //plt::Display diffDisplay(display.context());
-    //diffDisplay.disable_frame_counter();
-    //auto diffRenderer = diffDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
-
-    CudaPing2D<rtac::Complex<float>> ping(rtac::Linspace<float>(0.0,1.0,0),
-                                          rtac::HostVector<float>::linspace(-1.0,1.0,2));
-
-    plt::Display ping2Display(display.context());
-    ping2Display.disable_frame_counter();
-    auto ping2Renderer = ping2Display.create_renderer<plt::FanRenderer>(plt::View::Create());
-
-    //std::ofstream fout("output.rtac", std::ofstream::binary);
-    //auto fout = rtac::simulation::FileSink2D::Create("output.rtac", true);
     simulation->add_sink(rtac::simulation::FileSink2D::Create("output.rtac", true));
+    simulation->add_sink(rtac::simulation::DisplaySink2D::Create(display.context(), "Hello_there"));
 
     int screenshotCount = 0;
     int loopCount = 0;
     while(!display.should_close() &&
-          !simDisplay.should_close() &&
-          //!diffDisplay.should_close() &&
-          !ping2Display.should_close() &&
           !sonarDisplay.should_close())
     {
         auto oculusDatum = bag.next();
@@ -147,57 +132,14 @@ int main()
         simulation->receiver().set_ranges(1.05*meta.fireMessage.range, meta.nRanges);
         simulation->run();
 
-        oculusSensor3->fill_ping(ping);
-
-        simRenderer->set_range(oculusSensor3->ranges().bounds());
-        simRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());
-        auto tmp1 = abs(oculusSensor3->output().container());
-        tmp1 = log(tmp1 += 1.0e-2f*max(tmp1));
-        rescale(tmp1, 0.0f, 1.0f);
-        //rescale(tmp1, 0.0f, 10.0f);
-        //rescale(tmp1, 0.0f, 1.2f);
-        //rescale(tmp1, 0.0f, .8f);
-        simRenderer->set_data({oculusSensor3->width(),
-                               oculusSensor3->height()},
-                              plt::GLVector<float>(tmp1), false);
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 10.0f)), false);
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.2f)), false);
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, 1.0f)), false);
-                              //plt::GLVector<float>(rescale(tmp1, 0.0f, .8f)), false);
-
         optixRenderer->points().copy_from_cuda(simulation->hit_points().size(),
             reinterpret_cast<const typename plt::GLMesh::Point*>(simulation->hit_points().data()));
         trace->add_pose(pose);
-        
-        ping2Renderer->set_ping(ping);
-        //fout->set_output(oculusSensor3);
-
-        //rtac::serialize(fout, ping);
-
-
-        //rtac::Image<float,rtac::cuda::CudaVector> pingImg = plt::build_ping_image(meta, pingData);
-        //auto tmp2 = tmp1;
-        //tmp1 -= rescale(pingImg.container(), 0.0f, 1.0f);
-        //auto tmp3 = tmp1;
-
-        //std::cout << "diff energy  : " << sum(tmp3 *= tmp3)
-        //          << " start energy : " << sum(tmp2 *= tmp2) << std::endl;
-
-        ////tmp1 *= -1.0f;
-        //rescale(tmp1, 0.0f, 1.0f);
-        //diffRenderer->set_range(oculusSensor3->ranges().bounds());
-        //diffRenderer->set_bearings(oculusSensor3->width(), oculusSensor3->bearings().data());
-        //diffRenderer->set_data({oculusSensor3->width(),
-        //                       oculusSensor3->height()},
-        //                       plt::GLVector<float>(tmp1), false);
 
         pingRenderer->set_data(meta, pingData);
 
         display.draw();
         sonarDisplay.draw();
-        simDisplay.draw();
-        ping2Display.draw();
-        //diffDisplay.draw();
 
         //rtac::Image<rtac::Point3<unsigned char>, std::vector> screenshot;
         //sonarDisplay.take_screenshot(screenshot);

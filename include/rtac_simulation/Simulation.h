@@ -28,7 +28,10 @@ class Simulation1
 
     public:
 
-    void add_sink(const Sink::Ptr& sink) { sinks_.push_back(sink); }
+    Sink::Ptr add_sink(const Sink::Ptr& sink) { 
+        sinks_.push_back(sink);
+        return sink;
+    }
 
     virtual const EmitterBase&    emitter() const = 0;
     virtual       EmitterBase&    emitter() = 0;

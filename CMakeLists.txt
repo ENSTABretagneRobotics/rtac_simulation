@@ -111,11 +111,13 @@ if(TARGET rtac_display)
         include/rtac_simulation/EmitterGL.h
         include/rtac_simulation/RayCasterGL.h
         include/rtac_simulation/SimulationGL.h
+        include/rtac_simulation/DisplaySink2D.h
     )
     target_sources(rtac_simulation PRIVATE
         src/EmitterGL.cpp
         src/RayCasterGL.cpp
         src/SimulationGL.cu
+        src/DisplaySink2D.cpp
     )
     target_link_libraries(rtac_simulation PUBLIC
         rtac_display
