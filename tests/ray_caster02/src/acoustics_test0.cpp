@@ -124,7 +124,8 @@ int main()
     auto ping2Renderer = ping2Display.create_renderer<plt::FanRenderer>(plt::View::Create());
 
     //std::ofstream fout("output.rtac", std::ofstream::binary);
-    auto fout = rtac::simulation::FileSink2D::Create("output.rtac", true);
+    //auto fout = rtac::simulation::FileSink2D::Create("output.rtac", true);
+    simulation->add_sink(rtac::simulation::FileSink2D::Create("output.rtac", true));
 
     int screenshotCount = 0;
     int loopCount = 0;
@@ -169,7 +170,7 @@ int main()
         trace->add_pose(pose);
         
         ping2Renderer->set_ping(ping);
-        fout->set_output(oculusSensor3);
+        //fout->set_output(oculusSensor3);
 
         //rtac::serialize(fout, ping);
 

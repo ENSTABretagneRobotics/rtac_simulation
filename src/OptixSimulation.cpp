@@ -63,6 +63,10 @@ void OptixSimulation1::run()
     //}
     rayCaster_->trace(hitPoints_);
     receiver_->compute_output();
+
+    for(const auto& sink : this->sinks_) {
+        sink->set_output(receiver_);
+    }
 }
 
 } //namespace simulation

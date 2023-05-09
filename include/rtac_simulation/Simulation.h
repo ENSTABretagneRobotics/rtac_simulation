@@ -5,6 +5,7 @@
 
 #include <rtac_simulation/Emitter.h>
 #include <rtac_simulation/SensorInstance.h>
+#include <rtac_simulation/Sink.h>
 #include <rtac_simulation/factories/utilities.h>
 
 namespace rtac { namespace simulation {
@@ -18,12 +19,16 @@ class Simulation1
 
     protected:
 
+    std::deque<Sink::Ptr> sinks_;
+
     Simulation1(const EmitterBase::Ptr&, const SensorInstance::Ptr&) {}
 
     //virtual EmitterBase::Ptr    emitter_ptr()  = 0;
     //virtual SensorInstance::Ptr receiver_ptr() = 0;
 
     public:
+
+    void add_sink(const Sink::Ptr& sink) { sinks_.push_back(sink); }
 
     virtual const EmitterBase&    emitter() const = 0;
     virtual       EmitterBase&    emitter() = 0;

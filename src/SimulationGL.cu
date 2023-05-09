@@ -104,6 +104,10 @@ void SimulationGL::run()
 
     this->fill_receiver();
     receiver_->compute_output();
+
+    for(const auto& sink : this->sinks_) {
+        sink->set_output(receiver_);
+    }
 }
 
 __global__ void do_fill_receiver(ReceiverView<SimSample2D> receiver,
