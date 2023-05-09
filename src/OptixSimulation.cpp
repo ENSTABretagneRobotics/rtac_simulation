@@ -53,7 +53,7 @@ optix::ObjectInstance::Ptr OptixSimulation1::add_object(const cuda::DeviceMesh<>
     return rayCaster_->add_object(mesh);
 }
 
-void OptixSimulation1::run()
+bool OptixSimulation1::run()
 {
     //if(auto receiverPtr = std::dynamic_pointer_cast<SensorInstance2D>(receiver_)) {
     //    rayCaster_->trace(*emitter_, *receiverPtr, hitPoints_);
@@ -61,12 +61,34 @@ void OptixSimulation1::run()
     //else {
     //    throw std::runtime_error("SensorInstance1D not implemented yet");
     //}
+
+    if(!this->emitterPoses_) {
+        throw std::runtime_error("Receiver pose source was not set");
+    }
+    if(this->emitterPoses_->remaining() != 0) {
+        emitter_->pose() = this->emitterPoses_->next_pose();
+    }
+    else {
+        return false;
+    }
+    if(!this->receiverPoses_) {
+        throw std::runtime_error("Receiver pose source was not set");
+    }
+    if(this->receiverPoses_->remaining() != 0) {
+        receiver_->pose() = this->receiverPoses_->next_pose();
+    }
+    else {
+        return false;
+    }
+
     rayCaster_->trace(hitPoints_);
     receiver_->compute_output();
 
     for(const auto& sink : this->sinks_) {
         sink->set_output(receiver_);
     }
+
+    return true;
 }
 
 } //namespace simulation

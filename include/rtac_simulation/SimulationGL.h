@@ -66,7 +66,7 @@ class SimulationGL : public Simulation1
     const SensorInstance::Ptr& receiver_ptr()       { return receiver_; }
     SensorInstance::ConstPtr   receiver_ptr() const { return receiver_; }
 
-    void run();
+    bool run();
 };
 
 } //namespace simulation

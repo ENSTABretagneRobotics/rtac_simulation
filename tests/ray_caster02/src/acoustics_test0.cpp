@@ -51,6 +51,7 @@ namespace plt = rtac::display;
 #include <rtac_simulation/OptixSimulation.h>
 #include <rtac_simulation/Sink2D.h>
 #include <rtac_simulation/DisplaySink2D.h>
+#include <rtac_simulation/PoseSource.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
 using namespace rtac::simulation;
@@ -115,6 +116,10 @@ int main()
     simulation->add_sink(rtac::simulation::FileSink2D::Create("output.rtac", true));
     simulation->add_sink(rtac::simulation::DisplaySink2D::Create(display.context(), "Hello_there"));
 
+    auto poseSource = rtac::simulation::StaticPoseSource::Create();
+    simulation->set_emitter_pose_source(poseSource);
+    simulation->set_receiver_pose_source(poseSource);
+
     int screenshotCount = 0;
     int loopCount = 0;
     while(!display.should_close() &&
@@ -126,8 +131,9 @@ int main()
         auto pingData = oculusDatum.ping_data();
         auto pose     = oculusDatum.pose();
 
-        simulation->emitter().pose()  = pose;
-        simulation->receiver().pose() = pose;
+        //simulation->emitter().pose()  = pose;
+        //simulation->receiver().pose() = pose;
+        poseSource->set_pose(pose);
         //simulation->receiver().set_ranges(meta.fireMessage.range, meta.nRanges);
         simulation->receiver().set_ranges(1.05*meta.fireMessage.range, meta.nRanges);
         simulation->run();

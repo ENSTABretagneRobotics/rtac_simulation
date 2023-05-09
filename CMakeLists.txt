@@ -48,6 +48,7 @@ list(APPEND rtac_simulation_headers
 
     include/rtac_simulation/Sink.h
     include/rtac_simulation/Sink2D.h
+    include/rtac_simulation/PoseSource.h
 
     include/rtac_simulation/factories/utilities.h
     include/rtac_simulation/factories/EmitterFactory.h
@@ -65,6 +66,7 @@ add_library(rtac_simulation SHARED
     src/Binner.cu
 
     src/Sink2D.cpp
+    src/PoseSource.cpp
 
     src/factories/utilities.cpp
     src/factories/EmitterFactory.cpp

@@ -79,8 +79,27 @@ SimulationGL::Ptr SimulationGL::Create(const std::string& emitterFilename,
                   SensorFactory::Make(receiverPath));
 }
 
-void SimulationGL::run()
+bool SimulationGL::run()
 {
+    if(!this->emitterPoses_) {
+        throw std::runtime_error("Receiver pose source was not set");
+    }
+    if(this->emitterPoses_->remaining() != 0) {
+        emitter_->pose() = this->emitterPoses_->next_pose();
+    }
+    else {
+        return false;
+    }
+    if(!this->receiverPoses_) {
+        throw std::runtime_error("Receiver pose source was not set");
+    }
+    if(this->receiverPoses_->remaining() != 0) {
+        receiver_->pose() = this->receiverPoses_->next_pose();
+    }
+    else {
+        return false;
+    }
+
     drawSurface_->grab_context();
 
     // render with OpenGL
@@ -108,6 +127,8 @@ void SimulationGL::run()
     for(const auto& sink : this->sinks_) {
         sink->set_output(receiver_);
     }
+
+    return true;
 }
 
 __global__ void do_fill_receiver(ReceiverView<SimSample2D> receiver,
