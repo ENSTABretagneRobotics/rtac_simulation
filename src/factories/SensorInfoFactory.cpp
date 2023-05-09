@@ -24,7 +24,8 @@ SensorInstance::Ptr SensorFactory::Make(const YAML::Node& config)
     if(type == "front-scan") {
         info = SensorInfoFactory::Make_FrontScanInfo(config);
         if(outputMode == "complex") {
-            return SensorInstance2D_Complex::Create(info);
+            //return SensorInstance2D_Complex::Create(info);
+            return SensorInstance2D_2<Complex<float>>::Create(info);
         }
         else if(outputMode == "real") {
             throw ConfigError() << " : real sensor output mode not supported yet.";
@@ -85,7 +86,7 @@ SensorInfo2D::Ptr SensorInfoFactory::Make_FrontScanInfo(const YAML::Node& config
     if(!samplingNode) {
         throw ConfigError() << " : No 'sampling' node";
     }
-    std::vector<float> bearings = parse_bearings(samplingNode["bearings"]);
+    HostVector<float> bearings = parse_bearings(samplingNode["bearings"]);
     Linspace<float>    ranges   = parse_ranges(samplingNode["ranges"]);
     auto directivity = parse_directivity(config["directivity"]);
     auto waveform = parse_waveform(config["waveform"]);
@@ -147,7 +148,7 @@ Linspace<float> SensorInfoFactory::parse_ranges(const YAML::Node& config)
 }
 
 
-std::vector<float> SensorInfoFactory::parse_bearings(const YAML::Node& config)
+HostVector<float> SensorInfoFactory::parse_bearings(const YAML::Node& config)
 {
     if(!config) {
         throw ConfigError() << " : Invalid bearings node.";

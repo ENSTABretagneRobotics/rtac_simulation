@@ -111,9 +111,9 @@ std::vector<std::string> FileFinder::find(const std::string& filename)
 /**
  * Loads bearing data from a .csv file. Delimiters MUST be commas.
  */
-std::vector<float> parse_bearings_from_csv(const std::string& filename)
+HostVector<float> parse_bearings_from_csv(const std::string& filename)
 {
-    std::vector<float> res;
+    HostVector<float> res;
 
     std::ifstream f(filename);
     if(!f.is_open()) {

@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <rtac_base/types/TypeInfo.h>
 #include <rtac_base/types/Linspace.h>
 #include <rtac_base/types/Pose.h>
 #include <rtac_base/containers/Image.h>
@@ -62,6 +63,7 @@ class SensorInstance : public std::enable_shared_from_this<SensorInstance>
     virtual void set_sample_count(unsigned int count) = 0;
     virtual unsigned int sample_count() const = 0;
     virtual bool is_complex() const = 0;
+    virtual ScalarId scalar_type() const = 0;
     virtual void compute_output() = 0;
 };
 

@@ -78,7 +78,8 @@ int main()
 
     auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
                                                "oculus_M1200d_1_receiver.yaml");
-    auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
+    auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_2<rtac::Complex<float>>>(simulation->receiver().ptr());
+    //auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 
     cout << "Number of points : " << mesh->points().size() << endl;

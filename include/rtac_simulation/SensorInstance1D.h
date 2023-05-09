@@ -97,7 +97,8 @@ class SensorInstance1D_Complex : public SensorInstance1D
         return Ptr(new SensorInstance1D_Complex(info, pose, soundCelerity));
     }
 
-    bool is_complex() const { return true; }
+    bool is_complex()      const override { return true; }
+    ScalarId scalar_type() const override { return GetScalarId<Complex<float>>::value;   }
 
     const cuda::CudaVector<Complex<float>>& output() const { return sensorOutput_; }
 

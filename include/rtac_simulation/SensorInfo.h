@@ -6,6 +6,7 @@
 #include <rtac_base/types/Complex.h>
 #include <rtac_base/types/Bounds.h>
 #include <rtac_base/types/Linspace.h>
+#include <rtac_base/containers/HostVector.h>
 #include <rtac_base/cuda/TextureVector.h>
 
 #include <rtac_simulation/Waveform.h>
@@ -64,12 +65,12 @@ class SensorInfo2D : public SensorInfo
 
     protected:
 
-    std::vector<float>   bearings_;
+    HostVector<float>   bearings_;
     BeamDirectivity::Ptr beamDirectivity_;
 
     cuda::TextureVector<float> bearingsDeviceData_;
 
-    SensorInfo2D(const std::vector<float>&   bearings,
+    SensorInfo2D(const HostVector<float>&    bearings,
                  const Linspace<float>&      ranges,
                  const Waveform::Ptr&        waveform,
                  const BeamDirectivity::Ptr& beamDirectivity,
@@ -82,7 +83,7 @@ class SensorInfo2D : public SensorInfo
 
     public:
 
-    static Ptr Create(const std::vector<float>&   bearings,
+    static Ptr Create(const HostVector<float>&    bearings,
                       const Linspace<float>&      ranges,
                       const Waveform::Ptr&        waveform,
                       const BeamDirectivity::Ptr& beamDirectivity,
@@ -95,7 +96,7 @@ class SensorInfo2D : public SensorInfo
     unsigned int height() const { return ranges_.size();   }
     unsigned int size()   const { return this->width()*this->height(); }
 
-    const std::vector<float>& bearings() const { return bearings_; }
+    const HostVector<float>& bearings() const { return bearings_; }
     cuda::TextureVectorView<float> bearings_view() const {
         return bearingsDeviceData_.view();
     }

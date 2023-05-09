@@ -47,7 +47,7 @@ class SensorInstance2D : public SensorInstance
     unsigned int size()   const { return this->width() * this->height(); }
 
     const SensorInfo2D& info() const { return *info_; }
-    const std::vector<float>& bearings() const { return info_->bearings(); }
+    const HostVector<float>& bearings() const { return info_->bearings(); }
     cuda::TextureVectorView<float> bearings_view() const {
         return info_->bearings_view();
     }
@@ -93,6 +93,63 @@ class SensorInstance2D : public SensorInstance
     }
 };
 
+template <typename T>
+class SensorInstance2D_2 : public SensorInstance2D
+{
+    public:
+
+    static_assert(IsRtacScalar<T>::value,
+                  "template parameter T must be a RTAC complatible scalar (see TypeInfo.h)");
+
+    using Ptr      = std::shared_ptr<SensorInstance2D_2<T>>;
+    using ConstPtr = std::shared_ptr<const SensorInstance2D_2<T>>;
+
+    protected:
+
+    cuda::CudaPing2D<T> ping_;
+
+    SensorInstance2D_2(const SensorInfo2D::ConstPtr& info,
+                       const Pose& pose,
+                       float soundCelerity) :
+        SensorInstance2D(info, pose, soundCelerity),
+        ping_(info_->ranges(), info_->bearings())
+    {
+        this->set_ranges(info->ranges());
+    }
+
+    public:
+
+    static Ptr Create(const SensorInfo2D::ConstPtr& info,
+                      const Pose& pose = Pose(),
+                      float soundCelerity = 1500.0)
+    {
+        return Ptr(new SensorInstance2D_2<T>(info, pose, soundCelerity));
+    }
+
+    static Ptr Create(const SensorInfo::ConstPtr& info,
+                      const Pose& pose = Pose(),
+                      float soundCelerity = 1500.0)
+    {
+        auto info2d = std::dynamic_pointer_cast<const SensorInfo2D>(info);
+        if(!info2d) {
+            throw std::runtime_error(
+                "A SensorInstance2D must be created with a SensorInfo2D instance");
+        }
+        return Ptr(new SensorInstance2D_2<T>(info2d, pose, soundCelerity));
+    }
+
+    bool is_complex()      const override { return IsRtacComplex<T>::value; }
+    ScalarId scalar_type() const override { return GetScalarId<T>::value;   }
+
+    const cuda::CudaPing2D<T>& get_ping() const { return ping_; }
+    void compute_output() { this->fill_ping(ping_); }
+    
+    Image<T, cuda::CudaVector> output() const {
+        return Image<T, cuda::CudaVector>(this->width(), this->height(),
+                                          ping_.ping_data_container());
+    }
+};
+
 class SensorInstance2D_Complex : public SensorInstance2D
 {
     public:
@@ -133,7 +190,8 @@ class SensorInstance2D_Complex : public SensorInstance2D
         return Ptr(new SensorInstance2D_Complex(info2d, pose, soundCelerity));
     }
 
-    bool is_complex() const { return true; }
+    bool is_complex() const override { return true; }
+    ScalarId scalar_type() const override { return GetScalarId<Complex<float>>::value;   }
 
     const Image<Complex<float>, cuda::CudaVector>& output() const { return sensorOutput_; }
 
