@@ -65,9 +65,37 @@ class SensorInstance : public std::enable_shared_from_this<SensorInstance>
     virtual bool is_complex() const = 0;
     virtual ScalarId scalar_type() const = 0;
     virtual void compute_output() = 0;
+
+    template <typename T> bool is_type() const;
+    template <typename T> std::shared_ptr<const T> safe_cast() const;
+    template <typename T> std::shared_ptr<T>       safe_cast();
 };
 
+template <typename T>
+bool SensorInstance::is_type() const
+{
+    return std::dynamic_pointer_cast<const T>(this->ptr()) != nullptr;
+}
 
+template <typename T>
+std::shared_ptr<const T> SensorInstance::safe_cast() const
+{ 
+    auto ptr = std::dynamic_pointer_cast<const T>(this->ptr());
+    if(!ptr) {
+        throw TypeError() << " : wrong pointer conversion";
+    }
+    return ptr;
+}
+
+template <typename T>
+std::shared_ptr<T> SensorInstance::safe_cast()
+{ 
+    auto ptr = std::dynamic_pointer_cast<T>(this->ptr());
+    if(!ptr) {
+        throw TypeError() << " : wrong pointer conversion";
+    }
+    return ptr;
+}
 
 
 } //namespace simulation
