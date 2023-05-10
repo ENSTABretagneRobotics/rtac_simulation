@@ -1,4 +1,4 @@
-#include <rtac_simulation/Sink2D.h>
+#include <rtac_simulation/sinks/Sink2D.h>
 
 #include <rtac_base/files.h>
 #include <rtac_base/serialization/sonar_ping.h>

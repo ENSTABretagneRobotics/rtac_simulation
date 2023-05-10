@@ -49,8 +49,8 @@ namespace plt = rtac::display;
 #include <rtac_simulation/RayCaster.h>
 #include <rtac_simulation/SensorInstance.h>
 #include <rtac_simulation/OptixSimulation.h>
-#include <rtac_simulation/Sink2D.h>
-#include <rtac_simulation/DisplaySink2D.h>
+#include <rtac_simulation/sinks/Sink2D.h>
+#include <rtac_simulation/sinks/DisplaySink2D.h>
 #include <rtac_simulation/PoseSource.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>

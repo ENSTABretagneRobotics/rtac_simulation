@@ -1,4 +1,4 @@
-#include <rtac_simulation/DisplaySink2D.h>
+#include <rtac_simulation/sinks/DisplaySink2D.h>
 
 namespace rtac { namespace simulation {
 

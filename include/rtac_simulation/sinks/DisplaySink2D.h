@@ -6,7 +6,7 @@
 #include <rtac_display/Display.h>
 #include <rtac_display/renderers/FanRenderer.h>
 
-#include <rtac_simulation/Sink2D.h>
+#include <rtac_simulation/sinks/Sink2D.h>
 
 namespace rtac { namespace simulation {
 

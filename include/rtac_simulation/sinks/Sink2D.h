@@ -7,8 +7,8 @@
 #include <rtac_base/Exception.h>
 #include <rtac_base/types/SonarPing.h>
 
-#include <rtac_simulation/Sink.h>
 #include <rtac_simulation/SensorInstance2D.h>
+#include <rtac_simulation/sinks/Sink.h>
 
 namespace rtac { namespace simulation {
 
