@@ -2,6 +2,7 @@
 #define _DEF_RTAC_SIMULATION_SINK_H_
 
 #include <memory>
+#include <string>
 
 #include <rtac_simulation/SensorInstance.h>
 
@@ -19,7 +20,9 @@ class Sink
 
     protected:
 
-    Sink() {}
+    std::string name_;
+
+    Sink(const std::string& name) : name_(name) {}
 
     public:
 
@@ -40,7 +43,7 @@ class SinkTrash : public Sink
 
     protected:
 
-    SinkTrash() {}
+    SinkTrash(const std::string& name = "trash") : Sink(name) {}
 
     public:
 

@@ -21,7 +21,7 @@ class Sink2D : public Sink
 
     protected:
 
-    Sink2D() {}
+    Sink2D(const std::string& name = "sink2d") : Sink(name) {}
 
     public:
 
@@ -42,11 +42,13 @@ class FileSink2D : public Sink2D
     std::string   filename_;
     std::ofstream file_;
 
-    FileSink2D(const std::string& filename);
+    FileSink2D(const std::string& filename,
+               const std::string& sinkName = "file-sink");
 
     public:
 
-    static Ptr Create(const std::string& filename, bool overwrite = false);
+    static Ptr Create(const std::string& filename, bool overwrite = false,
+                      const std::string& sinkName = "file-sink");
 
     const std::string& filename() const { return filename_; }
 

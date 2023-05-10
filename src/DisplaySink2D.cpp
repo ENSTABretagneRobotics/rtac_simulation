@@ -4,6 +4,7 @@ namespace rtac { namespace simulation {
 
 DisplaySink2D::DisplaySink2D(const display::GLFWContext::Ptr& glContext,
                              const std::string& title) :
+    Sink2D(title),
     window_(800, 600, title, glContext),
     renderer_(window_.create_renderer<display::FanRenderer>(display::View::Create()))
 {}

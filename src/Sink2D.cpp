@@ -22,17 +22,20 @@ void Sink2D::set_output(const SensorInstance::Ptr& sensor)
     }
 }
 
-FileSink2D::FileSink2D(const std::string& filename) :
+FileSink2D::FileSink2D(const std::string& filename, const std::string& sinkName) :
+    Sink2D(sinkName),
     filename_(filename),
     file_(filename, std::ofstream::binary)
 {}
 
-FileSink2D::Ptr FileSink2D::Create(const std::string& filename, bool overwrite)
+FileSink2D::Ptr FileSink2D::Create(const std::string& filename, bool overwrite,
+                                   const std::string& sinkName)
 {
     if(!files::prepare_path(filename, overwrite)) {
-        throw FileError() << " : could not prepare path for file '" << filename  << '\'';
+        throw FileError() << " : could not prepare path for file '"
+                          << filename  << '\'';
     }
-    return Ptr(new FileSink2D(filename));
+    return Ptr(new FileSink2D(filename, sinkName));
 }
 
 void FileSink2D::set_output(const cuda::CudaPing2D<float>& ping)
