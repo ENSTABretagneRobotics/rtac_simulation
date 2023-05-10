@@ -1,0 +1,14 @@
+# Example of sink configuration for display and file output.
+
+---
+sink0:
+    type:      file-sink
+    name:      FileSink01  # name of the sink in RTAC (optional)
+    overwrite: true        # overwrite output file if present (optionnal, defaults to false)
+    path:      output.rtac
+
+sink1:
+    type: display-sink
+    name: DisplaySink01 # name of the sink in rtac and of the displayed window
+
+
