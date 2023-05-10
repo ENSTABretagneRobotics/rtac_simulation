@@ -1,29 +1,29 @@
-#ifndef _DEF_RTAC_SIMULATION_DISPLAY_SINK_2D_H_
-#define _DEF_RTAC_SIMULATION_DISPLAY_SINK_2D_H_
+#ifndef _DEF_RTAC_SIMULATION_DISPLAY_SINK_H_
+#define _DEF_RTAC_SIMULATION_DISPLAY_SINK_H_
 
 #include <memory>
 
 #include <rtac_display/Display.h>
 #include <rtac_display/renderers/FanRenderer.h>
 
-#include <rtac_simulation/sinks/Sink2D.h>
+#include <rtac_simulation/sinks/Sink.h>
 
 namespace rtac { namespace simulation {
 
-class DisplaySink2D : public Sink2D
+class DisplaySink : public Sink
 {
     public:
 
-    using Ptr      = std::shared_ptr<DisplaySink2D>;
-    using ConstPtr = std::shared_ptr<const DisplaySink2D>;
+    using Ptr      = std::shared_ptr<DisplaySink>;
+    using ConstPtr = std::shared_ptr<const DisplaySink>;
 
     protected:
 
     display::Display window_;
     display::FanRenderer::Ptr renderer_;
 
-    DisplaySink2D(const display::GLFWContext::Ptr& glContext,
-                  const std::string& title);
+    DisplaySink(const display::GLFWContext::Ptr& glContext,
+                const std::string& title);
 
     public:
 
@@ -37,11 +37,10 @@ class DisplaySink2D : public Sink2D
     const display::FanRenderer& renderer() const { return *renderer_; }
           display::FanRenderer& renderer()       { return *renderer_; }
 
-    void set_output(const cuda::CudaPing2D<float>& ping)          override;
-    void set_output(const cuda::CudaPing2D<Complex<float>>& ping) override;
+    virtual void set_output(const SensorInstance::Ptr& sensor) override;
 };
 
 } //namespace simulation
 } //namespace rtac
 
-#endif //_DEF_RTAC_SIMULATION_DISPLAY_SINK_2D_H_
+#endif //_DEF_RTAC_SIMULATION_DISPLAY_SINK_H_

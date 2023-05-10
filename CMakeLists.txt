@@ -47,7 +47,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/Binner.h
 
     include/rtac_simulation/sinks/Sink.h
-    include/rtac_simulation/sinks/Sink2D.h
+    include/rtac_simulation/sinks/FileSink.h
     include/rtac_simulation/PoseSource.h
 
     include/rtac_simulation/factories/utilities.h
@@ -65,7 +65,7 @@ add_library(rtac_simulation SHARED
     src/SensorInstance2D.cu
     src/Binner.cu
 
-    src/sinks/Sink2D.cpp
+    src/sinks/FileSink.cpp
     src/PoseSource.cpp
 
     src/factories/utilities.cpp
@@ -113,13 +113,13 @@ if(TARGET rtac_display)
         include/rtac_simulation/EmitterGL.h
         include/rtac_simulation/RayCasterGL.h
         include/rtac_simulation/SimulationGL.h
-        include/rtac_simulation/sinks/DisplaySink2D.h
+        include/rtac_simulation/sinks/DisplaySink.h
     )
     target_sources(rtac_simulation PRIVATE
         src/EmitterGL.cpp
         src/RayCasterGL.cpp
         src/SimulationGL.cu
-        src/sinks/DisplaySink2D.cpp
+        src/sinks/DisplaySink.cpp
     )
     target_link_libraries(rtac_simulation PUBLIC
         rtac_display

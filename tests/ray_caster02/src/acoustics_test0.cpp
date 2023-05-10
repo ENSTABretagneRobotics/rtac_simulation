@@ -49,8 +49,10 @@ namespace plt = rtac::display;
 #include <rtac_simulation/RayCaster.h>
 #include <rtac_simulation/SensorInstance.h>
 #include <rtac_simulation/OptixSimulation.h>
-#include <rtac_simulation/sinks/Sink2D.h>
-#include <rtac_simulation/sinks/DisplaySink2D.h>
+//#include <rtac_simulation/sinks/Sink2D.h>
+//#include <rtac_simulation/sinks/DisplaySink2D.h>
+#include <rtac_simulation/sinks/FileSink.h>
+#include <rtac_simulation/sinks/DisplaySink.h>
 #include <rtac_simulation/PoseSource.h>
 #include <rtac_simulation/factories/EmitterFactory.h>
 #include <rtac_simulation/factories/SensorInfoFactory.h>
@@ -113,8 +115,8 @@ int main()
     //CudaPing2D<rtac::Complex<float>> ping(rtac::Linspace<float>(0.0,1.0,0),
     //                                      rtac::HostVector<float>::linspace(-1.0,1.0,2));
 
-    simulation->add_sink(rtac::simulation::FileSink2D::Create("output.rtac", true));
-    simulation->add_sink(rtac::simulation::DisplaySink2D::Create(display.context(), "Hello_there"));
+    simulation->add_sink(rtac::simulation::FileSink::Create("output.rtac", true));
+    simulation->add_sink(rtac::simulation::DisplaySink::Create(display.context(), "Hello_there"));
 
     auto poseSource = rtac::simulation::StaticPoseSource::Create();
     simulation->set_emitter_pose_source(poseSource);
