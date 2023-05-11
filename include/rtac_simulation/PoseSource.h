@@ -28,24 +28,24 @@ class PoseSource
     virtual Pose next_pose()       = 0;
 };
 
-class StaticPoseSource : public PoseSource
+class PoseSourceStatic : public PoseSource
 {
     public:
 
-    using Ptr      = std::shared_ptr<StaticPoseSource>;
-    using ConstPtr = std::shared_ptr<const StaticPoseSource>;
+    using Ptr      = std::shared_ptr<PoseSourceStatic>;
+    using ConstPtr = std::shared_ptr<const PoseSourceStatic>;
     using Pose = rtac::Pose<float>;
 
     protected:
 
     Pose pose_;
 
-    StaticPoseSource(const Pose& pose = Pose()) : pose_(pose) {}
+    PoseSourceStatic(const Pose& pose = Pose()) : pose_(pose) {}
 
     public:
 
     static Ptr Create(const Pose& pose = Pose()) {
-        return Ptr(new StaticPoseSource(pose));
+        return Ptr(new PoseSourceStatic(pose));
     }
 
     void set_pose(const Pose& pose) { pose_ = pose; }

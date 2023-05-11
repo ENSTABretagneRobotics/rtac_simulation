@@ -118,7 +118,7 @@ int main()
     simulation->add_sink(rtac::simulation::FileSink::Create("output.rtac", true));
     auto displaySink = simulation->add_sink(rtac::simulation::DisplaySink::Create(display.context(), "Hello_there"));
 
-    auto poseSource = rtac::simulation::StaticPoseSource::Create();
+    auto poseSource = rtac::simulation::PoseSourceStatic::Create();
     simulation->set_emitter_pose_source(poseSource);
     simulation->set_receiver_pose_source(poseSource);
 
