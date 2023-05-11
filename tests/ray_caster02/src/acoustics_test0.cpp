@@ -116,22 +116,36 @@ int main()
     //                                      rtac::HostVector<float>::linspace(-1.0,1.0,2));
 
     simulation->add_sink(rtac::simulation::FileSink::Create("output.rtac", true));
-    simulation->add_sink(rtac::simulation::DisplaySink::Create(display.context(), "Hello_there"));
+    auto displaySink = simulation->add_sink(rtac::simulation::DisplaySink::Create(display.context(), "Hello_there"));
 
     auto poseSource = rtac::simulation::StaticPoseSource::Create();
     simulation->set_emitter_pose_source(poseSource);
     simulation->set_receiver_pose_source(poseSource);
 
+    uint64_t t0 = 0;
+    std::ostringstream ossPoses;
+    ossPoses << "# quat,tx,ty,tz,qw,qx,qy,qz\r\n";
+
     int screenshotCount = 0;
     int loopCount = 0;
     while(!display.should_close() &&
+          !displaySink->window().should_close() &&
           !sonarDisplay.should_close())
     {
         auto oculusDatum = bag.next();
-
         auto meta     = oculusDatum.ping_metadata();
         auto pingData = oculusDatum.ping_data();
         auto pose     = oculusDatum.pose();
+
+        auto stamp = oculusDatum.poseMsg_->header.stamp;
+        uint64_t t = 1000*stamp.sec + 1.0e-6*stamp.nsec;
+        if(t == t0) {
+            std::cout << "loop" << std::endl;
+            std::ofstream f("poses.csv");
+            f << ossPoses.str();
+        }
+        if(t0 == 0) t0 = t;
+        ossPoses << pose.encode_string("quat") << "\r\n";
 
         //simulation->emitter().pose()  = pose;
         //simulation->receiver().pose() = pose;
