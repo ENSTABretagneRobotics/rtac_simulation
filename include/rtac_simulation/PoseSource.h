@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <deque>
+#include <iosfwd>
 
 #include <rtac_base/types/Pose.h>
 

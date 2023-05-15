@@ -2,30 +2,24 @@
 
 
 ---
-# str will be decoded with rtac::Pose<float>::decode_string
-pose:
-    type: static
-    str: "quat,-1.14793,-0.837729,-0.116129,0.590334,0.208103,0.157581,-0.763784"
+# # str will be decoded with rtac::Pose<float>::decode_string
+# type: static
+# str: "quat,-1.14793,-0.837729,-0.116129,0.590334,0.208103,0.157581,-0.763784"
 
-# quaternion based, (t field is optional, defaults to [0,0,0])
-# pose:
-#     type: static
-#     t: [-1.14793,-0.837729,-0.116129]
-#     q: [0.590334,0.208103,0.157581,-0.763784] # order is qw,qx,qy,qz
+# # quaternion based, (t field is optional, defaults to [0,0,0])
+# type: static
+# t: [-1.14793,-0.837729,-0.116129]
+# q: [0.590334,0.208103,0.157581,-0.763784] # order is qw,qx,qy,qz
 
-# translation only, orientation set to identity
-# pose:
-#     type: static
-#     t: [-1.14793,-0.837729,-0.116129]
+# # translation only, orientation set to identity
+# type: static
+# t: [-1.14793,-0.837729,-0.116129]
 
-# homogeneous matrix (row major, only first twelve elements are parsed, last
-# row is set to 0,0,0,1)
-# pose:
-#     type: static
-#     h: [1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0]
-
+# # homogeneous matrix (row major, only first twelve elements are parsed, last
+# # row is set to 0,0,0,1)
+# type: static
+# h: [1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, 0.0,0.0,0.0,1.0]
 
 # pose list from a .csv file
-# pose:
-#     type: csv
-#     path: /home/pnarvor/work/narval/data/pose_source.csv
+type: csv
+path: pose_source.csv

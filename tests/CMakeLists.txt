@@ -34,6 +34,7 @@ list(APPEND test_files
     src/filefinder01.cpp
     src/sensor_info_factory01.cpp
     src/simulation_factory01.cpp
+    src/pose_source_factory01.cpp
 )
 if(${WITH_OPENGL})
     list(APPEND test_files src/glsim_factory.cpp)
@@ -52,6 +53,7 @@ endforeach()
 if(${WITH_OPENGL})
     if(${WITH_OPTIX})
         add_subdirectory(ray_caster02)
+        # add_subdirectory(ray_caster03)
         add_subdirectory(gl_sim01)
         add_subdirectory(single_beam01)
         add_subdirectory(single_beam02)

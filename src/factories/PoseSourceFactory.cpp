@@ -1,10 +1,11 @@
 #include <rtac_simulation/factories/PoseSourceFactory.h>
 
 #include <rtac_simulation/factories/utilities.h>
+#include <rtac_base/files.h>
 
 namespace rtac { namespace simulation {
 
-PoseSource::Ptr PoseSourceFactory::Make(const YAML::Node&  config)
+PoseSource::Ptr PoseSourceFactory::Make(const YAML::Node& config)
 {
     if(!config || !config["type"]) {
         throw ConfigError() << " : invalid config for PoseSource";
@@ -15,7 +16,13 @@ PoseSource::Ptr PoseSourceFactory::Make(const YAML::Node&  config)
         return PoseSourceFactory::parse_static(config);
     }
     else if(type == "csv") {
-        return PoseSourceList::CreateFromCSV(config["path"].as<std::string>());
+        auto path = FileFinder::Get()->find_one(config["path"].as<std::string>());
+        if(path == files::NotFound) {
+            throw ConfigError() << " : could not find pose .csv file '"
+                                << config["path"].as<std::string>() << '\'';
+        }
+        return PoseSourceList::CreateFromCSV(path);
+            
     }
     else {
         throw ConfigError() << " : unsupported type for pose source '"
@@ -25,7 +32,11 @@ PoseSource::Ptr PoseSourceFactory::Make(const YAML::Node&  config)
 
 PoseSource::Ptr PoseSourceFactory::Make(const std::string& configPath)
 {
-    return PoseSourceFactory::Make(YAML::LoadFile(configPath));
+    auto path = FileFinder::Get()->find_one(configPath);
+    if(path == files::NotFound) {
+        throw ConfigError() << " : could not find '" << configPath << '\'';
+    }
+    return PoseSourceFactory::Make(YAML::LoadFile(path));
 }
 
 PoseSource::Ptr PoseSourceFactory::parse_static(const YAML::Node& config)
