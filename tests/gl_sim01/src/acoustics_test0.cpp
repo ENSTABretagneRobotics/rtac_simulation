@@ -91,7 +91,7 @@ int main()
 
     auto simulation = OptixSimulation1::Create("oculus_M1200d_1_emitter.yaml",
                                                "oculus_M1200d_1_receiver.yaml");
-    auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(simulation->receiver().ptr());
+    auto oculusSensor3 = std::dynamic_pointer_cast<SensorInstance2D_2<rtac::Complex<float>>>(simulation->receiver().ptr());
     simulation->add_object(DeviceMesh<>::Create(*mesh));
 
     cout << "Number of points : " << mesh->points().size() << endl;
@@ -101,7 +101,7 @@ int main()
     auto glSim = SimulationGL::Create("oculus_M1200d_1_emitter_gl.yaml",
                                       "oculus_M1200d_1_receiver.yaml");
     glSim->ray_caster()->set_mesh(*mesh);
-    auto oculusSensor4 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(glSim->receiver_ptr());
+    auto oculusSensor4 = std::dynamic_pointer_cast<SensorInstance2D_2<rtac::Complex<float>>>(glSim->receiver_ptr());
 
     plt::samples::Display3D display(glSim->context());
     //plt::samples::Display3D display;
@@ -136,6 +136,12 @@ int main()
     //plt::Display glSimDisplay2(display.context());
     //glSimDisplay2.disable_frame_counter();
     //auto glSimRenderer2 = glSimDisplay2.create_renderer<plt::ImageRenderer>(plt::View::Create());
+
+    auto poseSource = rtac::simulation::PoseSourceStatic::Create();
+    simulation->set_emitter_pose_source(poseSource);
+    simulation->set_receiver_pose_source(poseSource);
+    glSim->set_emitter_pose_source(poseSource);
+    glSim->set_receiver_pose_source(poseSource);
 
     int screenshotCount = 0;
     int loopCount = 0;

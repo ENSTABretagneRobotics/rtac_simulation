@@ -92,7 +92,7 @@ int main()
     auto glSim = SimulationGL::Create("oculus_M1200d_1_emitter_gl.yaml",
                                       "oculus_M1200d_1_receiver.yaml");
     glSim->ray_caster()->set_mesh(*mesh);
-    auto oculusSensor4 = std::dynamic_pointer_cast<SensorInstance2D_Complex>(glSim->receiver_ptr());
+    auto oculusSensor4 = std::dynamic_pointer_cast<SensorInstance2D_2<rtac::Complex<float>>>(glSim->receiver_ptr());
 
     plt::samples::Display3D display(glSim->context());
     //plt::samples::Display3D display;
@@ -120,6 +120,10 @@ int main()
     glSimDisplay.disable_frame_counter();
     auto glSimRenderer = glSimDisplay.create_renderer<plt::FanRenderer>(plt::View::Create());
 
+    auto poseSource = rtac::simulation::PoseSourceStatic::Create();
+    glSim->set_emitter_pose_source(poseSource);
+    glSim->set_receiver_pose_source(poseSource);
+
     int screenshotCount = 0;
     int loopCount = 0;
     while(!display.should_close() &&
@@ -132,8 +136,9 @@ int main()
         auto pingData = oculusDatum.ping_data();
         auto pose     = oculusDatum.pose();
 
-        glSim->emitter().pose()  = pose;
-        glSim->receiver().pose() = pose;
+        //glSim->emitter().pose()  = pose;
+        //glSim->receiver().pose() = pose;
+        poseSource->set_pose(pose);
         glSim->receiver().set_ranges(meta.fireMessage.range, meta.nRanges);
         glSim->run();
 
