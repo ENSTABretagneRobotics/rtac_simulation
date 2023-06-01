@@ -45,6 +45,7 @@ list(APPEND rtac_simulation_headers
     include/rtac_simulation/SensorInstance2D.h
     include/rtac_simulation/Simulation.h
     include/rtac_simulation/Binner.h
+    include/rtac_simulation/CelerityProfile.h
 
     include/rtac_simulation/sinks/Sink.h
     include/rtac_simulation/sinks/FileSink.h
@@ -66,6 +67,7 @@ add_library(rtac_simulation SHARED
     src/SensorInstance1D.cu
     src/SensorInstance2D.cu
     src/Binner.cu
+    src/CelerityProfile.cpp
 
     src/sinks/FileSink.cpp
     src/PoseSource.cpp
@@ -109,7 +111,7 @@ if(TARGET rtac_optix)
     target_compile_definitions(rtac_simulation PUBLIC
         RTAC_SIMULATION_OPTIX_ENABLED
     )
-    set(WITH_OPTIX ON)
+    set(OPTIX_SUPPORT_ENABLED ON)
 endif()
 
 if(TARGET rtac_display)
@@ -132,7 +134,7 @@ if(TARGET rtac_display)
         RTAC_SIMULATION_DISPLAY_ENABLED
         RTAC_SIMULATION_OPENGL_ENABLED
     )
-    set(WITH_OPENGL ON)
+    set(DISPLAY_SUPPORT_ENABLED ON)
 endif()
 
 # TODO remove this
