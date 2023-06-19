@@ -19,6 +19,7 @@ using namespace rtac::cuda;
 #include <rtac_simulation/sinks/FileSink.h>
 #include <rtac_simulation/sinks/DisplaySink.h>
 #include <rtac_simulation/PoseSource.h>
+#include <rtac_simulation/factories/utilities.h>
 #include <rtac_simulation/factories/PoseSourceFactory.h>
 using namespace rtac::simulation;
 
@@ -32,7 +33,7 @@ int main()
     simulation->set_emitter_pose_source(poseSource);
     simulation->set_receiver_pose_source(poseSource);
 
-    auto dtmPath = files::find_one(".*models3d/pyramide2_test01_2_subsampled/.*.obj");
+    auto dtmPath = FileFinder::Get()->find_one("st_raphael_01.obj");
     cout << "DTM path : " << dtmPath << endl;
     external::ObjLoader parser(dtmPath);
     parser.load_geometry();
