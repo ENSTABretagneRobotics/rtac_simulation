@@ -6,7 +6,7 @@
 
 #include <rtac_simulation/Emitter.h>
 #include <rtac_simulation/SensorInstance.h>
-#include <rtac_simulation/Sink.h>
+#include <rtac_simulation/sinks/Sink.h>
 #include <rtac_simulation/PoseSource.h>
 #include <rtac_simulation/factories/utilities.h>
 

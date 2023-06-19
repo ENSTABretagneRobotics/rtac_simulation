@@ -3,7 +3,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <rtac_simulation/Sink.h>
+#include <rtac_simulation/sinks/Sink.h>
 
 namespace rtac { namespace simulation {
 
