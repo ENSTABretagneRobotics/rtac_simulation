@@ -90,6 +90,8 @@ class OculusRenderer : public FanRenderer
                 raw += 4;
                 for(int b = 0; b < metadata.nBeams; b++) {
                     ptr[metadata.nBeams*r + b] = gain * raw[b];
+                    if(r < 5) 
+                        ptr[metadata.nBeams*r + b] = 0;
                 }
                 raw += metadata.nBeams;
             }

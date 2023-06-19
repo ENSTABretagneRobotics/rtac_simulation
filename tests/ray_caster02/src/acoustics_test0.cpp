@@ -61,8 +61,8 @@ using namespace rtac::simulation;
 
 int main()
 {
-    //auto dtmPath = find_one(".*models3d/pyramide2_test01_2/.*.obj");
-    auto dtmPath = find_one(".*models3d/pyramide2_test01_2_subsampled/.*.obj");
+    auto dtmPath = find_one(".*models3d/pyramide2_test01_2/.*.obj");
+    //auto dtmPath = find_one(".*models3d/pyramide2_test01_2_subsampled/.*.obj");
     auto bagPath = find_one(".*pyramide2_matisse_positions.bag");
     //auto dtmPath = find_one(".*models3d/pyramide2_test01", "/media/pnarvor/Samsung_T5/submeeting/save_sabre01");
     //auto bagPath = find_one(".*pyramide2_matisse_positions.bag", "/media/pnarvor/Samsung_T5/submeeting/save_sabre01");
@@ -108,7 +108,7 @@ int main()
     optixRenderer->set_color({0.5,0.0,0.0,1.0});
     auto trace = display.create_renderer<plt::FrameInstances>(display.view());
 
-    plt::Display sonarDisplay(display.context());
+    plt::Display sonarDisplay(800, 600, "Real Sonar", display.context());
     sonarDisplay.disable_frame_counter();
     auto pingRenderer = sonarDisplay.create_renderer<plt::OculusRenderer>(plt::View::Create());
 
@@ -116,7 +116,7 @@ int main()
     //                                      rtac::HostVector<float>::linspace(-1.0,1.0,2));
 
     simulation->add_sink(rtac::simulation::FileSink::Create("output.rtac", true));
-    auto displaySink = simulation->add_sink(rtac::simulation::DisplaySink::Create(display.context(), "Hello_there"));
+    auto displaySink = simulation->add_sink(rtac::simulation::DisplaySink::Create(display.context(), "Simulated Sonar"));
 
     auto poseSource = rtac::simulation::PoseSourceStatic::Create();
     simulation->set_emitter_pose_source(poseSource);
@@ -197,7 +197,7 @@ int main()
         //}
         screenshotCount++;
 
-        //std::this_thread::sleep_for(50ms);
+        std::this_thread::sleep_for(50ms);
     }
 
     return 0;
