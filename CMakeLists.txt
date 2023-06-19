@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(rtac_simulation VERSION 1.0 LANGUAGES CUDA CXX)
 
-option(BUILD_TESTS "Build unit tests" ON)
+option(BUILD_TESTS      "Build unit tests" OFF)
+option(INSTALL_EXAMPLES "Install example config files and data" ON)
 
 if(NOT TARGET rtac_base)
     find_package(rtac_base 1.0 REQUIRED)
@@ -137,14 +138,25 @@ if(TARGET rtac_display)
     set(DISPLAY_SUPPORT_ENABLED ON)
 endif()
 
-# TODO remove this
-find_package(narval_oculus REQUIRED)
-get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
-target_include_directories(rtac_simulation PUBLIC ${include_dir})
+# # TODO remove this
+# find_package(narval_oculus REQUIRED)
+# get_target_property(include_dir narval_oculus INTERFACE_INCLUDE_DIRECTORIES)
+# target_include_directories(rtac_simulation PUBLIC ${include_dir})
 
 rtac_install_target(rtac_simulation
     HEADER_FILES ${rtac_simulation_headers}
 )
+
+if(INSTALL_EXAMPLES)
+    include(GNUInstallDirs)
+    file(GLOB_RECURSE example_files
+         RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+         ${CMAKE_CURRENT_SOURCE_DIR}/examples/*
+    )
+    install(FILES ${example_files}
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/rtac_simulation/examples
+    )
+endif()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
